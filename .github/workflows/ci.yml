@@ -23,3 +23,15 @@ jobs:
         run: uv run pytest -q
       - name: Build
         run: uv build
+
+  scaffold-e2e:
+    # Fresh uv and pip projects from the example notebooks: capture, scaffold, the generated test
+    # (must pass, then fail after a deliberate change) and the generated workflow's steps.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Build
+        run: uv build
+      - name: Scaffold end to end
+        run: FIND_LINKS=dist examples/scaffold_e2e.sh

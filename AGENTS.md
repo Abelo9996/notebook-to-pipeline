@@ -30,6 +30,9 @@ skills/            agent skill installed by `setup`
 
 - Tests: `uv run pytest -q` (offline, under 2 minutes). Add a test with every behavior change.
 - Lint: `uv run ruff check src tests`.
+- After changing `scaffold` or the runtime scripts, run the generated project end to end:
+  `uv build && FIND_LINKS=dist examples/scaffold_e2e.sh` (uv and pip projects, real example
+  notebooks, a few minutes, needs network for packages).
 - No em dashes or en dashes anywhere. No invented numbers in docs: quote real runs.
 - Keep the JSON output stable: agents parse it. Add fields rather than renaming them.
 - MCP tool docstrings are the agent's documentation: say when to use the tool, what the arguments

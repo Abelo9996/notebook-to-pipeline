@@ -88,3 +88,23 @@ repository.
   static analysis predicted.
 - `verify` returns REFERENCE_INVALID (exit code 4): there is nothing trustworthy to compare a
   pipeline against until the notebook runs top to bottom.
+
+## The scaffolded project, end to end
+
+`scaffold_e2e.sh` checks that the project `nb2p scaffold` writes works as generated, in four fresh
+directories outside this repository: the scikit-learn notebook in an empty folder (uv, following
+the README quickstart), the pandas-cookbook notebook in an existing uv project (`uv init`,
+`uv add`), and both notebooks in a plain `python -m venv` + pip project where nothing inside the
+project can see a global uv. In each one it captures the notebook, scaffolds, runs the install
+command the scaffold prints, runs the generated test, changes one pipeline output on purpose
+(`random_state=42` to `7` in the scikit-learn split, the monthly median temperature to a mean in
+the pandas one) and runs the test again, then copies the project without its virtualenv and runs
+the `run:` steps of the generated workflow with `CI=true`.
+
+The run with 0.1.2 built locally (`uv build && FIND_LINKS=dist ./scaffold_e2e.sh`, empty uv cache,
+Apple M4 MacBook, uv 0.12.5) passed all 16 checks: install, generated test passes, generated test
+fails after the change, workflow steps pass, for each of the four projects. After the change the
+test failed with `Verdict: DIFFERS (18 of 29 compared outputs differ)` on the scikit-learn notebook
+and `Verdict: DIFFERS (4 of 15 compared outputs differ)` on the pandas-cookbook one. The 15 there
+are the 6 variables, 4 values cells only displayed (`weather_2012[:5]` and three more) and the 5
+figures.
