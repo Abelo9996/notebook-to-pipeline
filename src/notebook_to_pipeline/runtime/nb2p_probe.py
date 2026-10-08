@@ -442,6 +442,20 @@ def shared_objects(namespace, names):
     return out
 
 
+def _redact_home(value):
+    """Replace the home directory with ~ so evidence files can be shared."""
+    home = os.path.expanduser("~")
+    if not home or home == "/":
+        return value
+    if isinstance(value, str):
+        return value.replace(home, "~")
+    if isinstance(value, dict):
+        return {k: _redact_home(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_redact_home(v) for v in value]
+    return value
+
+
 def dump(namespace, names, outdir, max_bytes=200 * 1024 * 1024):
     """Save each named variable from namespace into outdir. Returns the manifest dict."""
     art_dir = os.path.join(outdir, "artifacts")
@@ -497,5 +511,5 @@ def dump(namespace, names, outdir, max_bytes=200 * 1024 * 1024):
         shared = [{"kind": "error", "paths": [], "type": "shared object check failed: %s" % exc}]
     manifest = {"artifacts": entries, "env": env_info(), "shared_objects": shared}
     with open(os.path.join(outdir, "artifacts.json"), "w", encoding="utf-8") as f:
-        json.dump(manifest, f, indent=2, default=str)
+        json.dump(_redact_home(manifest), f, indent=2, default=str)
     return manifest

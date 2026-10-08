@@ -21,7 +21,7 @@ with `nb2p capture plot_scaling_importance.ipynb --out evidence/reference --repe
 
 ```
 Python 3.12.13: ~/Downloads/notebook-to-pipeline/examples/.venv/bin/python (virtualenv found at ~/Downloads/notebook-to-pipeline/examples/.venv)
-Top-to-bottom run: OK, 7/7 code cells in 10.016 s
+Top-to-bottom run: OK, 7/7 code cells in 7.111 s
 Captured 26 artifacts:
   X                            dataframe  a676a863527a
   y                            series     55c53e167556
@@ -37,7 +37,7 @@ Reference: evidence/reference
 The notebook builds its "unscaled" and "standardized" pipelines around the same `PCA` object, so
 fitting the second one refits the PCA inside the first. A hand-written pipeline that keeps this
 behavior verifies as EQUIVALENT on all 26 artifacts. Giving the unscaled pipeline its own PCA is a
-deliberate change, and `verify` shows exactly what it touches:
+deliberate change, and `verify` shows exactly what it touches (3 of the 26 rows shown):
 
 ```
 pca                      estimator  FAIL differs    first difference at pca['fitted']['components_'][0,0]: reference 0.13443022714615663, candidate 0.001763429172014044, 46 differences in total

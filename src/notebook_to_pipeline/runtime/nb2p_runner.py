@@ -123,13 +123,15 @@ def main(argv=None):
             }
         )
     if status["status"] == "ok":
-        manifest = nb2p_probe.dump(ns, spec.get("names"), outdir, spec.get("max_bytes", 200 * 1024 * 1024))
+        manifest = nb2p_probe.dump(
+            ns, spec.get("names"), outdir, spec.get("max_bytes", 200 * 1024 * 1024)
+        )
         back = spec.get("rename_back") or {}
         if back:
             for e in manifest["artifacts"]:
                 e["name"] = back.get(e["name"], e["name"])
             with open(os.path.join(outdir, "artifacts.json"), "w", encoding="utf-8") as f:
-                json.dump(manifest, f, indent=2, default=str)
+                json.dump(nb2p_probe._redact_home(manifest), f, indent=2, default=str)
     with open(os.path.join(outdir, "run.json"), "w", encoding="utf-8") as f:
         json.dump(status, f, indent=2)
     comp = spec.get("compare")
@@ -137,11 +139,16 @@ def main(argv=None):
         # Compare in this process: the values are already importable here, no second interpreter start.
         import nb2p_compare
 
-        results = nb2p_compare.compare_manifests(comp["reference"], outdir, comp.get("names"),
-                                                 comp.get("options"))
+        results = nb2p_compare.compare_manifests(
+            comp["reference"], outdir, comp.get("names"), comp.get("options")
+        )
         with open(comp["out"], "w", encoding="utf-8") as f:
-            json.dump({"artifacts": results, "options": nb2p_compare._opts(comp.get("options"))},
-                      f, indent=2, default=str)
+            json.dump(
+                {"artifacts": results, "options": nb2p_compare._opts(comp.get("options"))},
+                f,
+                indent=2,
+                default=str,
+            )
     return 0 if status["status"] == "ok" else 3
 
 

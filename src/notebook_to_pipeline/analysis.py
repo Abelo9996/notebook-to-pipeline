@@ -636,7 +636,10 @@ class _CellVisitor:
                     f.composites[s.targets[0].id] = members
                     if fitted_now:
                         for m in members:
-                            f.mutate(m, f"fitted through `{s.targets[0].id}`, which holds the same object")
+                            f.mutate(
+                                m,
+                                f"fitted through `{s.targets[0].id}`, which holds the same object",
+                            )
             names_read_in_value = set(_loads_in(s.value))
             for t in s.targets:
                 for n in _target_names(t):

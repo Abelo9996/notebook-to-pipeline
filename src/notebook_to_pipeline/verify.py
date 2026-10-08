@@ -241,7 +241,9 @@ def verify(
         comp_path = cand_dir / "compare_artifacts.json"
         if not comp_path.exists():
             result["verdict"] = "inconclusive"
-            result["reason"] = "the comparison step failed: " + _tail(run_info.get("stderr_tail", ""), 2000)
+            result["reason"] = "the comparison step failed: " + _tail(
+                run_info.get("stderr_tail", ""), 2000
+            )
             return _finish(result, work)
         result["artifacts"] = json.loads(comp_path.read_text())["artifacts"]
     if file_specs:
