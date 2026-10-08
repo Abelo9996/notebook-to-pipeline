@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 import io
 import re
 import shutil
@@ -77,6 +78,26 @@ def _indent_code(code: str, prefix: str = "    ") -> str:
     return "".join(out)
 
 
+def _notebook_imports(cells) -> list[tuple[str, str]]:
+    """(bound name, import statement) for every top-level import in the notebook."""
+    out: list[tuple[str, str]] = []
+    for c in cells:
+        if c.tree is None:
+            continue
+        for node in c.tree.body:
+            if isinstance(node, ast.Import):
+                for a in node.names:
+                    bound = a.asname or a.name.split(".")[0]
+                    out.append((bound, ast.unparse(ast.Import(names=[a]))))
+            elif isinstance(node, ast.ImportFrom) and node.module and node.level == 0:
+                for a in node.names:
+                    if a.name == "*":
+                        continue
+                    stmt = ast.ImportFrom(module=node.module, names=[a], level=0)
+                    out.append((a.asname or a.name, ast.unparse(stmt)))
+    return out
+
+
 def _strip_magics(source: str) -> str:
     """Comment out IPython magics and shell escapes so the code runs as plain Python."""
     lines = source.splitlines()
@@ -141,9 +162,15 @@ def scaffold(
         except FileNotFoundError:
             ref_dir = None
 
+    import_lines = _notebook_imports(cells.values())
     stage_funcs = []
     for st in analysis["stages"]:
         name = st["stage"]
+        used: set[str] = set()
+        for idx in st["cells"]:
+            node = next(n for n in analysis["cells"] if n["index"] == idx)
+            used |= set(node["reads"]) | set(node["deferred_reads"])
+        header_imports = [line for bound, line in import_lines if bound in used]
         body_parts = []
         for idx in st["cells"]:
             c = cells[idx]
@@ -170,6 +197,8 @@ def scaffold(
             f"{_indent_code(body)}\n"
             f"    return {ret}\n"
         )
+        if header_imports:
+            code = "\n".join(dict.fromkeys(header_imports)) + "\n\n\n" + code
         stage_funcs.append((name, st, code))
 
     pkg_dir = root / "src" / pkg

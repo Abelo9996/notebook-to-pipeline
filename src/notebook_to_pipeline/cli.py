@@ -30,8 +30,10 @@ def _rel(text: Any) -> str:
     """Show paths under the current directory as relative paths, and the home directory as ~."""
     s = str(text)
     cwd = str(Path.cwd())
-    if cwd != "/" and cwd in s:
-        s = s.replace(cwd + "/", "").replace(cwd, ".")
+    if s == cwd:
+        return "."
+    if cwd != "/":
+        s = s.replace(cwd + "/", "")
     return redact(s)
 
 

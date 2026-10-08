@@ -21,7 +21,7 @@ with `nb2p capture plot_scaling_importance.ipynb --out evidence/reference --repe
 
 ```
 Python 3.12.13: ~/Downloads/notebook-to-pipeline/examples/.venv/bin/python (virtualenv found at ~/Downloads/notebook-to-pipeline/examples/.venv)
-Top-to-bottom run: OK, 7/7 code cells in 15.587 s
+Top-to-bottom run: OK, 7/7 code cells in 10.016 s
 Captured 26 artifacts:
   X                            dataframe  a676a863527a
   y                            series     55c53e167556
@@ -47,8 +47,10 @@ Verdict: DIFFERS (4 of 26 compared outputs differ)
 ```
 
 The unscaled test accuracy the example prints, 35.19%, becomes 74.07% with its own PCA; the
-standardized pipeline stays at 96.30%. All of this, plus a pandas-cookbook notebook and a notebook
-broken by hidden state, is in [examples/](examples/README.md) with the full reports.
+standardized pipeline stays at 96.30%. The mechanical first draft from `nb2p scaffold` also
+verifies as EQUIVALENT on this notebook (26 of 26) and on the pandas-cookbook one (6 of 6).
+All of this, plus a notebook broken by hidden state, is in [examples/](examples/README.md) with the
+full reports.
 
 ## How it works
 

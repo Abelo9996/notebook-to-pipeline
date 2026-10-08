@@ -19,11 +19,11 @@ def test_scaffold_generates_a_pipeline_that_verifies(tmp_path):
     nb = make_notebook(
         tmp_path / "Sales Analysis.ipynb",
         [
-            "%precision 3\nimport pandas as pd",
+            "%precision 3\nimport numpy as np\nimport pandas as pd",
             "raw = pd.DataFrame({'region': ['n', 's', 'n', 'e'], 'units': [3, 5, 2, 7], 'price': [1.5, 2.0, 1.5, 3.0]})",
             "raw.head()",
             "clean = raw.dropna().copy()\nclean['revenue'] = clean['units'] * clean['price']",
-            "by_region = clean.groupby('region')['revenue'].sum()",
+            "by_region = np.round(clean.groupby('region')['revenue'].sum(), 1)",
             "top = by_region.idxmax()\nprint(top)",
         ],
     )
