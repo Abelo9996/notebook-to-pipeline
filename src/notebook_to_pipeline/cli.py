@@ -303,12 +303,18 @@ def cmd_scaffold(args: argparse.Namespace) -> int:
 
     out = args.out or str(Path(args.notebook).resolve().parent)
     result = scaffold(
-        args.notebook, out, package=args.package, reference=args.reference, force=args.force
+        args.notebook,
+        out,
+        package=args.package,
+        reference=args.reference,
+        force=args.force,
+        env=args.env,
     )
     if args.json:
         _print_json(result)
         return EXIT_OK
     print(f"Package {result['package']} with stages: {', '.join(result['stages'])}")
+    print(f"Project uses {result['env']['kind']} ({result['env']['why']})")
     for f in result["created"]:
         print(f"  created {f}")
     for f in result["skipped_existing"]:
@@ -316,6 +322,11 @@ def cmd_scaffold(args: argparse.Namespace) -> int:
     if not result["reference_copied"]:
         print(
             "  no reference capture found: run `nb2p capture` first, then scaffold again or `make capture`"
+        )
+    if result.get("displayed_values"):
+        print(
+            "  values the notebook only displayed, kept and compared: "
+            + ", ".join(result["displayed_values"])
         )
     for n in result["notes"]:
         print(f"  note: {n}")
@@ -472,6 +483,13 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--package", help="Python package name (default: from the notebook name)")
     s.add_argument("--reference", help="capture directory to copy into tests/reference")
     s.add_argument("--force", action="store_true", help="overwrite existing files")
+    s.add_argument(
+        "--env",
+        choices=["auto", "uv", "pip"],
+        default="auto",
+        help="how the project installs packages, which sets the dev dependency file, Makefile and "
+        "CI commands (default: detect from uv.lock, requirements files, pyproject.toml, .venv)",
+    )
     s.add_argument("--json", action="store_true")
     s.set_defaults(func=cmd_scaffold)
 

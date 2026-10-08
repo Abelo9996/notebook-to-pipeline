@@ -39,6 +39,7 @@ def test_scaffold_generates_a_pipeline_that_verifies(tmp_path):
         "pyproject.toml",
         ".github/workflows/equivalence.yml",
         "tests/reference/capture.json",
+        ".gitignore",
     ):
         assert (tmp_path / rel).exists(), rel
     for py in (tmp_path / "src" / "sales").glob("*.py"):

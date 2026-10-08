@@ -231,19 +231,25 @@ def build_server():
         package: str | None = None,
         reference: str | None = None,
         force: bool = False,
+        env: str = "auto",
     ) -> dict[str, Any]:
         """Optional first draft. Writes src/<package>/ with one module per proposed stage (the
         notebook code pasted into functions, not a finished refactor), pipeline.py with run(),
         tests/test_equivalence.py, Makefile, pyproject.toml and a GitHub Actions workflow into out
         (default: the notebook's directory). Existing files are kept unless force=True. Run
         capture_reference first so the reference is copied into tests/reference.
-        Next: verify_pipeline on the draft, then refactor one stage at a time."""
+        The test runs the pinned notebook-to-pipeline through uv, so the project needs only
+        pytest. env ("auto", "uv" or "pip") picks how pytest is declared (pyproject dev group,
+        or requirements-dev.txt) and the CI commands; the result gives install_command and
+        test_command. Next: run them, then refactor one stage at a time with verify_pipeline."""
 
         def run() -> dict[str, Any]:
             from pathlib import Path
 
             target = out or str(Path(notebook).resolve().parent)
-            return scaffold(notebook, target, package=package, reference=reference, force=force)
+            return scaffold(
+                notebook, target, package=package, reference=reference, force=force, env=env
+            )
 
         return redact(await anyio.to_thread.run_sync(run))
 
