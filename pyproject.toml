@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "notebook-to-pipeline"
-version = "0.1.0"
+version = "0.1.1"
 description = "Turn a messy Jupyter notebook into a tested pipeline and prove the outputs didn't change."
 readme = "README.md"
 license = "MIT"
@@ -48,6 +48,7 @@ dev = [
   "numpy>=1.26",
   "pandas>=2.1",
   "scikit-learn>=1.4",
+  "matplotlib>=3.8",
 ]
 
 [tool.hatch.build.targets.wheel]
