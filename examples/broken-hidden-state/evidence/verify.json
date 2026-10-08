@@ -1,0 +1,46 @@
+{
+  "tool": {
+    "name": "notebook-to-pipeline",
+    "version": "0.1.0"
+  },
+  "kind": "verify",
+  "created_at": "2026-10-08T11:10:14+00:00",
+  "command": "nb2p verify --pipeline pipeline.py:run --reference evidence/reference --out evidence",
+  "reference": {
+    "dir": "~/Downloads/notebook-to-pipeline/examples/broken-hidden-state/evidence/reference",
+    "notebook": {
+      "path": "~/Downloads/notebook-to-pipeline/examples/broken-hidden-state/iris_session.ipynb",
+      "sha256": "c60c06d3cf1addbd4beb96556acdd202e53a86e9a25f2bd2ae63dc1832c565ea",
+      "cells_total": 7,
+      "code_cells": 6
+    },
+    "execution_status": "failed",
+    "created_at": "2026-10-08T11:10:10+00:00"
+  },
+  "pipeline": {
+    "spec": "pipeline.py:run",
+    "cmd": null,
+    "cwd": "~/Downloads/notebook-to-pipeline/examples/broken-hidden-state"
+  },
+  "python": {
+    "path": "~/Downloads/notebook-to-pipeline/examples/.venv/bin/python",
+    "chosen_by": "virtualenv found at ~/Downloads/notebook-to-pipeline/examples/.venv",
+    "version": "3.12.13",
+    "executable": "~/Downloads/notebook-to-pipeline/examples/.venv/bin/python",
+    "ipykernel": "7.4.0"
+  },
+  "options": {
+    "rtol": 1e-07,
+    "atol": 1e-10,
+    "ignore_row_order": false,
+    "ignore_column_order": false,
+    "ignore_index": false,
+    "check_dtype": true,
+    "max_differences": 5
+  },
+  "artifacts": [],
+  "files": [],
+  "verdict": "reference_invalid",
+  "reason": "the notebook does not run top to bottom (status failed, NameError in cell 4), so there are no reference outputs to compare against. Fix the notebook or the hidden state first.",
+  "counts": {}
+}

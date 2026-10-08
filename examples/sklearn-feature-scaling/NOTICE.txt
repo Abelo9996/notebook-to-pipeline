@@ -1,0 +1,11 @@
+plot_scaling_importance.ipynb is the "Importance of Feature Scaling" example from the
+scikit-learn 1.9.1 gallery, downloaded from:
+  https://scikit-learn.org/stable/_downloads/c9688d36cfbf43a68f3613b58110ceaa/plot_scaling_importance.ipynb
+Source file: https://github.com/scikit-learn/scikit-learn/blob/1.9.1/examples/preprocessing/plot_scaling_importance.py
+
+License: BSD 3-Clause, see LICENSE-scikit-learn.txt.
+The notebook is unchanged (sha256 46f8e2b46e0d6895c18e026b170b3747313a0aaa8fb35b35fdfb2b513e87ba8f).
+The wine dataset ships with scikit-learn (sklearn.datasets.load_wine).
+
+The pipeline in scaling/ is derived from the notebook and is shared under the same
+BSD 3-Clause license.

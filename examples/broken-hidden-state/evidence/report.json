@@ -1,0 +1,231 @@
+{
+  "tool": {
+    "name": "notebook-to-pipeline",
+    "version": "0.1.0"
+  },
+  "kind": "report",
+  "created_at": "2026-10-08T11:10:14+00:00",
+  "verdict": "reference_invalid",
+  "verdict_reason": "the notebook does not run top to bottom (status failed, NameError in cell 4), so there are no reference outputs to compare against. Fix the notebook or the hidden state first.",
+  "notebook": {
+    "path": "~/Downloads/notebook-to-pipeline/examples/broken-hidden-state/iris_session.ipynb",
+    "sha256": "c60c06d3cf1addbd4beb96556acdd202e53a86e9a25f2bd2ae63dc1832c565ea",
+    "cells_total": 7,
+    "code_cells": 6,
+    "changed_since_capture": false
+  },
+  "reference": {
+    "dir": "~/Downloads/notebook-to-pipeline/examples/broken-hidden-state/evidence/reference",
+    "command": "nb2p capture iris_session.ipynb --out evidence/reference",
+    "python": {
+      "path": "~/Downloads/notebook-to-pipeline/examples/.venv/bin/python",
+      "chosen_by": "virtualenv found at ~/Downloads/notebook-to-pipeline/examples/.venv",
+      "version": "3.12.13",
+      "executable": "~/Downloads/notebook-to-pipeline/examples/.venv/bin/python",
+      "ipykernel": "7.4.0"
+    },
+    "execution": {
+      "status": "failed",
+      "failed_cell": {
+        "index": 3,
+        "ename": "NameError",
+        "evalue": "name 'features' is not defined",
+        "traceback": "An error occurred while executing the following cell:\n------------------\nX = features[['petal length (cm)', 'petal width (cm)']]\nX.head()\n------------------\n\n\n---------------------------------------------------------------------------\nNameError                                 Traceback (most recent call last)\nCell In[3], line 1\n----> 1 X = features[['petal length (cm)', 'petal width (cm)']]\n      2 X.head()\n\nNameError: name 'features' is not defined\n",
+        "source_head": "X = features[['petal length (cm)', 'petal width (cm)']]\nX.head()",
+        "label": "cell 4"
+      },
+      "code_cells": 6,
+      "cells_run": 2,
+      "saved_outputs": {
+        "same": 1,
+        "different": 0,
+        "none": 1
+      },
+      "duration_s": 3.08
+    },
+    "saved_output_differences": [],
+    "prediction": {
+      "predicted": true,
+      "finding": {
+        "kind": "undefined_name",
+        "severity": "error",
+        "cells": [
+          3
+        ],
+        "names": [
+          "features"
+        ],
+        "message": "cell 4, In [8] reads `features`, which no cell in the notebook defines. It probably came from a deleted cell or from state outside the notebook. A top-to-bottom run will fail here with NameError."
+      }
+    },
+    "key_packages": {
+      "pandas": "2.2.3",
+      "scikit-learn": "1.9.1",
+      "numpy": "2.1.2",
+      "ipykernel": "7.4.0"
+    },
+    "artifacts": [],
+    "files_written": [],
+    "stability": null
+  },
+  "hidden_state": {
+    "summary": {
+      "error": 2,
+      "warning": 4,
+      "info": 0
+    },
+    "findings": [
+      {
+        "kind": "undefined_name",
+        "severity": "error",
+        "cells": [
+          3
+        ],
+        "names": [
+          "features"
+        ],
+        "message": "cell 4, In [8] reads `features`, which no cell in the notebook defines. It probably came from a deleted cell or from state outside the notebook. A top-to-bottom run will fail here with NameError."
+      },
+      {
+        "kind": "use_before_def",
+        "severity": "error",
+        "cells": [
+          4,
+          5
+        ],
+        "names": [
+          "X_scaled"
+        ],
+        "message": "cell 5, In [9] reads `X_scaled` but it is first defined later, in cell 6, In [5]. A top-to-bottom run will fail here with NameError."
+      },
+      {
+        "kind": "hidden_executions",
+        "severity": "warning",
+        "cells": [],
+        "names": [],
+        "message": "Execution counts run up to 9 but only 6 executed cells are saved, so 3 executions are not visible in the notebook (re-runs or deleted cells). Kernel state from those runs may have fed the saved outputs."
+      },
+      {
+        "kind": "stale_output",
+        "severity": "warning",
+        "cells": [
+          4
+        ],
+        "names": [
+          "X_scaled"
+        ],
+        "message": "The saved output of cell 5, In [9] used `X_scaled` from cell 6, In [5], but a top-to-bottom run takes it from nothing (NameError). Its saved output may not reproduce."
+      },
+      {
+        "kind": "out_of_order_execution",
+        "severity": "warning",
+        "cells": [
+          5,
+          6
+        ],
+        "names": [],
+        "message": "Saved execution counts are out of notebook order: cell 6, In [5] ran before cell 5, In [9]; cell 7, In [7] ran before cell 5, In [9]. The saved outputs reflect a different order than a top-to-bottom run."
+      },
+      {
+        "kind": "stale_output",
+        "severity": "warning",
+        "cells": [
+          5
+        ],
+        "names": [
+          "X"
+        ],
+        "message": "The saved output of cell 6, In [5] used `X` from an execution that is no longer in the notebook (a deleted cell or an earlier run), but a top-to-bottom run takes it from cell 4, In [8]. Its saved output may not reproduce."
+      }
+    ],
+    "runtime_findings": []
+  },
+  "proposed_stages": [
+    {
+      "stage": "load",
+      "cells": [
+        1,
+        2,
+        3
+      ],
+      "inputs": [],
+      "outputs": [
+        "X",
+        "df"
+      ],
+      "signature": "def load() -> dict"
+    },
+    {
+      "stage": "features",
+      "cells": [
+        5
+      ],
+      "inputs": [
+        "X"
+      ],
+      "outputs": [
+        "X_scaled"
+      ],
+      "signature": "def features(X) -> dict"
+    },
+    {
+      "stage": "train",
+      "cells": [
+        4
+      ],
+      "inputs": [
+        "df"
+      ],
+      "outputs": [],
+      "signature": "def train(df) -> dict"
+    },
+    {
+      "stage": "report",
+      "cells": [
+        6
+      ],
+      "inputs": [
+        "X_scaled"
+      ],
+      "outputs": [],
+      "signature": "def report(X_scaled) -> dict"
+    }
+  ],
+  "verification": {
+    "command": "nb2p verify --pipeline pipeline.py:run --reference evidence/reference --out evidence",
+    "pipeline": {
+      "spec": "pipeline.py:run",
+      "cmd": null,
+      "cwd": "~/Downloads/notebook-to-pipeline/examples/broken-hidden-state"
+    },
+    "python": {
+      "path": "~/Downloads/notebook-to-pipeline/examples/.venv/bin/python",
+      "chosen_by": "virtualenv found at ~/Downloads/notebook-to-pipeline/examples/.venv",
+      "version": "3.12.13",
+      "executable": "~/Downloads/notebook-to-pipeline/examples/.venv/bin/python",
+      "ipykernel": "7.4.0"
+    },
+    "options": {
+      "rtol": 1e-07,
+      "atol": 1e-10,
+      "ignore_row_order": false,
+      "ignore_column_order": false,
+      "ignore_index": false,
+      "check_dtype": true,
+      "max_differences": 5
+    },
+    "artifacts": [],
+    "files": [],
+    "counts": {},
+    "key_packages": {},
+    "created_at": "2026-10-08T11:10:14+00:00"
+  },
+  "limits": [
+    "Static analysis reads cell source only. It does not follow `exec`, `eval`, `%run`, imports of local modules or mutation through aliases (`b = a; b.append(1)`).",
+    "Mutation through notebook-defined functions is tracked one level deep; mutation inside third-party code is only known for common method names (`fit`, `append`, `inplace=True`, ...).",
+    "Only the variables listed in the capture are compared. Anything the notebook displayed but did not keep in a variable is not compared.",
+    "Figure files are listed but not compared. Plots are not compared at all.",
+    "Equivalence is checked on this data, in this environment. A different input file or library version can still change the results.",
+    "Tolerances apply to floats only. Integers, strings, booleans, dates and hashes must match exactly."
+  ]
+}

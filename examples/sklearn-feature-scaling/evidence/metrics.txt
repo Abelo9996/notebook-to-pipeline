@@ -1,0 +1,5 @@
+shared PCA, as in the notebook
+accuracy_unscaled: 0.3519
+accuracy_scaled: 0.9630
+log_loss_unscaled: 1.1763
+log_loss_scaled: 0.0739

@@ -1,0 +1,867 @@
+{
+  "tool": {
+    "name": "notebook-to-pipeline",
+    "version": "0.1.0"
+  },
+  "notebook": {
+    "path": "~/Downloads/notebook-to-pipeline/examples/pandas-cookbook-snowiest-month/snowiest_month.ipynb",
+    "sha256": "fd88c88038973a6d07880113d8bd991f3d263357607f85200f5fb019ce003355",
+    "cells_total": 29,
+    "code_cells": 14,
+    "kernelspec": {
+      "display_name": "Python 3 (ipykernel)",
+      "language": "python",
+      "name": "python3"
+    },
+    "saved_language_version": "3.9.20"
+  },
+  "summary": {
+    "findings": {
+      "error": 0,
+      "warning": 3,
+      "info": 8
+    },
+    "predicts_top_to_bottom_failure": false,
+    "stages": [
+      "load",
+      "clean",
+      "features",
+      "report"
+    ]
+  },
+  "cells": [
+    {
+      "index": 0,
+      "label": "cell 1, In [1]",
+      "execution_count": 1,
+      "first_line": "%matplotlib inline",
+      "defines": [
+        "pd",
+        "plt",
+        "np"
+      ],
+      "reads": [],
+      "deferred_reads": [],
+      "mutates": {
+        "plt": [
+          "item set"
+        ]
+      },
+      "imports": {
+        "pd": "pandas",
+        "plt": "matplotlib.pyplot",
+        "np": "numpy"
+      },
+      "functions": [],
+      "files_read": [],
+      "files_written": [],
+      "network": [],
+      "shell": [],
+      "magics": [
+        {
+          "kind": "line",
+          "name": "matplotlib",
+          "args": "inline"
+        }
+      ],
+      "config": [
+        "plt.style.use",
+        "plt.rcParams.[]",
+        "plt.rcParams.[]"
+      ],
+      "random_unseeded": [],
+      "seeds": [],
+      "plots": true,
+      "displays": false,
+      "prints": false,
+      "parse_error": null,
+      "used_by_later_cells": true
+    },
+    {
+      "index": 2,
+      "label": "cell 3, In [9]",
+      "execution_count": 9,
+      "first_line": "weather_2012 = pd.read_csv('./data/weather_2012.csv', parse_dates=True, index_co",
+      "defines": [
+        "weather_2012"
+      ],
+      "reads": [
+        "pd"
+      ],
+      "deferred_reads": [],
+      "mutates": {},
+      "imports": {},
+      "functions": [],
+      "files_read": [
+        {
+          "path": "./data/weather_2012.csv",
+          "call": "pd.read_csv"
+        }
+      ],
+      "files_written": [],
+      "network": [],
+      "shell": [],
+      "magics": [],
+      "config": [],
+      "random_unseeded": [],
+      "seeds": [],
+      "plots": false,
+      "displays": true,
+      "prints": false,
+      "parse_error": null,
+      "used_by_later_cells": true
+    },
+    {
+      "index": 5,
+      "label": "cell 6, In [10]",
+      "execution_count": 10,
+      "first_line": "weather_description = weather_2012['Weather']",
+      "defines": [
+        "weather_description",
+        "is_snowing"
+      ],
+      "reads": [
+        "weather_2012"
+      ],
+      "deferred_reads": [],
+      "mutates": {},
+      "imports": {},
+      "functions": [],
+      "files_read": [],
+      "files_written": [],
+      "network": [],
+      "shell": [],
+      "magics": [],
+      "config": [],
+      "random_unseeded": [],
+      "seeds": [],
+      "plots": false,
+      "displays": false,
+      "prints": false,
+      "parse_error": null,
+      "used_by_later_cells": true
+    },
+    {
+      "index": 7,
+      "label": "cell 8, In [4]",
+      "execution_count": 4,
+      "first_line": "# Not super useful",
+      "defines": [],
+      "reads": [
+        "is_snowing"
+      ],
+      "deferred_reads": [],
+      "mutates": {},
+      "imports": {},
+      "functions": [],
+      "files_read": [],
+      "files_written": [],
+      "network": [],
+      "shell": [],
+      "magics": [],
+      "config": [],
+      "random_unseeded": [],
+      "seeds": [],
+      "plots": false,
+      "displays": true,
+      "prints": false,
+      "parse_error": null,
+      "used_by_later_cells": false
+    },
+    {
+      "index": 8,
+      "label": "cell 9, In [13]",
+      "execution_count": 13,
+      "first_line": "# More useful!",
+      "defines": [
+        "is_snowing"
+      ],
+      "reads": [
+        "is_snowing"
+      ],
+      "deferred_reads": [],
+      "mutates": {},
+      "imports": {},
+      "functions": [],
+      "files_read": [],
+      "files_written": [],
+      "network": [],
+      "shell": [],
+      "magics": [],
+      "config": [],
+      "random_unseeded": [],
+      "seeds": [],
+      "plots": true,
+      "displays": true,
+      "prints": false,
+      "parse_error": null,
+      "used_by_later_cells": true
+    },
+    {
+      "index": 11,
+      "label": "cell 12, In [14]",
+      "execution_count": 14,
+      "first_line": "weather_2012['Temp (C)'].resample('M').apply(np.median).plot(kind='bar')",
+      "defines": [],
+      "reads": [
+        "weather_2012",
+        "np"
+      ],
+      "deferred_reads": [],
+      "mutates": {},
+      "imports": {},
+      "functions": [],
+      "files_read": [],
+      "files_written": [],
+      "network": [],
+      "shell": [],
+      "magics": [],
+      "config": [],
+      "random_unseeded": [],
+      "seeds": [],
+      "plots": true,
+      "displays": true,
+      "prints": false,
+      "parse_error": null,
+      "used_by_later_cells": false
+    },
+    {
+      "index": 14,
+      "label": "cell 15, In [15]",
+      "execution_count": 15,
+      "first_line": "is_snowing.astype(float)[:10]",
+      "defines": [],
+      "reads": [
+        "is_snowing"
+      ],
+      "deferred_reads": [],
+      "mutates": {},
+      "imports": {},
+      "functions": [],
+      "files_read": [],
+      "files_written": [],
+      "network": [],
+      "shell": [],
+      "magics": [],
+      "config": [],
+      "random_unseeded": [],
+      "seeds": [],
+      "plots": false,
+      "displays": true,
+      "prints": false,
+      "parse_error": null,
+      "used_by_later_cells": false
+    },
+    {
+      "index": 16,
+      "label": "cell 17, In [16]",
+      "execution_count": 16,
+      "first_line": "is_snowing.astype(float).resample('M').apply(np.mean)",
+      "defines": [],
+      "reads": [
+        "is_snowing",
+        "np"
+      ],
+      "deferred_reads": [],
+      "mutates": {},
+      "imports": {},
+      "functions": [],
+      "files_read": [],
+      "files_written": [],
+      "network": [],
+      "shell": [],
+      "magics": [],
+      "config": [],
+      "random_unseeded": [],
+      "seeds": [],
+      "plots": false,
+      "displays": true,
+      "prints": false,
+      "parse_error": null,
+      "used_by_later_cells": false
+    },
+    {
+      "index": 17,
+      "label": "cell 18, In [17]",
+      "execution_count": 17,
+      "first_line": "is_snowing.astype(float).resample('M').apply(np.mean).plot(kind='bar')",
+      "defines": [],
+      "reads": [
+        "is_snowing",
+        "np"
+      ],
+      "deferred_reads": [],
+      "mutates": {},
+      "imports": {},
+      "functions": [],
+      "files_read": [],
+      "files_written": [],
+      "network": [],
+      "shell": [],
+      "magics": [],
+      "config": [],
+      "random_unseeded": [],
+      "seeds": [],
+      "plots": true,
+      "displays": true,
+      "prints": false,
+      "parse_error": null,
+      "used_by_later_cells": false
+    },
+    {
+      "index": 21,
+      "label": "cell 22, In [18]",
+      "execution_count": 18,
+      "first_line": "temperature = weather_2012['Temp (C)'].resample('M').apply(np.median)",
+      "defines": [
+        "temperature",
+        "is_snowing",
+        "snowiness"
+      ],
+      "reads": [
+        "weather_2012",
+        "np"
+      ],
+      "deferred_reads": [],
+      "mutates": {
+        "temperature": [
+          "attribute set"
+        ],
+        "snowiness": [
+          "attribute set"
+        ]
+      },
+      "imports": {},
+      "functions": [],
+      "files_read": [],
+      "files_written": [],
+      "network": [],
+      "shell": [],
+      "magics": [],
+      "config": [],
+      "random_unseeded": [],
+      "seeds": [],
+      "plots": false,
+      "displays": false,
+      "prints": false,
+      "parse_error": null,
+      "used_by_later_cells": true
+    },
+    {
+      "index": 23,
+      "label": "cell 24, In [19]",
+      "execution_count": 19,
+      "first_line": "stats = pd.concat([temperature, snowiness], axis=1)",
+      "defines": [
+        "stats"
+      ],
+      "reads": [
+        "pd",
+        "temperature",
+        "snowiness"
+      ],
+      "deferred_reads": [],
+      "mutates": {},
+      "imports": {},
+      "functions": [],
+      "files_read": [],
+      "files_written": [],
+      "network": [],
+      "shell": [],
+      "magics": [],
+      "config": [],
+      "random_unseeded": [],
+      "seeds": [],
+      "plots": false,
+      "displays": true,
+      "prints": false,
+      "parse_error": null,
+      "used_by_later_cells": true
+    },
+    {
+      "index": 24,
+      "label": "cell 25, In [20]",
+      "execution_count": 20,
+      "first_line": "stats.plot(kind='bar')",
+      "defines": [],
+      "reads": [
+        "stats"
+      ],
+      "deferred_reads": [],
+      "mutates": {},
+      "imports": {},
+      "functions": [],
+      "files_read": [],
+      "files_written": [],
+      "network": [],
+      "shell": [],
+      "magics": [],
+      "config": [],
+      "random_unseeded": [],
+      "seeds": [],
+      "plots": true,
+      "displays": true,
+      "prints": false,
+      "parse_error": null,
+      "used_by_later_cells": false
+    },
+    {
+      "index": 26,
+      "label": "cell 27, In [21]",
+      "execution_count": 21,
+      "first_line": "stats.plot(kind='bar', subplots=True, figsize=(15, 10))",
+      "defines": [],
+      "reads": [
+        "stats"
+      ],
+      "deferred_reads": [],
+      "mutates": {},
+      "imports": {},
+      "functions": [],
+      "files_read": [],
+      "files_written": [],
+      "network": [],
+      "shell": [],
+      "magics": [],
+      "config": [],
+      "random_unseeded": [],
+      "seeds": [],
+      "plots": true,
+      "displays": true,
+      "prints": false,
+      "parse_error": null,
+      "used_by_later_cells": false
+    },
+    {
+      "index": 28,
+      "label": "cell 29",
+      "execution_count": null,
+      "first_line": "",
+      "defines": [],
+      "reads": [],
+      "deferred_reads": [],
+      "mutates": {},
+      "imports": {},
+      "functions": [],
+      "files_read": [],
+      "files_written": [],
+      "network": [],
+      "shell": [],
+      "magics": [],
+      "config": [],
+      "random_unseeded": [],
+      "seeds": [],
+      "plots": false,
+      "displays": false,
+      "prints": false,
+      "parse_error": null,
+      "used_by_later_cells": false
+    }
+  ],
+  "edges": [
+    {
+      "from": 0,
+      "to": 2,
+      "kind": "def-use",
+      "names": [
+        "pd"
+      ]
+    },
+    {
+      "from": 0,
+      "to": 11,
+      "kind": "def-use",
+      "names": [
+        "np"
+      ]
+    },
+    {
+      "from": 0,
+      "to": 16,
+      "kind": "def-use",
+      "names": [
+        "np"
+      ]
+    },
+    {
+      "from": 0,
+      "to": 17,
+      "kind": "def-use",
+      "names": [
+        "np"
+      ]
+    },
+    {
+      "from": 0,
+      "to": 21,
+      "kind": "def-use",
+      "names": [
+        "np"
+      ]
+    },
+    {
+      "from": 0,
+      "to": 23,
+      "kind": "def-use",
+      "names": [
+        "pd"
+      ]
+    },
+    {
+      "from": 2,
+      "to": 5,
+      "kind": "def-use",
+      "names": [
+        "weather_2012"
+      ]
+    },
+    {
+      "from": 2,
+      "to": 11,
+      "kind": "def-use",
+      "names": [
+        "weather_2012"
+      ]
+    },
+    {
+      "from": 2,
+      "to": 21,
+      "kind": "def-use",
+      "names": [
+        "weather_2012"
+      ]
+    },
+    {
+      "from": 5,
+      "to": 7,
+      "kind": "def-use",
+      "names": [
+        "is_snowing"
+      ]
+    },
+    {
+      "from": 5,
+      "to": 8,
+      "kind": "def-use",
+      "names": [
+        "is_snowing"
+      ]
+    },
+    {
+      "from": 8,
+      "to": 14,
+      "kind": "def-use",
+      "names": [
+        "is_snowing"
+      ]
+    },
+    {
+      "from": 8,
+      "to": 16,
+      "kind": "def-use",
+      "names": [
+        "is_snowing"
+      ]
+    },
+    {
+      "from": 8,
+      "to": 17,
+      "kind": "def-use",
+      "names": [
+        "is_snowing"
+      ]
+    },
+    {
+      "from": 21,
+      "to": 23,
+      "kind": "def-use",
+      "names": [
+        "snowiness",
+        "temperature"
+      ]
+    },
+    {
+      "from": 23,
+      "to": 24,
+      "kind": "def-use",
+      "names": [
+        "stats"
+      ]
+    },
+    {
+      "from": 23,
+      "to": 26,
+      "kind": "def-use",
+      "names": [
+        "stats"
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "kind": "hidden_executions",
+      "severity": "warning",
+      "cells": [],
+      "names": [],
+      "message": "Execution counts run up to 21 but only 13 executed cells are saved, so 8 executions are not visible in the notebook (re-runs or deleted cells). Kernel state from those runs may have fed the saved outputs."
+    },
+    {
+      "kind": "out_of_order_execution",
+      "severity": "warning",
+      "cells": [
+        7
+      ],
+      "names": [],
+      "message": "Saved execution counts are out of notebook order: cell 8, In [4] ran before cell 6, In [10]. The saved outputs reflect a different order than a top-to-bottom run."
+    },
+    {
+      "kind": "stale_output",
+      "severity": "warning",
+      "cells": [
+        7
+      ],
+      "names": [
+        "is_snowing"
+      ],
+      "message": "The saved output of cell 8, In [4] used `is_snowing` from an execution that is no longer in the notebook (a deleted cell or an earlier run), but a top-to-bottom run takes it from cell 6, In [10]. Its saved output may not reproduce."
+    },
+    {
+      "kind": "inspection_only",
+      "severity": "info",
+      "cells": [
+        7
+      ],
+      "names": [],
+      "message": "cell 8, In [4] only displays, prints or plots, and no later cell depends on it. Keep it in the report stage or drop it from the pipeline."
+    },
+    {
+      "kind": "rerun_hazard",
+      "severity": "info",
+      "cells": [
+        8
+      ],
+      "names": [
+        "is_snowing"
+      ],
+      "message": "cell 9, In [13] rebinds `is_snowing` from its own previous value. Running it twice gives a different state than running it once."
+    },
+    {
+      "kind": "inspection_only",
+      "severity": "info",
+      "cells": [
+        11
+      ],
+      "names": [],
+      "message": "cell 12, In [14] only displays, prints or plots, and no later cell depends on it. Keep it in the report stage or drop it from the pipeline."
+    },
+    {
+      "kind": "inspection_only",
+      "severity": "info",
+      "cells": [
+        14
+      ],
+      "names": [],
+      "message": "cell 15, In [15] only displays, prints or plots, and no later cell depends on it. Keep it in the report stage or drop it from the pipeline."
+    },
+    {
+      "kind": "inspection_only",
+      "severity": "info",
+      "cells": [
+        16
+      ],
+      "names": [],
+      "message": "cell 17, In [16] only displays, prints or plots, and no later cell depends on it. Keep it in the report stage or drop it from the pipeline."
+    },
+    {
+      "kind": "inspection_only",
+      "severity": "info",
+      "cells": [
+        17
+      ],
+      "names": [],
+      "message": "cell 18, In [17] only displays, prints or plots, and no later cell depends on it. Keep it in the report stage or drop it from the pipeline."
+    },
+    {
+      "kind": "inspection_only",
+      "severity": "info",
+      "cells": [
+        24
+      ],
+      "names": [],
+      "message": "cell 25, In [20] only displays, prints or plots, and no later cell depends on it. Keep it in the report stage or drop it from the pipeline."
+    },
+    {
+      "kind": "inspection_only",
+      "severity": "info",
+      "cells": [
+        26
+      ],
+      "names": [],
+      "message": "cell 27, In [21] only displays, prints or plots, and no later cell depends on it. Keep it in the report stage or drop it from the pipeline."
+    }
+  ],
+  "stages": [
+    {
+      "stage": "load",
+      "module": "load.py",
+      "function": "load",
+      "cells": [
+        0,
+        2
+      ],
+      "inputs": [],
+      "outputs": [
+        "weather_2012"
+      ],
+      "imports": [
+        "matplotlib.pyplot",
+        "numpy",
+        "pandas"
+      ],
+      "signature": "def load() -> dict",
+      "why": {
+        "0": "imports and configuration",
+        "2": "signals: load=6"
+      },
+      "reorder_notes": {}
+    },
+    {
+      "stage": "clean",
+      "module": "clean.py",
+      "function": "clean",
+      "cells": [
+        5,
+        8
+      ],
+      "inputs": [
+        "weather_2012"
+      ],
+      "outputs": [
+        "is_snowing"
+      ],
+      "imports": [],
+      "signature": "def clean(weather_2012) -> dict",
+      "why": {
+        "5": "signals: clean=1",
+        "8": "signals: clean=1"
+      },
+      "reorder_notes": {}
+    },
+    {
+      "stage": "features",
+      "module": "features.py",
+      "function": "features",
+      "cells": [
+        21,
+        23
+      ],
+      "inputs": [
+        "weather_2012"
+      ],
+      "outputs": [
+        "stats"
+      ],
+      "imports": [],
+      "signature": "def features(weather_2012) -> dict",
+      "why": {
+        "21": "signals: clean=2, features=4",
+        "23": "signals: features=1"
+      },
+      "reorder_notes": {}
+    },
+    {
+      "stage": "report",
+      "module": "report.py",
+      "function": "report",
+      "cells": [
+        7,
+        11,
+        14,
+        16,
+        17,
+        24,
+        26
+      ],
+      "inputs": [
+        "is_snowing",
+        "stats",
+        "weather_2012"
+      ],
+      "outputs": [],
+      "imports": [],
+      "signature": "def report(is_snowing, stats, weather_2012) -> dict",
+      "why": {
+        "7": "only produces output (display, print or plot) and nothing later depends on it",
+        "11": "only produces output (display, print or plot) and nothing later depends on it",
+        "14": "only produces output (display, print or plot) and nothing later depends on it",
+        "16": "only produces output (display, print or plot) and nothing later depends on it",
+        "17": "only produces output (display, print or plot) and nothing later depends on it",
+        "24": "only produces output (display, print or plot) and nothing later depends on it",
+        "26": "only produces output (display, print or plot) and nothing later depends on it"
+      },
+      "reorder_notes": {
+        "7": [
+          "reads `is_snowing`: in notebook order it comes from cell 6, In [10], in this split it would come from cell 22, In [18]"
+        ],
+        "14": [
+          "reads `is_snowing`: in notebook order it comes from cell 9, In [13], in this split it would come from cell 22, In [18]"
+        ],
+        "16": [
+          "reads `is_snowing`: in notebook order it comes from cell 9, In [13], in this split it would come from cell 22, In [18]"
+        ],
+        "17": [
+          "reads `is_snowing`: in notebook order it comes from cell 9, In [13], in this split it would come from cell 22, In [18]"
+        ]
+      }
+    }
+  ],
+  "suggested_artifacts": [
+    {
+      "name": "weather_2012",
+      "defined_in": 2,
+      "terminal": false
+    },
+    {
+      "name": "weather_description",
+      "defined_in": 5,
+      "terminal": true
+    },
+    {
+      "name": "is_snowing",
+      "defined_in": 21,
+      "terminal": true
+    },
+    {
+      "name": "temperature",
+      "defined_in": 21,
+      "terminal": false
+    },
+    {
+      "name": "snowiness",
+      "defined_in": 21,
+      "terminal": false
+    },
+    {
+      "name": "stats",
+      "defined_in": 23,
+      "terminal": false
+    }
+  ],
+  "inputs": {
+    "files_read": [
+      {
+        "path": "./data/weather_2012.csv",
+        "call": "pd.read_csv",
+        "cell": 2,
+        "produced_by_notebook": false
+      }
+    ],
+    "files_written": [],
+    "network": [],
+    "imports": [
+      "matplotlib",
+      "numpy",
+      "pandas"
+    ]
+  }
+}

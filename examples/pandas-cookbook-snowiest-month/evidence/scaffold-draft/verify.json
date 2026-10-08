@@ -1,0 +1,120 @@
+{
+  "tool": {
+    "name": "notebook-to-pipeline",
+    "version": "0.1.0"
+  },
+  "kind": "verify",
+  "created_at": "2026-10-08T11:09:36+00:00",
+  "command": "nb2p verify --pipeline /var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.FMgDb3i3WI/src/snowiest_draft/pipeline.py:run --reference evidence/reference --out evidence/scaffold-draft",
+  "reference": {
+    "dir": "~/Downloads/notebook-to-pipeline/examples/pandas-cookbook-snowiest-month/evidence/reference",
+    "notebook": {
+      "path": "~/Downloads/notebook-to-pipeline/examples/pandas-cookbook-snowiest-month/snowiest_month.ipynb",
+      "sha256": "fd88c88038973a6d07880113d8bd991f3d263357607f85200f5fb019ce003355",
+      "cells_total": 29,
+      "code_cells": 14
+    },
+    "execution_status": "ok",
+    "created_at": "2026-10-08T11:09:20+00:00"
+  },
+  "pipeline": {
+    "spec": "/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.FMgDb3i3WI/src/snowiest_draft/pipeline.py:run",
+    "cmd": null,
+    "cwd": "~/Downloads/notebook-to-pipeline/examples/pandas-cookbook-snowiest-month",
+    "run": {
+      "status": "ok",
+      "pipeline": "/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.FMgDb3i3WI/src/snowiest_draft/pipeline.py:run",
+      "args": [],
+      "duration_s": 1.819,
+      "exit_code": 0,
+      "stdout_tail": "",
+      "stderr_tail": "...dian at 0x109f228e0> is currently using DatetimeIndexResampler.median. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string \"median\" instead.\n  temperature = weather_2012['Temp (C)'].resample('M').apply(np.median)\n/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.FMgDb3i3WI/src/snowiest_draft/features.py:15: FutureWarning: 'M' is deprecated and will be removed in a future version, please use 'ME' instead.\n  snowiness = is_snowing.astype(float).resample('M').apply(np.mean)\n/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.FMgDb3i3WI/src/snowiest_draft/features.py:15: FutureWarning: The provided callable <function mean at 0x109c99940> is currently using DatetimeIndexResampler.mean. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string \"mean\" instead.\n  snowiness = is_snowing.astype(float).resample('M').apply(np.mean)\n/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.FMgDb3i3WI/src/snowiest_draft/report.py:16: FutureWarning: 'M' is deprecated and will be removed in a future version, please use 'ME' instead.\n  weather_2012['Temp (C)'].resample('M').apply(np.median).plot(kind='bar')\n/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.FMgDb3i3WI/src/snowiest_draft/report.py:16: FutureWarning: The provided callable <function median at 0x109f228e0> is currently using DatetimeIndexResampler.median. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string \"median\" instead.\n  weather_2012['Temp (C)'].resample('M').apply(np.median).plot(kind='bar')\n/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.FMgDb3i3WI/src/snowiest_draft/report.py:22: FutureWarning: 'M' is deprecated and will be removed in a future version, please use 'ME' instead.\n  is_snowing.astype(float).resample('M').apply(np.mean)\n/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.FMgDb3i3WI/src/snowiest_draft/report.py:22: FutureWarning: The provided callable <function mean at 0x109c99940> is currently using DatetimeIndexResampler.mean. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string \"mean\" instead.\n  is_snowing.astype(float).resample('M').apply(np.mean)\n/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.FMgDb3i3WI/src/snowiest_draft/report.py:25: FutureWarning: 'M' is deprecated and will be removed in a future version, please use 'ME' instead.\n  is_snowing.astype(float).resample('M').apply(np.mean).plot(kind='bar')\n/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.FMgDb3i3WI/src/snowiest_draft/report.py:25: FutureWarning: The provided callable <function mean at 0x109c99940> is currently using DatetimeIndexResampler.mean. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string \"mean\" instead.\n  is_snowing.astype(float).resample('M').apply(np.mean).plot(kind='bar')\n"
+    },
+    "files_written": []
+  },
+  "python": {
+    "path": "~/Downloads/notebook-to-pipeline/examples/.venv/bin/python",
+    "chosen_by": "virtualenv found at ~/Downloads/notebook-to-pipeline/examples/.venv",
+    "version": "3.12.13",
+    "executable": "~/Downloads/notebook-to-pipeline/examples/.venv/bin/python",
+    "ipykernel": "7.4.0"
+  },
+  "options": {
+    "rtol": 1e-07,
+    "atol": 1e-10,
+    "ignore_row_order": false,
+    "ignore_column_order": false,
+    "ignore_index": false,
+    "check_dtype": true,
+    "max_differences": 5
+  },
+  "artifacts": [
+    {
+      "name": "weather_2012",
+      "kind": "dataframe",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "weather_description",
+      "kind": "series",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "is_snowing",
+      "kind": "series",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "temperature",
+      "kind": "series",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "snowiness",
+      "kind": "series",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "stats",
+      "kind": "dataframe",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    }
+  ],
+  "files": [],
+  "candidate_env": {
+    "python": "3.12.13",
+    "implementation": "CPython",
+    "executable": "~/Downloads/notebook-to-pipeline/examples/.venv/bin/python",
+    "platform": "macOS-26.2-arm64-arm-64bit",
+    "packages": {
+      "cycler": "0.12.1",
+      "kiwisolver": "1.5.1",
+      "matplotlib": "3.9.2",
+      "numpy": "2.1.2",
+      "packaging": "26.3",
+      "pandas": "2.2.3",
+      "pillow": "12.3.0",
+      "pyparsing": "3.3.3",
+      "python-dateutil": "2.9.0.post0",
+      "pytz": "2026.5",
+      "six": "1.17.0"
+    }
+  },
+  "verdict": "equivalent",
+  "reason": "all 6 compared outputs match",
+  "counts": {
+    "identical": 6
+  }
+}

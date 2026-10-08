@@ -1,0 +1,736 @@
+{
+  "tool": {
+    "name": "notebook-to-pipeline",
+    "version": "0.1.0"
+  },
+  "notebook": {
+    "path": "~/Downloads/notebook-to-pipeline/examples/sklearn-feature-scaling/plot_scaling_importance.ipynb",
+    "sha256": "46f8e2b46e0d6895c18e026b170b3747313a0aaa8fb35b35fdfb2b513e87ba8f",
+    "cells_total": 15,
+    "code_cells": 7,
+    "kernelspec": {
+      "display_name": "Python 3",
+      "language": "python",
+      "name": "python3"
+    },
+    "saved_language_version": "3.14.7"
+  },
+  "summary": {
+    "findings": {
+      "error": 0,
+      "warning": 2,
+      "info": 1
+    },
+    "predicts_top_to_bottom_failure": false,
+    "stages": [
+      "load",
+      "train",
+      "evaluate",
+      "report"
+    ]
+  },
+  "cells": [
+    {
+      "index": 1,
+      "label": "cell 2",
+      "execution_count": null,
+      "first_line": "# Authors: The scikit-learn developers",
+      "defines": [],
+      "reads": [],
+      "deferred_reads": [],
+      "mutates": {},
+      "imports": {},
+      "functions": [],
+      "files_read": [],
+      "files_written": [],
+      "network": [],
+      "shell": [],
+      "magics": [],
+      "config": [],
+      "random_unseeded": [],
+      "seeds": [],
+      "plots": false,
+      "displays": false,
+      "prints": false,
+      "parse_error": null,
+      "used_by_later_cells": false
+    },
+    {
+      "index": 3,
+      "label": "cell 4",
+      "execution_count": null,
+      "first_line": "from sklearn.datasets import load_wine",
+      "defines": [
+        "load_wine",
+        "train_test_split",
+        "StandardScaler",
+        "X",
+        "y",
+        "scaler",
+        "X_train",
+        "X_test",
+        "y_train",
+        "y_test",
+        "scaled_X_train"
+      ],
+      "reads": [],
+      "deferred_reads": [],
+      "mutates": {
+        "scaler": [
+          ".fit_transform()"
+        ]
+      },
+      "imports": {
+        "load_wine": "sklearn.datasets.load_wine",
+        "train_test_split": "sklearn.model_selection.train_test_split",
+        "StandardScaler": "sklearn.preprocessing.StandardScaler"
+      },
+      "functions": [],
+      "files_read": [],
+      "files_written": [],
+      "network": [],
+      "shell": [],
+      "magics": [],
+      "config": [],
+      "random_unseeded": [],
+      "seeds": [],
+      "plots": false,
+      "displays": false,
+      "prints": false,
+      "parse_error": null,
+      "used_by_later_cells": true
+    },
+    {
+      "index": 5,
+      "label": "cell 6",
+      "execution_count": null,
+      "first_line": "import matplotlib.pyplot as plt",
+      "defines": [
+        "plt",
+        "ListedColormap",
+        "DecisionBoundaryDisplay",
+        "KNeighborsClassifier",
+        "X_plot",
+        "X_plot_scaled",
+        "clf",
+        "fit_and_plot_model",
+        "fig",
+        "ax1",
+        "ax2",
+        "_"
+      ],
+      "reads": [
+        "X",
+        "scaler",
+        "y"
+      ],
+      "deferred_reads": [],
+      "mutates": {
+        "scaler": [
+          ".fit_transform()"
+        ],
+        "clf": [
+          "passed to fit_and_plot_model() which mutates it"
+        ]
+      },
+      "imports": {
+        "plt": "matplotlib.pyplot",
+        "ListedColormap": "matplotlib.colors.ListedColormap",
+        "DecisionBoundaryDisplay": "sklearn.inspection.DecisionBoundaryDisplay",
+        "KNeighborsClassifier": "sklearn.neighbors.KNeighborsClassifier"
+      },
+      "functions": [
+        "fit_and_plot_model"
+      ],
+      "files_read": [],
+      "files_written": [],
+      "network": [],
+      "shell": [],
+      "magics": [],
+      "config": [],
+      "random_unseeded": [],
+      "seeds": [],
+      "plots": true,
+      "displays": false,
+      "prints": false,
+      "parse_error": null,
+      "used_by_later_cells": true
+    },
+    {
+      "index": 7,
+      "label": "cell 8",
+      "execution_count": null,
+      "first_line": "import pandas as pd",
+      "defines": [
+        "pd",
+        "PCA",
+        "pca",
+        "scaled_pca",
+        "X_train_transformed",
+        "X_train_std_transformed",
+        "first_pca_component",
+        "_"
+      ],
+      "reads": [
+        "X_train",
+        "scaled_X_train",
+        "X",
+        "plt"
+      ],
+      "deferred_reads": [],
+      "mutates": {
+        "first_pca_component": [
+          "item set"
+        ]
+      },
+      "imports": {
+        "pd": "pandas",
+        "PCA": "sklearn.decomposition.PCA"
+      },
+      "functions": [],
+      "files_read": [],
+      "files_written": [],
+      "network": [],
+      "shell": [],
+      "magics": [],
+      "config": [],
+      "random_unseeded": [],
+      "seeds": [],
+      "plots": true,
+      "displays": false,
+      "prints": false,
+      "parse_error": null,
+      "used_by_later_cells": true
+    },
+    {
+      "index": 9,
+      "label": "cell 10",
+      "execution_count": null,
+      "first_line": "fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(10, 5))",
+      "defines": [
+        "fig",
+        "ax1",
+        "ax2",
+        "target_classes",
+        "colors",
+        "markers",
+        "target_class",
+        "color",
+        "marker",
+        "ax",
+        "_"
+      ],
+      "reads": [
+        "plt",
+        "X_train_transformed",
+        "y_train",
+        "X_train_std_transformed"
+      ],
+      "deferred_reads": [],
+      "mutates": {},
+      "imports": {},
+      "functions": [],
+      "files_read": [],
+      "files_written": [],
+      "network": [],
+      "shell": [],
+      "magics": [],
+      "config": [],
+      "random_unseeded": [],
+      "seeds": [],
+      "plots": true,
+      "displays": false,
+      "prints": false,
+      "parse_error": null,
+      "used_by_later_cells": false
+    },
+    {
+      "index": 11,
+      "label": "cell 12",
+      "execution_count": null,
+      "first_line": "import numpy as np",
+      "defines": [
+        "np",
+        "LogisticRegressionCV",
+        "make_pipeline",
+        "Cs",
+        "unscaled_clf",
+        "scaled_clf"
+      ],
+      "reads": [
+        "pca",
+        "X_train",
+        "y_train",
+        "scaler"
+      ],
+      "deferred_reads": [],
+      "mutates": {
+        "unscaled_clf": [
+          ".fit()"
+        ],
+        "scaled_clf": [
+          ".fit()"
+        ],
+        "pca": [
+          "fitted through `unscaled_clf`, which holds the same object",
+          "fitted through `scaled_clf`, which holds the same object"
+        ],
+        "scaler": [
+          "fitted through `scaled_clf`, which holds the same object"
+        ]
+      },
+      "imports": {
+        "np": "numpy",
+        "LogisticRegressionCV": "sklearn.linear_model.LogisticRegressionCV",
+        "make_pipeline": "sklearn.pipeline.make_pipeline"
+      },
+      "functions": [],
+      "files_read": [],
+      "files_written": [],
+      "network": [],
+      "shell": [],
+      "magics": [],
+      "config": [],
+      "random_unseeded": [],
+      "seeds": [],
+      "plots": false,
+      "displays": true,
+      "prints": true,
+      "parse_error": null,
+      "used_by_later_cells": true
+    },
+    {
+      "index": 13,
+      "label": "cell 14",
+      "execution_count": null,
+      "first_line": "from sklearn.metrics import accuracy_score, log_loss",
+      "defines": [
+        "accuracy_score",
+        "log_loss",
+        "y_pred",
+        "y_pred_scaled",
+        "y_proba",
+        "y_proba_scaled"
+      ],
+      "reads": [
+        "unscaled_clf",
+        "X_test",
+        "scaled_clf",
+        "y_test"
+      ],
+      "deferred_reads": [],
+      "mutates": {},
+      "imports": {
+        "accuracy_score": "sklearn.metrics.accuracy_score",
+        "log_loss": "sklearn.metrics.log_loss"
+      },
+      "functions": [],
+      "files_read": [],
+      "files_written": [],
+      "network": [],
+      "shell": [],
+      "magics": [],
+      "config": [],
+      "random_unseeded": [],
+      "seeds": [],
+      "plots": false,
+      "displays": true,
+      "prints": true,
+      "parse_error": null,
+      "used_by_later_cells": false
+    }
+  ],
+  "edges": [
+    {
+      "from": 3,
+      "to": 5,
+      "kind": "def-use",
+      "names": [
+        "X",
+        "scaler",
+        "y"
+      ]
+    },
+    {
+      "from": 3,
+      "to": 7,
+      "kind": "def-use",
+      "names": [
+        "X",
+        "X_train",
+        "scaled_X_train"
+      ]
+    },
+    {
+      "from": 3,
+      "to": 9,
+      "kind": "def-use",
+      "names": [
+        "y_train"
+      ]
+    },
+    {
+      "from": 3,
+      "to": 11,
+      "kind": "def-use",
+      "names": [
+        "X_train",
+        "scaler",
+        "y_train"
+      ]
+    },
+    {
+      "from": 3,
+      "to": 13,
+      "kind": "def-use",
+      "names": [
+        "X_test",
+        "y_test"
+      ]
+    },
+    {
+      "from": 5,
+      "to": 7,
+      "kind": "def-use",
+      "names": [
+        "plt"
+      ]
+    },
+    {
+      "from": 5,
+      "to": 9,
+      "kind": "def-use",
+      "names": [
+        "plt"
+      ]
+    },
+    {
+      "from": 5,
+      "to": 11,
+      "kind": "mutation",
+      "names": [
+        "scaler"
+      ]
+    },
+    {
+      "from": 7,
+      "to": 9,
+      "kind": "def-use",
+      "names": [
+        "X_train_std_transformed",
+        "X_train_transformed"
+      ]
+    },
+    {
+      "from": 7,
+      "to": 11,
+      "kind": "def-use",
+      "names": [
+        "pca"
+      ]
+    },
+    {
+      "from": 11,
+      "to": 13,
+      "kind": "def-use",
+      "names": [
+        "scaled_clf",
+        "unscaled_clf"
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "kind": "cross_cell_mutation",
+      "severity": "warning",
+      "cells": [
+        5,
+        11
+      ],
+      "names": [
+        "scaler"
+      ],
+      "message": "`scaler` (defined in cell 4) is changed in place in cell 6 (.fit_transform()) and later read by cell 12. That dependency is invisible in a def/use view: keep the order or make the change explicit."
+    },
+    {
+      "kind": "shared_estimator",
+      "severity": "warning",
+      "cells": [
+        11
+      ],
+      "names": [
+        "pca",
+        "scaled_clf",
+        "unscaled_clf"
+      ],
+      "message": "`pca` is a step of `scaled_clf` and `unscaled_clf` at the same time. Pipelines keep the object itself, not a copy, so fitting one refits `pca` inside the other too. Use separate instances (or sklearn.base.clone) unless sharing is intended."
+    },
+    {
+      "kind": "no_execution_history",
+      "severity": "info",
+      "cells": [],
+      "names": [],
+      "message": "The notebook has no saved execution counts (outputs were cleared or it was never run), so execution-order checks were skipped."
+    }
+  ],
+  "stages": [
+    {
+      "stage": "load",
+      "module": "load.py",
+      "function": "load",
+      "cells": [
+        3
+      ],
+      "inputs": [],
+      "outputs": [
+        "X",
+        "X_test",
+        "X_train",
+        "scaled_X_train",
+        "scaler",
+        "y",
+        "y_test",
+        "y_train"
+      ],
+      "imports": [
+        "sklearn.datasets.load_wine",
+        "sklearn.model_selection.train_test_split",
+        "sklearn.preprocessing.StandardScaler"
+      ],
+      "signature": "def load() -> dict",
+      "why": {
+        "3": "signals: load=3, features=3"
+      },
+      "reorder_notes": {}
+    },
+    {
+      "stage": "train",
+      "module": "train.py",
+      "function": "train",
+      "cells": [
+        5,
+        7,
+        11
+      ],
+      "inputs": [
+        "X",
+        "X_train",
+        "scaled_X_train",
+        "scaler",
+        "y",
+        "y_train"
+      ],
+      "outputs": [
+        "X_train_std_transformed",
+        "X_train_transformed",
+        "scaled_clf",
+        "unscaled_clf"
+      ],
+      "imports": [
+        "matplotlib.colors.ListedColormap",
+        "matplotlib.pyplot",
+        "numpy",
+        "pandas",
+        "sklearn.decomposition.PCA",
+        "sklearn.inspection.DecisionBoundaryDisplay",
+        "sklearn.linear_model.LogisticRegressionCV",
+        "sklearn.neighbors.KNeighborsClassifier",
+        "sklearn.pipeline.make_pipeline"
+      ],
+      "signature": "def train(X, X_train, scaled_X_train, scaler, y, y_train) -> dict",
+      "why": {
+        "5": "signals: features=1, train=2",
+        "7": "moved to train because it depends on cell 6",
+        "11": "signals: train=12"
+      },
+      "reorder_notes": {}
+    },
+    {
+      "stage": "evaluate",
+      "module": "evaluate.py",
+      "function": "evaluate",
+      "cells": [
+        13
+      ],
+      "inputs": [
+        "X_test",
+        "scaled_clf",
+        "unscaled_clf",
+        "y_test"
+      ],
+      "outputs": [],
+      "imports": [
+        "sklearn.metrics.accuracy_score",
+        "sklearn.metrics.log_loss"
+      ],
+      "signature": "def evaluate(X_test, scaled_clf, unscaled_clf, y_test) -> dict",
+      "why": {
+        "13": "signals: evaluate=16"
+      },
+      "reorder_notes": {}
+    },
+    {
+      "stage": "report",
+      "module": "report.py",
+      "function": "report",
+      "cells": [
+        9
+      ],
+      "inputs": [
+        "X_train_std_transformed",
+        "X_train_transformed",
+        "y_train"
+      ],
+      "outputs": [],
+      "imports": [],
+      "signature": "def report(X_train_std_transformed, X_train_transformed, y_train) -> dict",
+      "why": {
+        "9": "only produces output (display, print or plot) and nothing later depends on it"
+      },
+      "reorder_notes": {}
+    }
+  ],
+  "suggested_artifacts": [
+    {
+      "name": "X",
+      "defined_in": 3,
+      "terminal": false
+    },
+    {
+      "name": "y",
+      "defined_in": 3,
+      "terminal": false
+    },
+    {
+      "name": "scaler",
+      "defined_in": 3,
+      "terminal": false
+    },
+    {
+      "name": "X_train",
+      "defined_in": 3,
+      "terminal": false
+    },
+    {
+      "name": "X_test",
+      "defined_in": 3,
+      "terminal": false
+    },
+    {
+      "name": "y_train",
+      "defined_in": 3,
+      "terminal": false
+    },
+    {
+      "name": "y_test",
+      "defined_in": 3,
+      "terminal": false
+    },
+    {
+      "name": "scaled_X_train",
+      "defined_in": 3,
+      "terminal": false
+    },
+    {
+      "name": "X_plot",
+      "defined_in": 5,
+      "terminal": true
+    },
+    {
+      "name": "X_plot_scaled",
+      "defined_in": 5,
+      "terminal": true
+    },
+    {
+      "name": "clf",
+      "defined_in": 5,
+      "terminal": true
+    },
+    {
+      "name": "pca",
+      "defined_in": 7,
+      "terminal": false
+    },
+    {
+      "name": "scaled_pca",
+      "defined_in": 7,
+      "terminal": true
+    },
+    {
+      "name": "X_train_transformed",
+      "defined_in": 7,
+      "terminal": false
+    },
+    {
+      "name": "X_train_std_transformed",
+      "defined_in": 7,
+      "terminal": false
+    },
+    {
+      "name": "first_pca_component",
+      "defined_in": 7,
+      "terminal": true
+    },
+    {
+      "name": "target_classes",
+      "defined_in": 9,
+      "terminal": true
+    },
+    {
+      "name": "colors",
+      "defined_in": 9,
+      "terminal": true
+    },
+    {
+      "name": "markers",
+      "defined_in": 9,
+      "terminal": true
+    },
+    {
+      "name": "Cs",
+      "defined_in": 11,
+      "terminal": true
+    },
+    {
+      "name": "unscaled_clf",
+      "defined_in": 11,
+      "terminal": false
+    },
+    {
+      "name": "scaled_clf",
+      "defined_in": 11,
+      "terminal": false
+    },
+    {
+      "name": "y_pred",
+      "defined_in": 13,
+      "terminal": true
+    },
+    {
+      "name": "y_pred_scaled",
+      "defined_in": 13,
+      "terminal": true
+    },
+    {
+      "name": "y_proba",
+      "defined_in": 13,
+      "terminal": true
+    },
+    {
+      "name": "y_proba_scaled",
+      "defined_in": 13,
+      "terminal": true
+    }
+  ],
+  "inputs": {
+    "files_read": [],
+    "files_written": [],
+    "network": [],
+    "imports": [
+      "matplotlib",
+      "numpy",
+      "pandas",
+      "sklearn"
+    ]
+  }
+}

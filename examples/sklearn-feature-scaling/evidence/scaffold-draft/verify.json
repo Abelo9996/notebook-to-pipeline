@@ -1,0 +1,268 @@
+{
+  "tool": {
+    "name": "notebook-to-pipeline",
+    "version": "0.1.0"
+  },
+  "kind": "verify",
+  "created_at": "2026-10-08T11:10:07+00:00",
+  "command": "nb2p verify --pipeline /var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.b6B6J5TsBK/src/scaling_draft/pipeline.py:run --reference evidence/reference --out evidence/scaffold-draft",
+  "reference": {
+    "dir": "~/Downloads/notebook-to-pipeline/examples/sklearn-feature-scaling/evidence/reference",
+    "notebook": {
+      "path": "~/Downloads/notebook-to-pipeline/examples/sklearn-feature-scaling/plot_scaling_importance.ipynb",
+      "sha256": "46f8e2b46e0d6895c18e026b170b3747313a0aaa8fb35b35fdfb2b513e87ba8f",
+      "cells_total": 15,
+      "code_cells": 7
+    },
+    "execution_status": "ok",
+    "created_at": "2026-10-08T11:09:39+00:00"
+  },
+  "pipeline": {
+    "spec": "/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.b6B6J5TsBK/src/scaling_draft/pipeline.py:run",
+    "cmd": null,
+    "cwd": "~/Downloads/notebook-to-pipeline/examples/sklearn-feature-scaling",
+    "run": {
+      "status": "ok",
+      "pipeline": "/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.b6B6J5TsBK/src/scaling_draft/pipeline.py:run",
+      "args": [],
+      "duration_s": 2.635,
+      "exit_code": 0,
+      "stdout_tail": "Optimal C for the unscaled PCA: 0.0000\n\nOptimal C for the standardized data with PCA: 6.16\nTest accuracy for the unscaled PCA\n35.19%\n\nTest accuracy for the standardized data with PCA\n96.30%\n\nLog-loss for the unscaled PCA\n1.18\n\nLog-loss for the standardized data with PCA\n0.0739\n",
+      "stderr_tail": ""
+    },
+    "files_written": []
+  },
+  "python": {
+    "path": "~/Downloads/notebook-to-pipeline/examples/.venv/bin/python",
+    "chosen_by": "virtualenv found at ~/Downloads/notebook-to-pipeline/examples/.venv",
+    "version": "3.12.13",
+    "executable": "~/Downloads/notebook-to-pipeline/examples/.venv/bin/python",
+    "ipykernel": "7.4.0"
+  },
+  "options": {
+    "rtol": 1e-07,
+    "atol": 1e-10,
+    "ignore_row_order": false,
+    "ignore_column_order": false,
+    "ignore_index": false,
+    "check_dtype": true,
+    "max_differences": 5
+  },
+  "artifacts": [
+    {
+      "name": "X",
+      "kind": "dataframe",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "y",
+      "kind": "series",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "scaler",
+      "kind": "estimator",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "X_train",
+      "kind": "dataframe",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "X_test",
+      "kind": "dataframe",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "y_train",
+      "kind": "series",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "y_test",
+      "kind": "series",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "scaled_X_train",
+      "kind": "dataframe",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "X_plot",
+      "kind": "dataframe",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "X_plot_scaled",
+      "kind": "dataframe",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "clf",
+      "kind": "estimator",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "pca",
+      "kind": "estimator",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "scaled_pca",
+      "kind": "estimator",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "X_train_transformed",
+      "kind": "ndarray",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "X_train_std_transformed",
+      "kind": "ndarray",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "first_pca_component",
+      "kind": "dataframe",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "target_classes",
+      "kind": "container",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "colors",
+      "kind": "container",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "markers",
+      "kind": "container",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "Cs",
+      "kind": "ndarray",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "unscaled_clf",
+      "kind": "estimator",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "scaled_clf",
+      "kind": "estimator",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "y_pred",
+      "kind": "ndarray",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "y_pred_scaled",
+      "kind": "ndarray",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "y_proba",
+      "kind": "ndarray",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "y_proba_scaled",
+      "kind": "ndarray",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    }
+  ],
+  "files": [],
+  "candidate_env": {
+    "python": "3.12.13",
+    "implementation": "CPython",
+    "executable": "~/Downloads/notebook-to-pipeline/examples/.venv/bin/python",
+    "platform": "macOS-26.2-arm64-arm-64bit",
+    "packages": {
+      "cloudpickle": "3.1.2",
+      "contourpy": "1.4.0",
+      "cycler": "0.12.1",
+      "joblib": "1.6.0",
+      "kiwisolver": "1.5.1",
+      "matplotlib": "3.9.2",
+      "narwhals": "2.26.0",
+      "numpy": "2.1.2",
+      "packaging": "26.3",
+      "pandas": "2.2.3",
+      "pillow": "12.3.0",
+      "psutil": "7.2.2",
+      "pyparsing": "3.3.3",
+      "python-dateutil": "2.9.0.post0",
+      "pytz": "2026.5",
+      "scikit-learn": "1.9.1",
+      "scipy": "1.18.1",
+      "six": "1.17.0",
+      "threadpoolctl": "3.7.0"
+    }
+  },
+  "verdict": "equivalent",
+  "reason": "all 26 compared outputs match",
+  "counts": {
+    "identical": 26
+  }
+}

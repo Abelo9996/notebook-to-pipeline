@@ -1,0 +1,459 @@
+{
+  "tool": {
+    "name": "notebook-to-pipeline",
+    "version": "0.1.0"
+  },
+  "kind": "capture",
+  "created_at": "2026-10-08T11:09:20+00:00",
+  "command": "nb2p capture snowiest_month.ipynb --out evidence/reference --repeat 2",
+  "notebook": {
+    "path": "~/Downloads/notebook-to-pipeline/examples/pandas-cookbook-snowiest-month/snowiest_month.ipynb",
+    "sha256": "fd88c88038973a6d07880113d8bd991f3d263357607f85200f5fb019ce003355",
+    "cells_total": 29,
+    "code_cells": 14
+  },
+  "python": {
+    "path": "~/Downloads/notebook-to-pipeline/examples/.venv/bin/python",
+    "chosen_by": "virtualenv found at ~/Downloads/notebook-to-pipeline/examples/.venv",
+    "version": "3.12.13",
+    "executable": "~/Downloads/notebook-to-pipeline/examples/.venv/bin/python",
+    "ipykernel": "7.4.0"
+  },
+  "cwd": "~/Downloads/notebook-to-pipeline/examples/pandas-cookbook-snowiest-month",
+  "timeout_s": 600,
+  "selection": {
+    "mode": "suggested by analyze (top-level assignments)",
+    "requested": [
+      "weather_2012",
+      "weather_description",
+      "is_snowing",
+      "temperature",
+      "snowiness",
+      "stats"
+    ]
+  },
+  "execution": {
+    "status": "ok",
+    "cells": [
+      {
+        "index": 0,
+        "status": "ok",
+        "duration_s": 1.358,
+        "saved_output": "none",
+        "label": "cell 1"
+      },
+      {
+        "index": 2,
+        "status": "ok",
+        "duration_s": 0.094,
+        "saved_output": "same",
+        "fresh_output": "Temp (C)  Dew Point Temp (C)  Rel Hum (%)  \\\nDate/Time                                                        \n2012-01-01 00:00:00      -1.8                -3.9           86   \n2012-01-01 01:00:00      -1.8                -3.7           87   \n2012-01-01 02:00:00      -1.8                -3.4           89   \n2012-01-01 03:00:00      -1.5                -3.2           88   \n2012-01-01 04:00:00      -1.5                -3.3           88   \n\n                     Wind Spd (km/h)  Visibility (km)  Stn Press (kPa)  \\\nDate/Time                                                                \n2012-01-01 00:00:00                4              8.0           101.24   \n2012-01-01 01:00:00                4              8.0           101.24   \n2012-01-01 02:00:00                7              4.0           101.26   \n2012-01-01 03:00:00                6              4.0           101.27   \n2012-01-01 04:00:00                7              4.8           101.23   \n\n                                  Weather  \nDate/Time                                  \n2012-01-01 00:00:00                   Fog  \n2012-01-01 01:00:00                   Fog  \n2012-01-01 02:00:00  Freezing Drizzle,Fog  \n2012-01-01 03:00:00  Freezing Drizzle,Fog  \n2012-01-01 04:00:00                   Fog",
+        "label": "cell 3"
+      },
+      {
+        "index": 5,
+        "status": "ok",
+        "duration_s": 0.01,
+        "saved_output": "none",
+        "label": "cell 6"
+      },
+      {
+        "index": 7,
+        "status": "ok",
+        "duration_s": 0.008,
+        "saved_output": "same",
+        "fresh_output": "Date/Time\n2012-01-01 00:00:00    False\n2012-01-01 01:00:00    False\n2012-01-01 02:00:00    False\n2012-01-01 03:00:00    False\n2012-01-01 04:00:00    False\nName: Weather, dtype: bool",
+        "label": "cell 8"
+      },
+      {
+        "index": 8,
+        "status": "ok",
+        "duration_s": 0.274,
+        "saved_output": "different",
+        "first_difference": {
+          "line": 1,
+          "saved": "<matplotlib.axes._subplots.AxesSubplot at 0x...>",
+          "fresh": "<Axes: xlabel='Date/Time'>"
+        },
+        "fresh_output": "<Axes: xlabel='Date/Time'>\n<Figure size 1500x300 with 1 Axes>",
+        "label": "cell 9"
+      },
+      {
+        "index": 11,
+        "status": "ok",
+        "duration_s": 0.113,
+        "saved_output": "different",
+        "first_difference": {
+          "line": 1,
+          "saved": "<matplotlib.axes._subplots.AxesSubplot at 0x...>",
+          "fresh": "<Axes: xlabel='Date/Time'>"
+        },
+        "fresh_output": "<Axes: xlabel='Date/Time'>\n<Figure size 1500x300 with 1 Axes>",
+        "label": "cell 12"
+      },
+      {
+        "index": 14,
+        "status": "ok",
+        "duration_s": 0.008,
+        "saved_output": "same",
+        "fresh_output": "Date/Time\n2012-01-01 00:00:00    0.0\n2012-01-01 01:00:00    0.0\n2012-01-01 02:00:00    0.0\n2012-01-01 03:00:00    0.0\n2012-01-01 04:00:00    0.0\n2012-01-01 05:00:00    0.0\n2012-01-01 06:00:00    0.0\n2012-01-01 07:00:00    0.0\n2012-01-01 08:00:00    0.0\n2012-01-01 09:00:00    0.0\nName: Weather, dtype: float64",
+        "label": "cell 15"
+      },
+      {
+        "index": 16,
+        "status": "ok",
+        "duration_s": 0.011,
+        "saved_output": "different",
+        "first_difference": {
+          "line": 14,
+          "saved": "Freq: M, Name: Weather, dtype: float64",
+          "fresh": "Freq: ME, Name: Weather, dtype: float64"
+        },
+        "fresh_output": "Date/Time\n2012-01-31    0.240591\n2012-02-29    0.162356\n2012-03-31    0.087366\n2012-04-30    0.015278\n2012-05-31    0.000000\n2012-06-30    0.000000\n2012-07-31    0.000000\n2012-08-31    0.000000\n2012-09-30    0.000000\n2012-10-31    0.000000\n2012-11-30    0.038889\n2012-12-31    0.251344\nFreq: ME, Name: Weather, dtype: float64",
+        "label": "cell 17"
+      },
+      {
+        "index": 17,
+        "status": "ok",
+        "duration_s": 0.126,
+        "saved_output": "different",
+        "first_difference": {
+          "line": 1,
+          "saved": "<matplotlib.axes._subplots.AxesSubplot at 0x...>",
+          "fresh": "<Axes: xlabel='Date/Time'>"
+        },
+        "fresh_output": "<Axes: xlabel='Date/Time'>\n<Figure size 1500x300 with 1 Axes>",
+        "label": "cell 18"
+      },
+      {
+        "index": 21,
+        "status": "ok",
+        "duration_s": 0.015,
+        "saved_output": "none",
+        "label": "cell 22"
+      },
+      {
+        "index": 23,
+        "status": "ok",
+        "duration_s": 0.011,
+        "saved_output": "same",
+        "fresh_output": "Temperature  Snowiness\nDate/Time                         \n2012-01-31        -7.05   0.240591\n2012-02-29        -4.10   0.162356\n2012-03-31         2.60   0.087366\n2012-04-30         6.30   0.015278\n2012-05-31        16.05   0.000000\n2012-06-30        19.60   0.000000\n2012-07-31        22.90   0.000000\n2012-08-31        22.20   0.000000\n2012-09-30        16.10   0.000000\n2012-10-31        11.30   0.000000\n2012-11-30         1.05   0.038889\n2012-12-31        -2.85   0.251344",
+        "label": "cell 24"
+      },
+      {
+        "index": 24,
+        "status": "ok",
+        "duration_s": 0.161,
+        "saved_output": "different",
+        "first_difference": {
+          "line": 1,
+          "saved": "<matplotlib.axes._subplots.AxesSubplot at 0x...>",
+          "fresh": "<Axes: xlabel='Date/Time'>"
+        },
+        "fresh_output": "<Axes: xlabel='Date/Time'>\n<Figure size 1500x300 with 1 Axes>",
+        "label": "cell 25"
+      },
+      {
+        "index": 26,
+        "status": "ok",
+        "duration_s": 0.301,
+        "saved_output": "different",
+        "first_difference": {
+          "line": 1,
+          "saved": "array([<matplotlib.axes._subplots.AxesSubplot object at 0x...>,",
+          "fresh": "array([<Axes: title={'center': 'Temperature'}, xlabel='Date/Time'>,"
+        },
+        "fresh_output": "array([<Axes: title={'center': 'Temperature'}, xlabel='Date/Time'>,\n       <Axes: title={'center': 'Snowiness'}, xlabel='Date/Time'>],\n      dtype=object)\n<Figure size 1500x1000 with 2 Axes>",
+        "label": "cell 27"
+      }
+    ],
+    "failed_cell": null,
+    "code_cells": 13,
+    "cells_run": 13,
+    "saved_outputs": {
+      "same": 4,
+      "different": 6,
+      "none": 3
+    },
+    "duration_s": 4.603
+  },
+  "artifacts": [
+    {
+      "name": "weather_2012",
+      "type": "pandas.core.frame.DataFrame",
+      "kind": "dataframe",
+      "hash": "0d5f3e5dab836e86a0467a1e694483f40768fb2ab9eb8355f9ae57f24394f6f5",
+      "summary": {
+        "shape": [
+          8784,
+          7
+        ],
+        "columns": [
+          "Temp (C)",
+          "Dew Point Temp (C)",
+          "Rel Hum (%)",
+          "Wind Spd (km/h)",
+          "Visibility (km)",
+          "Stn Press (kPa)",
+          "Weather"
+        ],
+        "dtypes": {
+          "Temp (C)": "float64",
+          "Dew Point Temp (C)": "float64",
+          "Rel Hum (%)": "int64",
+          "Wind Spd (km/h)": "int64",
+          "Visibility (km)": "float64",
+          "Stn Press (kPa)": "float64",
+          "Weather": "object"
+        },
+        "index": "DatetimeIndex (datetime64[ns])",
+        "nulls": 0,
+        "numeric_stats": {
+          "Temp (C)": {
+            "mean": 8.798144353369764,
+            "std": 11.687882769691276,
+            "min": -23.3,
+            "max": 33.0
+          },
+          "Dew Point Temp (C)": {
+            "mean": 2.5552937158469944,
+            "std": 10.883072319155794,
+            "min": -28.5,
+            "max": 24.4
+          },
+          "Rel Hum (%)": {
+            "mean": 67.43169398907104,
+            "std": 16.91888147007662,
+            "min": 18.0,
+            "max": 100.0
+          },
+          "Wind Spd (km/h)": {
+            "mean": 14.94546903460838,
+            "std": 8.688696079468851,
+            "min": 0.0,
+            "max": 83.0
+          },
+          "Visibility (km)": {
+            "mean": 27.664446721311478,
+            "std": 12.622688245171492,
+            "min": 0.2,
+            "max": 48.3
+          },
+          "Stn Press (kPa)": {
+            "mean": 101.05162340619307,
+            "std": 0.8440047459486483,
+            "min": 97.52,
+            "max": 103.65
+          }
+        }
+      },
+      "payload": "artifacts/weather_2012.pkl",
+      "bytes": 511628,
+      "status": "captured",
+      "stable": true
+    },
+    {
+      "name": "weather_description",
+      "type": "pandas.core.series.Series",
+      "kind": "series",
+      "hash": "8b136002db549d9060aeb76b31e07bbef892b035165096c842a3a0f239d457dd",
+      "summary": {
+        "length": 8784,
+        "dtype": "object",
+        "name": "'Weather'",
+        "nulls": 0
+      },
+      "payload": "artifacts/weather_description.pkl",
+      "bytes": 159937,
+      "status": "captured",
+      "stable": true
+    },
+    {
+      "name": "is_snowing",
+      "type": "pandas.core.series.Series",
+      "kind": "series",
+      "hash": "a9d56d0d548e0d781b4a0eb5b09d8657ebf2c50f795a33624484b2dc964c1997",
+      "summary": {
+        "length": 8784,
+        "dtype": "bool",
+        "name": "'Weather'",
+        "nulls": 0,
+        "mean": 0.06637067395264117,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "payload": "artifacts/is_snowing.pkl",
+      "bytes": 150306,
+      "status": "captured",
+      "stable": true
+    },
+    {
+      "name": "temperature",
+      "type": "pandas.core.series.Series",
+      "kind": "series",
+      "hash": "cb5e4c495f8dff89663e18c4edbd9296dd97a04fcb52cae3e0593eaf46746167",
+      "summary": {
+        "length": 12,
+        "dtype": "float64",
+        "name": "'Temperature'",
+        "nulls": 0,
+        "mean": 8.674999999999999,
+        "min": -7.05,
+        "max": 22.9
+      },
+      "payload": "artifacts/temperature.pkl",
+      "bytes": 1281,
+      "status": "captured",
+      "stable": true
+    },
+    {
+      "name": "snowiness",
+      "type": "pandas.core.series.Series",
+      "kind": "series",
+      "hash": "b8e9a4be8725f7d439acbea7f012eb2f382d1236555bb0b422c3b251a5c08cdf",
+      "summary": {
+        "length": 12,
+        "dtype": "float64",
+        "name": "'Snowiness'",
+        "nulls": 0,
+        "mean": 0.06631867198121369,
+        "min": 0.0,
+        "max": 0.2513440860215054
+      },
+      "payload": "artifacts/snowiness.pkl",
+      "bytes": 1279,
+      "status": "captured",
+      "stable": true
+    },
+    {
+      "name": "stats",
+      "type": "pandas.core.frame.DataFrame",
+      "kind": "dataframe",
+      "hash": "9cc2bed5d3ced12e90e508673ee9e1b8400ce096b2b76becd8574742992e8f3c",
+      "summary": {
+        "shape": [
+          12,
+          2
+        ],
+        "columns": [
+          "Temperature",
+          "Snowiness"
+        ],
+        "dtypes": {
+          "Temperature": "float64",
+          "Snowiness": "float64"
+        },
+        "index": "DatetimeIndex (datetime64[ns])",
+        "nulls": 0,
+        "numeric_stats": {
+          "Temperature": {
+            "mean": 8.674999999999999,
+            "std": 10.723943050270947,
+            "min": -7.05,
+            "max": 22.9
+          },
+          "Snowiness": {
+            "mean": 0.06631867198121369,
+            "std": 0.0972429727450187,
+            "min": 0.0,
+            "max": 0.2513440860215054
+          }
+        }
+      },
+      "payload": "artifacts/stats.pkl",
+      "bytes": 1318,
+      "status": "captured",
+      "stable": true
+    }
+  ],
+  "env": {
+    "python": "3.12.13",
+    "implementation": "CPython",
+    "executable": "~/Downloads/notebook-to-pipeline/examples/.venv/bin/python",
+    "platform": "macOS-26.2-arm64-arm-64bit",
+    "packages": {
+      "appnope": "1.0.0",
+      "comm": "0.2.3",
+      "cycler": "0.12.1",
+      "debugpy": "1.8.22",
+      "ipykernel": "7.4.0",
+      "ipython": "9.17.1",
+      "jupyter_client": "8.10.0",
+      "jupyter_core": "5.9.1",
+      "kiwisolver": "1.5.1",
+      "matplotlib": "3.9.2",
+      "matplotlib-inline": "0.2.2",
+      "numpy": "2.1.2",
+      "packaging": "26.3",
+      "pandas": "2.2.3",
+      "pillow": "12.3.0",
+      "platformdirs": "4.12.4",
+      "pydevd": "3.5.0",
+      "Pygments": "2.21.0",
+      "pyparsing": "3.3.3",
+      "python-dateutil": "2.9.0.post0",
+      "pytz": "2026.5",
+      "pyzmq": "27.2.0",
+      "six": "1.17.0",
+      "tornado": "6.5.10",
+      "traitlets": "5.16.1",
+      "typing_extensions": "4.16.0"
+    }
+  },
+  "files_written": [],
+  "prediction": null,
+  "stability": {
+    "repeats": 2,
+    "runs": [
+      {
+        "run": 2,
+        "status": "ok"
+      }
+    ],
+    "artifacts": [
+      {
+        "name": "weather_2012",
+        "kind": "dataframe",
+        "status": "identical",
+        "passed": true,
+        "detail": "hash match"
+      },
+      {
+        "name": "weather_description",
+        "kind": "series",
+        "status": "identical",
+        "passed": true,
+        "detail": "hash match"
+      },
+      {
+        "name": "is_snowing",
+        "kind": "series",
+        "status": "identical",
+        "passed": true,
+        "detail": "hash match"
+      },
+      {
+        "name": "temperature",
+        "kind": "series",
+        "status": "identical",
+        "passed": true,
+        "detail": "hash match"
+      },
+      {
+        "name": "snowiness",
+        "kind": "series",
+        "status": "identical",
+        "passed": true,
+        "detail": "hash match"
+      },
+      {
+        "name": "stats",
+        "kind": "dataframe",
+        "status": "identical",
+        "passed": true,
+        "detail": "hash match"
+      }
+    ]
+  },
+  "runtime_findings": []
+}

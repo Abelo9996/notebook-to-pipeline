@@ -1,0 +1,16 @@
+snowiest_month.ipynb and data/weather_2012.csv come from pandas-cookbook by Julia Evans:
+  https://github.com/jvns/pandas-cookbook
+  notebook: cookbook/Chapter 6 - String Operations- Which month was the snowiest.ipynb
+  data:     cookbook/data/weather_2012.csv
+  repository commit 69d3389e4d9fee6dcf8e59e4c91397e81da79163 (2024-10-24)
+
+License: Creative Commons Attribution-ShareAlike 4.0 International
+  https://creativecommons.org/licenses/by-sa/4.0/
+
+Changes: the notebook file was renamed. Its contents are unchanged
+(sha256 fd88c88038973a6d07880113d8bd991f3d263357607f85200f5fb019ce003355).
+The data file is unchanged
+(sha256 8491437e2ac2ab04398b1b24f3ade2bf5b696defb8bec5dee8689e0af5065c9a).
+
+The pipeline in snowiest/ is derived from the notebook and is shared under the same
+CC BY-SA 4.0 license.

@@ -1,0 +1,447 @@
+{
+  "tool": {
+    "name": "notebook-to-pipeline",
+    "version": "0.1.0"
+  },
+  "notebook": {
+    "path": "~/Downloads/notebook-to-pipeline/examples/broken-hidden-state/iris_session.ipynb",
+    "sha256": "c60c06d3cf1addbd4beb96556acdd202e53a86e9a25f2bd2ae63dc1832c565ea",
+    "cells_total": 7,
+    "code_cells": 6,
+    "kernelspec": {
+      "display_name": "Python 3",
+      "language": "python",
+      "name": "python3"
+    },
+    "saved_language_version": null
+  },
+  "summary": {
+    "findings": {
+      "error": 2,
+      "warning": 4,
+      "info": 0
+    },
+    "predicts_top_to_bottom_failure": true,
+    "stages": [
+      "load",
+      "features",
+      "train",
+      "report"
+    ]
+  },
+  "cells": [
+    {
+      "index": 1,
+      "label": "cell 2, In [1]",
+      "execution_count": 1,
+      "first_line": "import pandas as pd",
+      "defines": [
+        "pd",
+        "load_iris",
+        "LogisticRegression"
+      ],
+      "reads": [],
+      "deferred_reads": [],
+      "mutates": {},
+      "imports": {
+        "pd": "pandas",
+        "load_iris": "sklearn.datasets.load_iris",
+        "LogisticRegression": "sklearn.linear_model.LogisticRegression"
+      },
+      "functions": [],
+      "files_read": [],
+      "files_written": [],
+      "network": [],
+      "shell": [],
+      "magics": [],
+      "config": [],
+      "random_unseeded": [],
+      "seeds": [],
+      "plots": false,
+      "displays": false,
+      "prints": false,
+      "parse_error": null,
+      "used_by_later_cells": true
+    },
+    {
+      "index": 2,
+      "label": "cell 3, In [2]",
+      "execution_count": 2,
+      "first_line": "df = load_iris(as_frame=True).frame",
+      "defines": [
+        "df"
+      ],
+      "reads": [
+        "load_iris"
+      ],
+      "deferred_reads": [],
+      "mutates": {},
+      "imports": {},
+      "functions": [],
+      "files_read": [],
+      "files_written": [],
+      "network": [],
+      "shell": [],
+      "magics": [],
+      "config": [],
+      "random_unseeded": [],
+      "seeds": [],
+      "plots": false,
+      "displays": true,
+      "prints": false,
+      "parse_error": null,
+      "used_by_later_cells": true
+    },
+    {
+      "index": 3,
+      "label": "cell 4, In [8]",
+      "execution_count": 8,
+      "first_line": "X = features[['petal length (cm)', 'petal width (cm)']]",
+      "defines": [
+        "X"
+      ],
+      "reads": [
+        "features"
+      ],
+      "deferred_reads": [],
+      "mutates": {},
+      "imports": {},
+      "functions": [],
+      "files_read": [],
+      "files_written": [],
+      "network": [],
+      "shell": [],
+      "magics": [],
+      "config": [],
+      "random_unseeded": [],
+      "seeds": [],
+      "plots": false,
+      "displays": true,
+      "prints": false,
+      "parse_error": null,
+      "used_by_later_cells": true
+    },
+    {
+      "index": 4,
+      "label": "cell 5, In [9]",
+      "execution_count": 9,
+      "first_line": "model = LogisticRegression(max_iter=500).fit(X_scaled, df['target'])",
+      "defines": [
+        "model",
+        "train_accuracy"
+      ],
+      "reads": [
+        "LogisticRegression",
+        "X_scaled",
+        "df"
+      ],
+      "deferred_reads": [],
+      "mutates": {},
+      "imports": {},
+      "functions": [],
+      "files_read": [],
+      "files_written": [],
+      "network": [],
+      "shell": [],
+      "magics": [],
+      "config": [],
+      "random_unseeded": [],
+      "seeds": [],
+      "plots": false,
+      "displays": true,
+      "prints": false,
+      "parse_error": null,
+      "used_by_later_cells": false
+    },
+    {
+      "index": 5,
+      "label": "cell 6, In [5]",
+      "execution_count": 5,
+      "first_line": "X_scaled = (X - X.mean()) / X.std()",
+      "defines": [
+        "X_scaled"
+      ],
+      "reads": [
+        "X"
+      ],
+      "deferred_reads": [],
+      "mutates": {},
+      "imports": {},
+      "functions": [],
+      "files_read": [],
+      "files_written": [],
+      "network": [],
+      "shell": [],
+      "magics": [],
+      "config": [],
+      "random_unseeded": [],
+      "seeds": [],
+      "plots": false,
+      "displays": false,
+      "prints": false,
+      "parse_error": null,
+      "used_by_later_cells": true
+    },
+    {
+      "index": 6,
+      "label": "cell 7, In [7]",
+      "execution_count": 7,
+      "first_line": "summary = X_scaled.describe().round(3)",
+      "defines": [
+        "summary"
+      ],
+      "reads": [
+        "X_scaled"
+      ],
+      "deferred_reads": [],
+      "mutates": {},
+      "imports": {},
+      "functions": [],
+      "files_read": [],
+      "files_written": [],
+      "network": [],
+      "shell": [],
+      "magics": [],
+      "config": [],
+      "random_unseeded": [],
+      "seeds": [],
+      "plots": false,
+      "displays": true,
+      "prints": false,
+      "parse_error": null,
+      "used_by_later_cells": false
+    }
+  ],
+  "edges": [
+    {
+      "from": 1,
+      "to": 2,
+      "kind": "def-use",
+      "names": [
+        "load_iris"
+      ]
+    },
+    {
+      "from": 1,
+      "to": 4,
+      "kind": "def-use",
+      "names": [
+        "LogisticRegression"
+      ]
+    },
+    {
+      "from": 2,
+      "to": 4,
+      "kind": "def-use",
+      "names": [
+        "df"
+      ]
+    },
+    {
+      "from": 3,
+      "to": 5,
+      "kind": "def-use",
+      "names": [
+        "X"
+      ]
+    },
+    {
+      "from": 5,
+      "to": 6,
+      "kind": "def-use",
+      "names": [
+        "X_scaled"
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "kind": "undefined_name",
+      "severity": "error",
+      "cells": [
+        3
+      ],
+      "names": [
+        "features"
+      ],
+      "message": "cell 4, In [8] reads `features`, which no cell in the notebook defines. It probably came from a deleted cell or from state outside the notebook. A top-to-bottom run will fail here with NameError."
+    },
+    {
+      "kind": "use_before_def",
+      "severity": "error",
+      "cells": [
+        4,
+        5
+      ],
+      "names": [
+        "X_scaled"
+      ],
+      "message": "cell 5, In [9] reads `X_scaled` but it is first defined later, in cell 6, In [5]. A top-to-bottom run will fail here with NameError."
+    },
+    {
+      "kind": "hidden_executions",
+      "severity": "warning",
+      "cells": [],
+      "names": [],
+      "message": "Execution counts run up to 9 but only 6 executed cells are saved, so 3 executions are not visible in the notebook (re-runs or deleted cells). Kernel state from those runs may have fed the saved outputs."
+    },
+    {
+      "kind": "stale_output",
+      "severity": "warning",
+      "cells": [
+        4
+      ],
+      "names": [
+        "X_scaled"
+      ],
+      "message": "The saved output of cell 5, In [9] used `X_scaled` from cell 6, In [5], but a top-to-bottom run takes it from nothing (NameError). Its saved output may not reproduce."
+    },
+    {
+      "kind": "out_of_order_execution",
+      "severity": "warning",
+      "cells": [
+        5,
+        6
+      ],
+      "names": [],
+      "message": "Saved execution counts are out of notebook order: cell 6, In [5] ran before cell 5, In [9]; cell 7, In [7] ran before cell 5, In [9]. The saved outputs reflect a different order than a top-to-bottom run."
+    },
+    {
+      "kind": "stale_output",
+      "severity": "warning",
+      "cells": [
+        5
+      ],
+      "names": [
+        "X"
+      ],
+      "message": "The saved output of cell 6, In [5] used `X` from an execution that is no longer in the notebook (a deleted cell or an earlier run), but a top-to-bottom run takes it from cell 4, In [8]. Its saved output may not reproduce."
+    }
+  ],
+  "stages": [
+    {
+      "stage": "load",
+      "module": "load.py",
+      "function": "load",
+      "cells": [
+        1,
+        2,
+        3
+      ],
+      "inputs": [],
+      "outputs": [
+        "X",
+        "df"
+      ],
+      "imports": [
+        "pandas",
+        "sklearn.datasets.load_iris",
+        "sklearn.linear_model.LogisticRegression"
+      ],
+      "signature": "def load() -> dict",
+      "why": {
+        "1": "imports and configuration",
+        "2": "signals: load=3",
+        "3": "no strong signal, kept with the previous cell"
+      },
+      "reorder_notes": {}
+    },
+    {
+      "stage": "features",
+      "module": "features.py",
+      "function": "features",
+      "cells": [
+        5
+      ],
+      "inputs": [
+        "X"
+      ],
+      "outputs": [
+        "X_scaled"
+      ],
+      "imports": [],
+      "signature": "def features(X) -> dict",
+      "why": {
+        "5": "signals: features=1"
+      },
+      "reorder_notes": {}
+    },
+    {
+      "stage": "train",
+      "module": "train.py",
+      "function": "train",
+      "cells": [
+        4
+      ],
+      "inputs": [
+        "df"
+      ],
+      "outputs": [],
+      "imports": [],
+      "signature": "def train(df) -> dict",
+      "why": {
+        "4": "signals: train=4, evaluate=2"
+      },
+      "reorder_notes": {}
+    },
+    {
+      "stage": "report",
+      "module": "report.py",
+      "function": "report",
+      "cells": [
+        6
+      ],
+      "inputs": [
+        "X_scaled"
+      ],
+      "outputs": [],
+      "imports": [],
+      "signature": "def report(X_scaled) -> dict",
+      "why": {
+        "6": "only produces output (display, print or plot) and nothing later depends on it"
+      },
+      "reorder_notes": {}
+    }
+  ],
+  "suggested_artifacts": [
+    {
+      "name": "df",
+      "defined_in": 2,
+      "terminal": false
+    },
+    {
+      "name": "X",
+      "defined_in": 3,
+      "terminal": false
+    },
+    {
+      "name": "model",
+      "defined_in": 4,
+      "terminal": true
+    },
+    {
+      "name": "train_accuracy",
+      "defined_in": 4,
+      "terminal": true
+    },
+    {
+      "name": "X_scaled",
+      "defined_in": 5,
+      "terminal": false
+    },
+    {
+      "name": "summary",
+      "defined_in": 6,
+      "terminal": true
+    }
+  ],
+  "inputs": {
+    "files_read": [],
+    "files_written": [],
+    "network": [],
+    "imports": [
+      "pandas",
+      "sklearn"
+    ]
+  }
+}

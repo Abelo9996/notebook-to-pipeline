@@ -1,0 +1,114 @@
+{
+  "tool": {
+    "name": "notebook-to-pipeline",
+    "version": "0.1.0"
+  },
+  "kind": "verify",
+  "created_at": "2026-10-08T11:09:31+00:00",
+  "command": "nb2p verify --pipeline snowiest/pipeline.py:run --reference evidence/reference --out evidence",
+  "reference": {
+    "dir": "~/Downloads/notebook-to-pipeline/examples/pandas-cookbook-snowiest-month/evidence/reference",
+    "notebook": {
+      "path": "~/Downloads/notebook-to-pipeline/examples/pandas-cookbook-snowiest-month/snowiest_month.ipynb",
+      "sha256": "fd88c88038973a6d07880113d8bd991f3d263357607f85200f5fb019ce003355",
+      "cells_total": 29,
+      "code_cells": 14
+    },
+    "execution_status": "ok",
+    "created_at": "2026-10-08T11:09:20+00:00"
+  },
+  "pipeline": {
+    "spec": "snowiest/pipeline.py:run",
+    "cmd": null,
+    "cwd": "~/Downloads/notebook-to-pipeline/examples/pandas-cookbook-snowiest-month",
+    "run": {
+      "status": "ok",
+      "pipeline": "snowiest/pipeline.py:run",
+      "args": [],
+      "duration_s": 2.62,
+      "exit_code": 0,
+      "stdout_tail": "",
+      "stderr_tail": ""
+    },
+    "files_written": []
+  },
+  "python": {
+    "path": "~/Downloads/notebook-to-pipeline/examples/.venv/bin/python",
+    "chosen_by": "virtualenv found at ~/Downloads/notebook-to-pipeline/examples/.venv",
+    "version": "3.12.13",
+    "executable": "~/Downloads/notebook-to-pipeline/examples/.venv/bin/python",
+    "ipykernel": "7.4.0"
+  },
+  "options": {
+    "rtol": 1e-07,
+    "atol": 1e-10,
+    "ignore_row_order": false,
+    "ignore_column_order": false,
+    "ignore_index": false,
+    "check_dtype": true,
+    "max_differences": 5
+  },
+  "artifacts": [
+    {
+      "name": "weather_2012",
+      "kind": "dataframe",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "weather_description",
+      "kind": "series",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "is_snowing",
+      "kind": "series",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "temperature",
+      "kind": "series",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "snowiness",
+      "kind": "series",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    },
+    {
+      "name": "stats",
+      "kind": "dataframe",
+      "status": "identical",
+      "passed": true,
+      "detail": "hash match"
+    }
+  ],
+  "files": [],
+  "candidate_env": {
+    "python": "3.12.13",
+    "implementation": "CPython",
+    "executable": "~/Downloads/notebook-to-pipeline/examples/.venv/bin/python",
+    "platform": "macOS-26.2-arm64-arm-64bit",
+    "packages": {
+      "numpy": "2.1.2",
+      "pandas": "2.2.3",
+      "python-dateutil": "2.9.0.post0",
+      "pytz": "2026.5",
+      "six": "1.17.0"
+    }
+  },
+  "verdict": "equivalent",
+  "reason": "all 6 compared outputs match",
+  "counts": {
+    "identical": 6
+  }
+}

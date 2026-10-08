@@ -1,0 +1,589 @@
+{
+  "tool": {
+    "name": "notebook-to-pipeline",
+    "version": "0.1.0"
+  },
+  "kind": "report",
+  "created_at": "2026-10-08T11:09:38+00:00",
+  "verdict": "equivalent",
+  "verdict_reason": "all 6 compared outputs match",
+  "notebook": {
+    "path": "~/Downloads/notebook-to-pipeline/examples/pandas-cookbook-snowiest-month/snowiest_month.ipynb",
+    "sha256": "fd88c88038973a6d07880113d8bd991f3d263357607f85200f5fb019ce003355",
+    "cells_total": 29,
+    "code_cells": 14,
+    "changed_since_capture": false
+  },
+  "reference": {
+    "dir": "~/Downloads/notebook-to-pipeline/examples/pandas-cookbook-snowiest-month/evidence/reference",
+    "command": "nb2p capture snowiest_month.ipynb --out evidence/reference --repeat 2",
+    "python": {
+      "path": "~/Downloads/notebook-to-pipeline/examples/.venv/bin/python",
+      "chosen_by": "virtualenv found at ~/Downloads/notebook-to-pipeline/examples/.venv",
+      "version": "3.12.13",
+      "executable": "~/Downloads/notebook-to-pipeline/examples/.venv/bin/python",
+      "ipykernel": "7.4.0"
+    },
+    "execution": {
+      "status": "ok",
+      "failed_cell": null,
+      "code_cells": 13,
+      "cells_run": 13,
+      "saved_outputs": {
+        "same": 4,
+        "different": 6,
+        "none": 3
+      },
+      "duration_s": 4.603
+    },
+    "saved_output_differences": [
+      {
+        "cell": "cell 9",
+        "line": 1,
+        "saved": "<matplotlib.axes._subplots.AxesSubplot at 0x...>",
+        "fresh": "<Axes: xlabel='Date/Time'>"
+      },
+      {
+        "cell": "cell 12",
+        "line": 1,
+        "saved": "<matplotlib.axes._subplots.AxesSubplot at 0x...>",
+        "fresh": "<Axes: xlabel='Date/Time'>"
+      },
+      {
+        "cell": "cell 17",
+        "line": 14,
+        "saved": "Freq: M, Name: Weather, dtype: float64",
+        "fresh": "Freq: ME, Name: Weather, dtype: float64"
+      },
+      {
+        "cell": "cell 18",
+        "line": 1,
+        "saved": "<matplotlib.axes._subplots.AxesSubplot at 0x...>",
+        "fresh": "<Axes: xlabel='Date/Time'>"
+      },
+      {
+        "cell": "cell 25",
+        "line": 1,
+        "saved": "<matplotlib.axes._subplots.AxesSubplot at 0x...>",
+        "fresh": "<Axes: xlabel='Date/Time'>"
+      },
+      {
+        "cell": "cell 27",
+        "line": 1,
+        "saved": "array([<matplotlib.axes._subplots.AxesSubplot object at 0x...>,",
+        "fresh": "array([<Axes: title={'center': 'Temperature'}, xlabel='Date/Time'>,"
+      }
+    ],
+    "prediction": null,
+    "key_packages": {
+      "matplotlib": "3.9.2",
+      "numpy": "2.1.2",
+      "pandas": "2.2.3",
+      "ipykernel": "7.4.0"
+    },
+    "artifacts": [
+      {
+        "name": "weather_2012",
+        "status": "captured",
+        "kind": "dataframe",
+        "type": "pandas.core.frame.DataFrame",
+        "hash": "0d5f3e5dab836e86a0467a1e694483f40768fb2ab9eb8355f9ae57f24394f6f5",
+        "summary": {
+          "shape": [
+            8784,
+            7
+          ],
+          "columns": [
+            "Temp (C)",
+            "Dew Point Temp (C)",
+            "Rel Hum (%)",
+            "Wind Spd (km/h)",
+            "Visibility (km)",
+            "Stn Press (kPa)",
+            "Weather"
+          ],
+          "dtypes": {
+            "Temp (C)": "float64",
+            "Dew Point Temp (C)": "float64",
+            "Rel Hum (%)": "int64",
+            "Wind Spd (km/h)": "int64",
+            "Visibility (km)": "float64",
+            "Stn Press (kPa)": "float64",
+            "Weather": "object"
+          },
+          "index": "DatetimeIndex (datetime64[ns])",
+          "nulls": 0,
+          "numeric_stats": {
+            "Temp (C)": {
+              "mean": 8.798144353369764,
+              "std": 11.687882769691276,
+              "min": -23.3,
+              "max": 33.0
+            },
+            "Dew Point Temp (C)": {
+              "mean": 2.5552937158469944,
+              "std": 10.883072319155794,
+              "min": -28.5,
+              "max": 24.4
+            },
+            "Rel Hum (%)": {
+              "mean": 67.43169398907104,
+              "std": 16.91888147007662,
+              "min": 18.0,
+              "max": 100.0
+            },
+            "Wind Spd (km/h)": {
+              "mean": 14.94546903460838,
+              "std": 8.688696079468851,
+              "min": 0.0,
+              "max": 83.0
+            },
+            "Visibility (km)": {
+              "mean": 27.664446721311478,
+              "std": 12.622688245171492,
+              "min": 0.2,
+              "max": 48.3
+            },
+            "Stn Press (kPa)": {
+              "mean": 101.05162340619307,
+              "std": 0.8440047459486483,
+              "min": 97.52,
+              "max": 103.65
+            }
+          }
+        },
+        "reason": null,
+        "stable": true
+      },
+      {
+        "name": "weather_description",
+        "status": "captured",
+        "kind": "series",
+        "type": "pandas.core.series.Series",
+        "hash": "8b136002db549d9060aeb76b31e07bbef892b035165096c842a3a0f239d457dd",
+        "summary": {
+          "length": 8784,
+          "dtype": "object",
+          "name": "'Weather'",
+          "nulls": 0
+        },
+        "reason": null,
+        "stable": true
+      },
+      {
+        "name": "is_snowing",
+        "status": "captured",
+        "kind": "series",
+        "type": "pandas.core.series.Series",
+        "hash": "a9d56d0d548e0d781b4a0eb5b09d8657ebf2c50f795a33624484b2dc964c1997",
+        "summary": {
+          "length": 8784,
+          "dtype": "bool",
+          "name": "'Weather'",
+          "nulls": 0,
+          "mean": 0.06637067395264117,
+          "min": 0.0,
+          "max": 1.0
+        },
+        "reason": null,
+        "stable": true
+      },
+      {
+        "name": "temperature",
+        "status": "captured",
+        "kind": "series",
+        "type": "pandas.core.series.Series",
+        "hash": "cb5e4c495f8dff89663e18c4edbd9296dd97a04fcb52cae3e0593eaf46746167",
+        "summary": {
+          "length": 12,
+          "dtype": "float64",
+          "name": "'Temperature'",
+          "nulls": 0,
+          "mean": 8.674999999999999,
+          "min": -7.05,
+          "max": 22.9
+        },
+        "reason": null,
+        "stable": true
+      },
+      {
+        "name": "snowiness",
+        "status": "captured",
+        "kind": "series",
+        "type": "pandas.core.series.Series",
+        "hash": "b8e9a4be8725f7d439acbea7f012eb2f382d1236555bb0b422c3b251a5c08cdf",
+        "summary": {
+          "length": 12,
+          "dtype": "float64",
+          "name": "'Snowiness'",
+          "nulls": 0,
+          "mean": 0.06631867198121369,
+          "min": 0.0,
+          "max": 0.2513440860215054
+        },
+        "reason": null,
+        "stable": true
+      },
+      {
+        "name": "stats",
+        "status": "captured",
+        "kind": "dataframe",
+        "type": "pandas.core.frame.DataFrame",
+        "hash": "9cc2bed5d3ced12e90e508673ee9e1b8400ce096b2b76becd8574742992e8f3c",
+        "summary": {
+          "shape": [
+            12,
+            2
+          ],
+          "columns": [
+            "Temperature",
+            "Snowiness"
+          ],
+          "dtypes": {
+            "Temperature": "float64",
+            "Snowiness": "float64"
+          },
+          "index": "DatetimeIndex (datetime64[ns])",
+          "nulls": 0,
+          "numeric_stats": {
+            "Temperature": {
+              "mean": 8.674999999999999,
+              "std": 10.723943050270947,
+              "min": -7.05,
+              "max": 22.9
+            },
+            "Snowiness": {
+              "mean": 0.06631867198121369,
+              "std": 0.0972429727450187,
+              "min": 0.0,
+              "max": 0.2513440860215054
+            }
+          }
+        },
+        "reason": null,
+        "stable": true
+      }
+    ],
+    "files_written": [],
+    "stability": {
+      "repeats": 2,
+      "runs": [
+        {
+          "run": 2,
+          "status": "ok"
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "weather_2012",
+          "kind": "dataframe",
+          "status": "identical",
+          "passed": true,
+          "detail": "hash match"
+        },
+        {
+          "name": "weather_description",
+          "kind": "series",
+          "status": "identical",
+          "passed": true,
+          "detail": "hash match"
+        },
+        {
+          "name": "is_snowing",
+          "kind": "series",
+          "status": "identical",
+          "passed": true,
+          "detail": "hash match"
+        },
+        {
+          "name": "temperature",
+          "kind": "series",
+          "status": "identical",
+          "passed": true,
+          "detail": "hash match"
+        },
+        {
+          "name": "snowiness",
+          "kind": "series",
+          "status": "identical",
+          "passed": true,
+          "detail": "hash match"
+        },
+        {
+          "name": "stats",
+          "kind": "dataframe",
+          "status": "identical",
+          "passed": true,
+          "detail": "hash match"
+        }
+      ]
+    }
+  },
+  "hidden_state": {
+    "summary": {
+      "error": 0,
+      "warning": 3,
+      "info": 8
+    },
+    "findings": [
+      {
+        "kind": "hidden_executions",
+        "severity": "warning",
+        "cells": [],
+        "names": [],
+        "message": "Execution counts run up to 21 but only 13 executed cells are saved, so 8 executions are not visible in the notebook (re-runs or deleted cells). Kernel state from those runs may have fed the saved outputs."
+      },
+      {
+        "kind": "out_of_order_execution",
+        "severity": "warning",
+        "cells": [
+          7
+        ],
+        "names": [],
+        "message": "Saved execution counts are out of notebook order: cell 8, In [4] ran before cell 6, In [10]. The saved outputs reflect a different order than a top-to-bottom run."
+      },
+      {
+        "kind": "stale_output",
+        "severity": "warning",
+        "cells": [
+          7
+        ],
+        "names": [
+          "is_snowing"
+        ],
+        "message": "The saved output of cell 8, In [4] used `is_snowing` from an execution that is no longer in the notebook (a deleted cell or an earlier run), but a top-to-bottom run takes it from cell 6, In [10]. Its saved output may not reproduce."
+      },
+      {
+        "kind": "inspection_only",
+        "severity": "info",
+        "cells": [
+          7
+        ],
+        "names": [],
+        "message": "cell 8, In [4] only displays, prints or plots, and no later cell depends on it. Keep it in the report stage or drop it from the pipeline."
+      },
+      {
+        "kind": "rerun_hazard",
+        "severity": "info",
+        "cells": [
+          8
+        ],
+        "names": [
+          "is_snowing"
+        ],
+        "message": "cell 9, In [13] rebinds `is_snowing` from its own previous value. Running it twice gives a different state than running it once."
+      },
+      {
+        "kind": "inspection_only",
+        "severity": "info",
+        "cells": [
+          11
+        ],
+        "names": [],
+        "message": "cell 12, In [14] only displays, prints or plots, and no later cell depends on it. Keep it in the report stage or drop it from the pipeline."
+      },
+      {
+        "kind": "inspection_only",
+        "severity": "info",
+        "cells": [
+          14
+        ],
+        "names": [],
+        "message": "cell 15, In [15] only displays, prints or plots, and no later cell depends on it. Keep it in the report stage or drop it from the pipeline."
+      },
+      {
+        "kind": "inspection_only",
+        "severity": "info",
+        "cells": [
+          16
+        ],
+        "names": [],
+        "message": "cell 17, In [16] only displays, prints or plots, and no later cell depends on it. Keep it in the report stage or drop it from the pipeline."
+      },
+      {
+        "kind": "inspection_only",
+        "severity": "info",
+        "cells": [
+          17
+        ],
+        "names": [],
+        "message": "cell 18, In [17] only displays, prints or plots, and no later cell depends on it. Keep it in the report stage or drop it from the pipeline."
+      },
+      {
+        "kind": "inspection_only",
+        "severity": "info",
+        "cells": [
+          24
+        ],
+        "names": [],
+        "message": "cell 25, In [20] only displays, prints or plots, and no later cell depends on it. Keep it in the report stage or drop it from the pipeline."
+      },
+      {
+        "kind": "inspection_only",
+        "severity": "info",
+        "cells": [
+          26
+        ],
+        "names": [],
+        "message": "cell 27, In [21] only displays, prints or plots, and no later cell depends on it. Keep it in the report stage or drop it from the pipeline."
+      }
+    ],
+    "runtime_findings": []
+  },
+  "proposed_stages": [
+    {
+      "stage": "load",
+      "cells": [
+        0,
+        2
+      ],
+      "inputs": [],
+      "outputs": [
+        "weather_2012"
+      ],
+      "signature": "def load() -> dict"
+    },
+    {
+      "stage": "clean",
+      "cells": [
+        5,
+        8
+      ],
+      "inputs": [
+        "weather_2012"
+      ],
+      "outputs": [
+        "is_snowing"
+      ],
+      "signature": "def clean(weather_2012) -> dict"
+    },
+    {
+      "stage": "features",
+      "cells": [
+        21,
+        23
+      ],
+      "inputs": [
+        "weather_2012"
+      ],
+      "outputs": [
+        "stats"
+      ],
+      "signature": "def features(weather_2012) -> dict"
+    },
+    {
+      "stage": "report",
+      "cells": [
+        7,
+        11,
+        14,
+        16,
+        17,
+        24,
+        26
+      ],
+      "inputs": [
+        "is_snowing",
+        "stats",
+        "weather_2012"
+      ],
+      "outputs": [],
+      "signature": "def report(is_snowing, stats, weather_2012) -> dict"
+    }
+  ],
+  "verification": {
+    "command": "nb2p verify --pipeline snowiest/pipeline.py:run --reference evidence/reference --out evidence",
+    "pipeline": {
+      "spec": "snowiest/pipeline.py:run",
+      "cmd": null,
+      "cwd": "~/Downloads/notebook-to-pipeline/examples/pandas-cookbook-snowiest-month",
+      "run": {
+        "status": "ok",
+        "pipeline": "snowiest/pipeline.py:run",
+        "args": [],
+        "duration_s": 2.62,
+        "exit_code": 0,
+        "stdout_tail": "",
+        "stderr_tail": ""
+      },
+      "files_written": []
+    },
+    "python": {
+      "path": "~/Downloads/notebook-to-pipeline/examples/.venv/bin/python",
+      "chosen_by": "virtualenv found at ~/Downloads/notebook-to-pipeline/examples/.venv",
+      "version": "3.12.13",
+      "executable": "~/Downloads/notebook-to-pipeline/examples/.venv/bin/python",
+      "ipykernel": "7.4.0"
+    },
+    "options": {
+      "rtol": 1e-07,
+      "atol": 1e-10,
+      "ignore_row_order": false,
+      "ignore_column_order": false,
+      "ignore_index": false,
+      "check_dtype": true,
+      "max_differences": 5
+    },
+    "artifacts": [
+      {
+        "name": "weather_2012",
+        "kind": "dataframe",
+        "status": "identical",
+        "passed": true,
+        "detail": "hash match"
+      },
+      {
+        "name": "weather_description",
+        "kind": "series",
+        "status": "identical",
+        "passed": true,
+        "detail": "hash match"
+      },
+      {
+        "name": "is_snowing",
+        "kind": "series",
+        "status": "identical",
+        "passed": true,
+        "detail": "hash match"
+      },
+      {
+        "name": "temperature",
+        "kind": "series",
+        "status": "identical",
+        "passed": true,
+        "detail": "hash match"
+      },
+      {
+        "name": "snowiness",
+        "kind": "series",
+        "status": "identical",
+        "passed": true,
+        "detail": "hash match"
+      },
+      {
+        "name": "stats",
+        "kind": "dataframe",
+        "status": "identical",
+        "passed": true,
+        "detail": "hash match"
+      }
+    ],
+    "files": [],
+    "counts": {
+      "identical": 6
+    },
+    "key_packages": {
+      "numpy": "2.1.2",
+      "pandas": "2.2.3"
+    },
+    "created_at": "2026-10-08T11:09:31+00:00"
+  },
+  "limits": [
+    "Static analysis reads cell source only. It does not follow `exec`, `eval`, `%run`, imports of local modules or mutation through aliases (`b = a; b.append(1)`).",
+    "Mutation through notebook-defined functions is tracked one level deep; mutation inside third-party code is only known for common method names (`fit`, `append`, `inplace=True`, ...).",
+    "Only the variables listed in the capture are compared. Anything the notebook displayed but did not keep in a variable is not compared.",
+    "Figure files are listed but not compared. Plots are not compared at all.",
+    "Equivalence is checked on this data, in this environment. A different input file or library version can still change the results.",
+    "Tolerances apply to floats only. Integers, strings, booleans, dates and hashes must match exactly."
+  ]
+}

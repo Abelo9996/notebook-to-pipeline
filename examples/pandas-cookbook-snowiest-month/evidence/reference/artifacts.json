@@ -1,0 +1,220 @@
+{
+  "artifacts": [
+    {
+      "name": "weather_2012",
+      "type": "pandas.core.frame.DataFrame",
+      "kind": "dataframe",
+      "hash": "0d5f3e5dab836e86a0467a1e694483f40768fb2ab9eb8355f9ae57f24394f6f5",
+      "summary": {
+        "shape": [
+          8784,
+          7
+        ],
+        "columns": [
+          "Temp (C)",
+          "Dew Point Temp (C)",
+          "Rel Hum (%)",
+          "Wind Spd (km/h)",
+          "Visibility (km)",
+          "Stn Press (kPa)",
+          "Weather"
+        ],
+        "dtypes": {
+          "Temp (C)": "float64",
+          "Dew Point Temp (C)": "float64",
+          "Rel Hum (%)": "int64",
+          "Wind Spd (km/h)": "int64",
+          "Visibility (km)": "float64",
+          "Stn Press (kPa)": "float64",
+          "Weather": "object"
+        },
+        "index": "DatetimeIndex (datetime64[ns])",
+        "nulls": 0,
+        "numeric_stats": {
+          "Temp (C)": {
+            "mean": 8.798144353369764,
+            "std": 11.687882769691276,
+            "min": -23.3,
+            "max": 33.0
+          },
+          "Dew Point Temp (C)": {
+            "mean": 2.5552937158469944,
+            "std": 10.883072319155794,
+            "min": -28.5,
+            "max": 24.4
+          },
+          "Rel Hum (%)": {
+            "mean": 67.43169398907104,
+            "std": 16.91888147007662,
+            "min": 18.0,
+            "max": 100.0
+          },
+          "Wind Spd (km/h)": {
+            "mean": 14.94546903460838,
+            "std": 8.688696079468851,
+            "min": 0.0,
+            "max": 83.0
+          },
+          "Visibility (km)": {
+            "mean": 27.664446721311478,
+            "std": 12.622688245171492,
+            "min": 0.2,
+            "max": 48.3
+          },
+          "Stn Press (kPa)": {
+            "mean": 101.05162340619307,
+            "std": 0.8440047459486483,
+            "min": 97.52,
+            "max": 103.65
+          }
+        }
+      },
+      "payload": "artifacts/weather_2012.pkl",
+      "bytes": 511628,
+      "status": "captured"
+    },
+    {
+      "name": "weather_description",
+      "type": "pandas.core.series.Series",
+      "kind": "series",
+      "hash": "8b136002db549d9060aeb76b31e07bbef892b035165096c842a3a0f239d457dd",
+      "summary": {
+        "length": 8784,
+        "dtype": "object",
+        "name": "'Weather'",
+        "nulls": 0
+      },
+      "payload": "artifacts/weather_description.pkl",
+      "bytes": 159937,
+      "status": "captured"
+    },
+    {
+      "name": "is_snowing",
+      "type": "pandas.core.series.Series",
+      "kind": "series",
+      "hash": "a9d56d0d548e0d781b4a0eb5b09d8657ebf2c50f795a33624484b2dc964c1997",
+      "summary": {
+        "length": 8784,
+        "dtype": "bool",
+        "name": "'Weather'",
+        "nulls": 0,
+        "mean": 0.06637067395264117,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "payload": "artifacts/is_snowing.pkl",
+      "bytes": 150306,
+      "status": "captured"
+    },
+    {
+      "name": "temperature",
+      "type": "pandas.core.series.Series",
+      "kind": "series",
+      "hash": "cb5e4c495f8dff89663e18c4edbd9296dd97a04fcb52cae3e0593eaf46746167",
+      "summary": {
+        "length": 12,
+        "dtype": "float64",
+        "name": "'Temperature'",
+        "nulls": 0,
+        "mean": 8.674999999999999,
+        "min": -7.05,
+        "max": 22.9
+      },
+      "payload": "artifacts/temperature.pkl",
+      "bytes": 1281,
+      "status": "captured"
+    },
+    {
+      "name": "snowiness",
+      "type": "pandas.core.series.Series",
+      "kind": "series",
+      "hash": "b8e9a4be8725f7d439acbea7f012eb2f382d1236555bb0b422c3b251a5c08cdf",
+      "summary": {
+        "length": 12,
+        "dtype": "float64",
+        "name": "'Snowiness'",
+        "nulls": 0,
+        "mean": 0.06631867198121369,
+        "min": 0.0,
+        "max": 0.2513440860215054
+      },
+      "payload": "artifacts/snowiness.pkl",
+      "bytes": 1279,
+      "status": "captured"
+    },
+    {
+      "name": "stats",
+      "type": "pandas.core.frame.DataFrame",
+      "kind": "dataframe",
+      "hash": "9cc2bed5d3ced12e90e508673ee9e1b8400ce096b2b76becd8574742992e8f3c",
+      "summary": {
+        "shape": [
+          12,
+          2
+        ],
+        "columns": [
+          "Temperature",
+          "Snowiness"
+        ],
+        "dtypes": {
+          "Temperature": "float64",
+          "Snowiness": "float64"
+        },
+        "index": "DatetimeIndex (datetime64[ns])",
+        "nulls": 0,
+        "numeric_stats": {
+          "Temperature": {
+            "mean": 8.674999999999999,
+            "std": 10.723943050270947,
+            "min": -7.05,
+            "max": 22.9
+          },
+          "Snowiness": {
+            "mean": 0.06631867198121369,
+            "std": 0.0972429727450187,
+            "min": 0.0,
+            "max": 0.2513440860215054
+          }
+        }
+      },
+      "payload": "artifacts/stats.pkl",
+      "bytes": 1318,
+      "status": "captured"
+    }
+  ],
+  "env": {
+    "python": "3.12.13",
+    "implementation": "CPython",
+    "executable": "~/Downloads/notebook-to-pipeline/examples/.venv/bin/python",
+    "platform": "macOS-26.2-arm64-arm-64bit",
+    "packages": {
+      "appnope": "1.0.0",
+      "comm": "0.2.3",
+      "cycler": "0.12.1",
+      "debugpy": "1.8.22",
+      "ipykernel": "7.4.0",
+      "ipython": "9.17.1",
+      "jupyter_client": "8.10.0",
+      "jupyter_core": "5.9.1",
+      "kiwisolver": "1.5.1",
+      "matplotlib": "3.9.2",
+      "matplotlib-inline": "0.2.2",
+      "numpy": "2.1.2",
+      "packaging": "26.3",
+      "pandas": "2.2.3",
+      "pillow": "12.3.0",
+      "platformdirs": "4.12.4",
+      "pydevd": "3.5.0",
+      "Pygments": "2.21.0",
+      "pyparsing": "3.3.3",
+      "python-dateutil": "2.9.0.post0",
+      "pytz": "2026.5",
+      "pyzmq": "27.2.0",
+      "six": "1.17.0",
+      "tornado": "6.5.10",
+      "traitlets": "5.16.1",
+      "typing_extensions": "4.16.0"
+    }
+  },
+  "shared_objects": []
+}
