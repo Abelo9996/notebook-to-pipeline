@@ -108,3 +108,21 @@ test failed with `Verdict: DIFFERS (18 of 29 compared outputs differ)` on the sc
 and `Verdict: DIFFERS (4 of 15 compared outputs differ)` on the pandas-cookbook one. The 15 there
 are the 6 variables, 4 values cells only displayed (`weather_2012[:5]` and three more) and the 5
 figures.
+
+After the release, the same script with 0.1.2 from PyPI (`./scaffold_e2e.sh`, again with an empty
+uv cache) passed the same 16 checks, and the repository's CI runs it on ubuntu-latest for every push.
+
+Running the generated workflow on GitHub itself, with references captured on the M4 MacBook (two
+generated projects pushed to temporary branches of this repository, since deleted):
+
+- pandas-cookbook, pip project, `ubuntu-latest`: passed. All 5 figures matched pixel for pixel
+  across the two machines.
+- scikit-learn, uv project: the workflow ran as written (setup-uv, `uv sync`, the test fetched
+  notebook-to-pipeline 0.1.2 from PyPI) and failed with `Verdict: DIFFERS (1 of 29 compared outputs
+  differ)`, on `ubuntu-latest` and again on `macos-latest` (arm64). The one difference is
+  `unscaled_clf`: the `LogisticRegressionCV` regularization path fitted on unscaled features
+  differs around the fifth significant digit, for example `coefs_paths_[0,0,4,0,2]` is
+  `-0.5303939995299989` in the reference and `-0.5303995773530218` on ubuntu. Predictions match,
+  and the three figures matched pixel for pixel. Locally the result is the same with 1, 3 or 10
+  BLAS threads, so it comes from the CPU, not from threading. A reference captured on the CI
+  machine itself passes (that is what the CI job above does).

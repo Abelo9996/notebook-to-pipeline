@@ -194,7 +194,12 @@ logic to make outputs match without saying so.
   (`b = a; b.append(1)`). Shared objects of that kind are caught at runtime only if both names
   are captured.
 - Equivalence is shown for this data in this environment. A different input file or library
-  version can still change results.
+  version can still change results, and so can a different CPU: with references captured on an
+  Apple M4, the generated workflow passed on GitHub's runners for the pandas-cookbook notebook but
+  failed 1 of 29 outputs for the scikit-learn one (an ill-conditioned `LogisticRegressionCV` fit,
+  fifth significant digit), on both ubuntu-latest and macos-latest. For numerically sensitive
+  notebooks, capture the reference on the machine that runs CI, or add a tolerance you can justify
+  to the generated test (`--rtol`) and say so. Details in [examples/](examples/README.md).
 - Outputs that change from run to run (unseeded randomness, timings) cannot be verified. `--repeat`
   finds them; it does not fix them.
 - The stage proposal is a heuristic starting point and `scaffold` produces a mechanical draft. The
