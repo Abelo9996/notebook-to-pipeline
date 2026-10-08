@@ -8,10 +8,6 @@ uvx notebook-to-pipeline capture analysis.ipynb
 uvx notebook-to-pipeline verify --pipeline src/analysis/pipeline.py:run --reference analysis.ipynb
 ```
 
-> Not on PyPI yet. Until the first release, run it straight from GitHub by replacing `uvx notebook-to-pipeline` with
-> `uvx --from git+https://github.com/Abelo9996/notebook-to-pipeline notebook-to-pipeline`. `setup` registers `uvx notebook-to-pipeline mcp`, so it works once the
-> package is on PyPI.
-
 `analyze` reads the notebook and finds hidden-state problems. `capture` runs it top to bottom in a
 fresh kernel and records what it produces. `verify` runs the refactored pipeline and compares every
 output: exact for integers, strings and hashes, with a tolerance for floats, and column by column
