@@ -29,8 +29,12 @@ class Action:
     apply: Any = field(default=None, repr=False)
 
     def as_dict(self) -> dict[str, str]:
-        return {"target": self.target, "kind": self.kind, "description": self.description,
-                "detail": self.detail}
+        return {
+            "target": self.target,
+            "kind": self.kind,
+            "description": self.description,
+            "detail": self.detail,
+        }
 
 
 def skill_source() -> Path:
@@ -70,8 +74,9 @@ def _skill_action(dest_dir: Path, label: str) -> Action:
     return Action(str(dest), f"{verb} {label} skill", "copy", f"copy {src.name} to {dest}", apply)
 
 
-def plan(home: Path | None = None, *, command: list[str] | None = None,
-         project: Path | None = None) -> list[Action]:
+def plan(
+    home: Path | None = None, *, command: list[str] | None = None, project: Path | None = None
+) -> list[Action]:
     home = home or Path.home()
     command = command or DEFAULT_COMMAND
     actions: list[Action] = []
@@ -84,8 +89,11 @@ def plan(home: Path | None = None, *, command: list[str] | None = None,
         data = json.loads(mcp_json.read_text()) if mcp_json.exists() else {}
         entry = {"command": command[0], "args": command[1:]}
         if data.get("mcpServers", {}).get(NAME) == entry:
-            actions.append(Action(str(mcp_json), "Claude Code project server already registered", "skip"))
+            actions.append(
+                Action(str(mcp_json), "Claude Code project server already registered", "skip")
+            )
         else:
+
             def apply_project(mcp_json=mcp_json, entry=entry) -> str:
                 cur = json.loads(mcp_json.read_text()) if mcp_json.exists() else {}
                 note = f" (backup: {_backup(mcp_json)})" if mcp_json.exists() else ""
@@ -93,8 +101,15 @@ def plan(home: Path | None = None, *, command: list[str] | None = None,
                 mcp_json.write_text(json.dumps(cur, indent=2) + "\n")
                 return f"wrote {mcp_json}{note}"
 
-            actions.append(Action(str(mcp_json), "register MCP server in the project .mcp.json", "edit",
-                                  json.dumps({"mcpServers": {NAME: entry}}), apply_project))
+            actions.append(
+                Action(
+                    str(mcp_json),
+                    "register MCP server in the project .mcp.json",
+                    "edit",
+                    json.dumps({"mcpServers": {NAME: entry}}),
+                    apply_project,
+                )
+            )
     elif claude_bin:
         exists = subprocess.run([claude_bin, "mcp", "get", NAME], capture_output=True, text=True)
         if exists.returncode == 0:
@@ -108,11 +123,24 @@ def plan(home: Path | None = None, *, command: list[str] | None = None,
                     raise RuntimeError(f"`{' '.join(cmd)}` failed: {r.stderr.strip()}")
                 return f"ran {' '.join(cmd[1:])}"
 
-            actions.append(Action("claude mcp", "register MCP server with Claude Code (user scope)", "command",
-                                  "claude " + " ".join(cmd[1:]), apply_claude))
+            actions.append(
+                Action(
+                    "claude mcp",
+                    "register MCP server with Claude Code (user scope)",
+                    "command",
+                    "claude " + " ".join(cmd[1:]),
+                    apply_claude,
+                )
+            )
     elif claude_dir.exists():
-        actions.append(Action("claude mcp", "Claude Code config found but the `claude` CLI is not on PATH", "skip",
-                              "run: claude mcp add --scope user " + NAME + " -- " + " ".join(command)))
+        actions.append(
+            Action(
+                "claude mcp",
+                "Claude Code config found but the `claude` CLI is not on PATH",
+                "skip",
+                "run: claude mcp add --scope user " + NAME + " -- " + " ".join(command),
+            )
+        )
     if claude_dir.exists():
         actions.append(_skill_action(claude_dir / "skills", "Claude Code"))
 
@@ -125,13 +153,19 @@ def plan(home: Path | None = None, *, command: list[str] | None = None,
             parsed = tomllib.loads(current) if current else {}
         except tomllib.TOMLDecodeError as exc:
             parsed = None
-            actions.append(Action(str(cfg), "Codex config is not valid TOML, leaving it alone", "skip", str(exc)))
+            actions.append(
+                Action(
+                    str(cfg), "Codex config is not valid TOML, leaving it alone", "skip", str(exc)
+                )
+            )
         if parsed is not None:
             if NAME in parsed.get("mcp_servers", {}):
                 actions.append(Action(str(cfg), "Codex server already registered", "skip"))
             else:
-                block = (f'\n[mcp_servers.{NAME}]\ncommand = "{command[0]}"\n'
-                         f"args = {json.dumps(command[1:])}\n")
+                block = (
+                    f'\n[mcp_servers.{NAME}]\ncommand = "{command[0]}"\n'
+                    f"args = {json.dumps(command[1:])}\n"
+                )
 
                 def apply_codex(cfg=cfg, block=block) -> str:
                     cfg.parent.mkdir(parents=True, exist_ok=True)
@@ -142,7 +176,15 @@ def plan(home: Path | None = None, *, command: list[str] | None = None,
                     cfg.write_text(text + block, encoding="utf-8")
                     return f"appended [mcp_servers.{NAME}] to {cfg}{note}"
 
-                actions.append(Action(str(cfg), "register MCP server with Codex", "edit", block.strip(), apply_codex))
+                actions.append(
+                    Action(
+                        str(cfg),
+                        "register MCP server with Codex",
+                        "edit",
+                        block.strip(),
+                        apply_codex,
+                    )
+                )
         actions.append(_skill_action(codex_dir / "skills", "Codex"))
 
     # Cursor
@@ -154,26 +196,51 @@ def plan(home: Path | None = None, *, command: list[str] | None = None,
             data = json.loads(cfg.read_text()) if cfg.exists() and cfg.read_text().strip() else {}
         except json.JSONDecodeError as exc:
             data = None
-            actions.append(Action(str(cfg), "Cursor mcp.json is not valid JSON, leaving it alone", "skip", str(exc)))
+            actions.append(
+                Action(
+                    str(cfg),
+                    "Cursor mcp.json is not valid JSON, leaving it alone",
+                    "skip",
+                    str(exc),
+                )
+            )
         if data is not None:
             if data.get("mcpServers", {}).get(NAME) == entry:
                 actions.append(Action(str(cfg), "Cursor server already registered", "skip"))
             else:
+
                 def apply_cursor(cfg=cfg, entry=entry) -> str:
-                    cur = json.loads(cfg.read_text()) if cfg.exists() and cfg.read_text().strip() else {}
+                    cur = (
+                        json.loads(cfg.read_text())
+                        if cfg.exists() and cfg.read_text().strip()
+                        else {}
+                    )
                     note = f" (backup: {_backup(cfg)})" if cfg.exists() else ""
                     cur.setdefault("mcpServers", {})[NAME] = entry
                     cfg.write_text(json.dumps(cur, indent=2) + "\n")
                     return f"wrote {cfg}{note}"
 
-                actions.append(Action(str(cfg), "register MCP server with Cursor", "edit",
-                                      json.dumps({"mcpServers": {NAME: entry}}), apply_cursor))
+                actions.append(
+                    Action(
+                        str(cfg),
+                        "register MCP server with Cursor",
+                        "edit",
+                        json.dumps({"mcpServers": {NAME: entry}}),
+                        apply_cursor,
+                    )
+                )
     return actions
 
 
-def run_setup(*, yes: bool = False, home: Path | None = None, command: list[str] | None = None,
-              project: Path | None = None, interactive: bool | None = None,
-              out=print) -> dict[str, Any]:
+def run_setup(
+    *,
+    yes: bool = False,
+    home: Path | None = None,
+    command: list[str] | None = None,
+    project: Path | None = None,
+    interactive: bool | None = None,
+    out=print,
+) -> dict[str, Any]:
     actions = plan(home, command=command, project=project)
     todo = [a for a in actions if a.apply is not None]
     out("notebook-to-pipeline setup plan:")
@@ -182,10 +249,14 @@ def run_setup(*, yes: bool = False, home: Path | None = None, command: list[str]
     for a in actions:
         mark = "skip" if a.apply is None else a.kind
         out(f"  [{mark}] {a.description}: {a.target}")
-        if a.detail and a.apply is not None:
+        if a.detail:
             for line in a.detail.splitlines():
                 out(f"        {line}")
-    result: dict[str, Any] = {"actions": [a.as_dict() for a in actions], "applied": [], "dry_run": True}
+    result: dict[str, Any] = {
+        "actions": [a.as_dict() for a in actions],
+        "applied": [],
+        "dry_run": True,
+    }
     if not todo:
         out("Nothing to change.")
         result["dry_run"] = False

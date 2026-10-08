@@ -79,7 +79,11 @@ def _is(obj, module, name):
 
 
 def _is_np_scalar(obj):
-    return (type(obj).__module__ or "") == "numpy" and getattr(obj, "shape", None) == () and hasattr(obj, "item")
+    return (
+        (type(obj).__module__ or "") == "numpy"
+        and getattr(obj, "shape", None) == ()
+        and hasattr(obj, "item")
+    )
 
 
 def _isclose(a, b, opts):
@@ -108,7 +112,11 @@ def compare_values(ref, cand, path, acc):
         return compare_frames(ref, cand, path, acc)
     if _is(ref, "pandas", "Series") and _is(cand, "pandas", "Series"):
         return compare_series(ref, cand, path, acc)
-    if type(ref).__name__.endswith("Index") and type(cand).__name__.endswith("Index") and (type(ref).__module__ or "").startswith("pandas"):
+    if (
+        type(ref).__name__.endswith("Index")
+        and type(cand).__name__.endswith("Index")
+        and (type(ref).__module__ or "").startswith("pandas")
+    ):
         import numpy as np
 
         return compare_arrays(np.asarray(ref), np.asarray(cand), path, acc)
@@ -119,14 +127,28 @@ def compare_values(ref, cand, path, acc):
             acc.add(path, ref, cand)
             return False
         return True
-    if isinstance(ref, float) and isinstance(cand, float) or isinstance(ref, complex) and isinstance(cand, complex):
+    if (
+        isinstance(ref, float)
+        and isinstance(cand, float)
+        or isinstance(ref, complex)
+        and isinstance(cand, complex)
+    ):
         ok, d, r = _isclose(ref, cand, opts)
         acc.numeric(d, r)
         if not ok:
             acc.add(path, ref, cand, "abs diff %.3g" % d)
         return ok
-    if isinstance(ref, (int, float)) and isinstance(cand, (int, float)) and type(ref) is not type(cand):
-        acc.add(path, ref, cand, "type changed from %s to %s" % (type(ref).__name__, type(cand).__name__))
+    if (
+        isinstance(ref, (int, float))
+        and isinstance(cand, (int, float))
+        and type(ref) is not type(cand)
+    ):
+        acc.add(
+            path,
+            ref,
+            cand,
+            "type changed from %s to %s" % (type(ref).__name__, type(cand).__name__),
+        )
         return False
     if isinstance(ref, dict) and isinstance(cand, dict):
         ok = True
@@ -155,7 +177,12 @@ def compare_values(ref, cand, path, acc):
                 ok = False
         return ok
     if type(ref) is not type(cand):
-        acc.add(path, ref, cand, "type changed from %s to %s" % (type(ref).__name__, type(cand).__name__))
+        acc.add(
+            path,
+            ref,
+            cand,
+            "type changed from %s to %s" % (type(ref).__name__, type(cand).__name__),
+        )
         return False
     try:
         eq = ref == cand
@@ -195,10 +222,14 @@ def compare_arrays(a, b, path, acc):
             diff = np.abs(af - bf)[both_finite]
             denom = np.abs(af)[both_finite]
             with np.errstate(divide="ignore", invalid="ignore"):
-                rel = np.where(denom > 0, diff / np.where(denom > 0, denom, 1), np.where(diff > 0, np.inf, 0))
+                rel = np.where(
+                    denom > 0, diff / np.where(denom > 0, denom, 1), np.where(diff > 0, np.inf, 0)
+                )
             acc.numeric(float(diff.max()), float(rel.max()))
     elif ka in "mM" or kb in "mM":
-        close = (a == b) | (np.isnat(a) & np.isnat(b)) if ka == kb else np.zeros(a.shape, dtype=bool)
+        close = (
+            (a == b) | (np.isnat(a) & np.isnat(b)) if ka == kb else np.zeros(a.shape, dtype=bool)
+        )
     elif ka in "biuSU?" and kb in "biuSU?":
         close = a == b
     else:
@@ -235,7 +266,10 @@ def compare_series(a, b, path, acc):
     if a.name != b.name:
         acc.add(path + ".name", a.name, b.name, "series name differs")
         ok = False
-    return compare_frames(a.to_frame(name="value"), b.to_frame(name="value"), path, acc, series=True) and ok
+    return (
+        compare_frames(a.to_frame(name="value"), b.to_frame(name="value"), path, acc, series=True)
+        and ok
+    )
 
 
 def _sorted_frame(df, keep_index):
@@ -260,12 +294,19 @@ def compare_frames(a, b, path, acc, series=False):
             if opts["ignore_column_order"]:
                 b = b[ca]
             else:
-                acc.add(path + ".columns", [str(c) for c in ca], [str(c) for c in cb], "column order differs")
+                acc.add(
+                    path + ".columns",
+                    [str(c) for c in ca],
+                    [str(c) for c in cb],
+                    "column order differs",
+                )
                 return False
         else:
             missing = [str(c) for c in ca if c not in cb]
             extra = [str(c) for c in cb if c not in ca]
-            acc.add(path + ".columns", "missing: %s" % missing, "extra: %s" % extra, "columns differ")
+            acc.add(
+                path + ".columns", "missing: %s" % missing, "extra: %s" % extra, "columns differ"
+            )
             return False
     if a.shape[0] != b.shape[0]:
         acc.add(path + ".rows", a.shape[0], b.shape[0], "row count differs")
@@ -275,10 +316,18 @@ def compare_frames(a, b, path, acc, series=False):
             continue
         if a[c].dtype != b[c].dtype:
             if opts["check_dtype"]:
-                acc.add("%s[%r].dtype" % (path, c) if not series else path + ".dtype", str(a[c].dtype), str(b[c].dtype), "dtype differs")
+                acc.add(
+                    "%s[%r].dtype" % (path, c) if not series else path + ".dtype",
+                    str(a[c].dtype),
+                    str(b[c].dtype),
+                    "dtype differs",
+                )
                 ok = False
             else:
-                acc.notes.append("%s column %r: dtype %s vs %s (dtype check off)" % (path, c, a[c].dtype, b[c].dtype))
+                acc.notes.append(
+                    "%s column %r: dtype %s vs %s (dtype check off)"
+                    % (path, c, a[c].dtype, b[c].dtype)
+                )
     if not ok:
         return False
     if opts["ignore_row_order"]:
@@ -288,12 +337,28 @@ def compare_frames(a, b, path, acc, series=False):
     elif not opts["ignore_index"]:
         if not a.index.equals(b.index):
             ia, ib = np.asarray(a.index), np.asarray(b.index)
-            first = next((i for i in range(len(ia)) if not (ia[i] == ib[i] or (_isnan(ia[i]) and _isnan(ib[i])))), None)
+            first = next(
+                (
+                    i
+                    for i in range(len(ia))
+                    if not (ia[i] == ib[i] or (_isnan(ia[i]) and _isnan(ib[i])))
+                ),
+                None,
+            )
             if first is None and a.index.names != b.index.names:
-                acc.add(path + ".index.names", list(a.index.names), list(b.index.names), "index names differ")
+                acc.add(
+                    path + ".index.names",
+                    list(a.index.names),
+                    list(b.index.names),
+                    "index names differ",
+                )
             else:
-                acc.add("%s.index[%s]" % (path, first), ia[first] if first is not None else None,
-                        ib[first] if first is not None else None, "index differs")
+                acc.add(
+                    "%s.index[%s]" % (path, first),
+                    ia[first] if first is not None else None,
+                    ib[first] if first is not None else None,
+                    "index differs",
+                )
             ok = False
     labels = list(a.index)
     for c in ca:
@@ -302,22 +367,39 @@ def compare_frames(a, b, path, acc, series=False):
             sa, sb = sa.iloc[:, 0], sb.iloc[:, 0]
         va, vb = sa.to_numpy(), sb.to_numpy()
         ka, kb = va.dtype.kind, vb.dtype.kind
-        if va.dtype.kind == "O" or vb.dtype.kind == "O" or str(sa.dtype) in ("category", "string", "str") or ka not in "biufcmM" or kb not in "biufcmM":
+        if (
+            va.dtype.kind == "O"
+            or vb.dtype.kind == "O"
+            or str(sa.dtype) in ("category", "string", "str")
+            or ka not in "biufcmM"
+            or kb not in "biufcmM"
+        ):
             eq = np.array([_obj_equal(x, y, acc) for x, y in zip(va, vb)], dtype=bool)
         else:
             sub = Acc(dict(opts, max_differences=0))
             compare_arrays(va, vb, "", sub)
             acc.numeric(sub.max_abs, sub.max_rel)
             if ka in "biufc" and kb in "biufc":
-                fa, fb = va.astype(np.float64 if "c" not in (ka, kb) else np.complex128), vb.astype(np.float64 if "c" not in (ka, kb) else np.complex128)
+                fa, fb = (
+                    va.astype(np.float64 if "c" not in (ka, kb) else np.complex128),
+                    vb.astype(np.float64 if "c" not in (ka, kb) else np.complex128),
+                )
                 eq = np.isclose(fa, fb, rtol=opts["rtol"], atol=opts["atol"], equal_nan=True)
             else:
-                eq = (va == vb) | (np.isnat(va) & np.isnat(vb)) if ka == kb and ka in "mM" else (va == vb)
+                eq = (
+                    (va == vb) | (np.isnat(va) & np.isnat(vb))
+                    if ka == kb and ka in "mM"
+                    else (va == vb)
+                )
         if not eq.all():
             ok = False
             bad = np.flatnonzero(~eq)
             for k, pos in enumerate(bad):
-                where = "%s[%s]" % (path, _short(labels[pos])) if series else "%s[row %s, %r]" % (path, _short(labels[pos]), c)
+                where = (
+                    "%s[%s]" % (path, _short(labels[pos]))
+                    if series
+                    else "%s[row %s, %r]" % (path, _short(labels[pos]), c)
+                )
                 if k < opts["max_differences"]:
                     acc.add(where, va[pos], vb[pos])
                 else:
@@ -349,7 +431,13 @@ def _load(directory, entry):
 
 
 def _result(name, kind, status, detail, acc=None):
-    r = {"name": name, "kind": kind, "status": status, "passed": status in PASSING, "detail": detail}
+    r = {
+        "name": name,
+        "kind": kind,
+        "status": status,
+        "passed": status in PASSING,
+        "detail": detail,
+    }
     if acc is not None:
         r["differences"] = acc.diffs
         r["mismatch_count"] = acc.mismatches
@@ -367,7 +455,12 @@ def _describe_failure(acc):
     why = (" (%s)" % d["why"]) if d.get("why") else ""
     more = (", %d differences in total" % acc.mismatches) if acc.mismatches > 1 else ""
     return "first difference at %s: reference %s, candidate %s%s%s" % (
-        d["path"], d["reference"], d["candidate"], why, more)
+        d["path"],
+        d["reference"],
+        d["candidate"],
+        why,
+        more,
+    )
 
 
 def compare_artifact(ref_entry, cand_entry, ref_dir, cand_dir, opts):
@@ -376,28 +469,46 @@ def compare_artifact(ref_entry, cand_entry, ref_dir, cand_dir, opts):
     if cand_entry is None or cand_entry.get("status") == "missing":
         return _result(name, kind, "missing", "the candidate did not produce `%s`" % name)
     if cand_entry.get("status") == "skipped":
-        return _result(name, kind, "missing", "candidate value was not data: %s" % cand_entry.get("reason"))
+        return _result(
+            name, kind, "missing", "candidate value was not data: %s" % cand_entry.get("reason")
+        )
     if ref_entry.get("hash") and ref_entry.get("hash") == cand_entry.get("hash"):
         return _result(name, kind, "identical", "hash match")
     if kind != cand_entry.get("kind"):
-        return _result(name, kind, "type_mismatch", "reference is %s (%s), candidate is %s (%s)" % (
-            kind, ref_entry.get("type"), cand_entry.get("kind"), cand_entry.get("type")))
+        return _result(
+            name,
+            kind,
+            "type_mismatch",
+            "reference is %s (%s), candidate is %s (%s)"
+            % (kind, ref_entry.get("type"), cand_entry.get("kind"), cand_entry.get("type")),
+        )
     if not ref_entry.get("payload") or not cand_entry.get("payload"):
-        return _result(name, kind, "differs", "hashes differ and no payload is stored to localize the difference")
+        return _result(
+            name,
+            kind,
+            "differs",
+            "hashes differ and no payload is stored to localize the difference",
+        )
     try:
         ref = _load(ref_dir, ref_entry)
         cand = _load(cand_dir, cand_entry)
     except Exception as exc:
-        return _result(name, kind, "error", "could not load payloads: %s: %s" % (type(exc).__name__, exc))
+        return _result(
+            name, kind, "error", "could not load payloads: %s: %s" % (type(exc).__name__, exc)
+        )
     acc = Acc(opts)
     try:
         ok = compare_values(ref, cand, name, acc)
     except Exception as exc:
-        return _result(name, kind, "error", "comparison raised %s: %s" % (type(exc).__name__, exc), acc)
+        return _result(
+            name, kind, "error", "comparison raised %s: %s" % (type(exc).__name__, exc), acc
+        )
     if ok:
         if acc.inexact:
-            detail = "equal within tolerance (max abs diff %.3g, max rel diff %.3g; rtol=%g, atol=%g)" % (
-                acc.max_abs, acc.max_rel, opts["rtol"], opts["atol"])
+            detail = (
+                "equal within tolerance (max abs diff %.3g, max rel diff %.3g; rtol=%g, atol=%g)"
+                % (acc.max_abs, acc.max_rel, opts["rtol"], opts["atol"])
+            )
         else:
             detail = "equal values, different hash (representation differs, e.g. dtype or index metadata)"
             if acc.notes:
@@ -456,14 +567,34 @@ def compare_file(rel, ref_dir, cand_dir, opts):
         elif ext == ".npy":
             import numpy as np
 
-            ok = compare_arrays(np.load(rp, allow_pickle=False), np.load(cp, allow_pickle=False), rel, acc)
+            ok = compare_arrays(
+                np.load(rp, allow_pickle=False), np.load(cp, allow_pickle=False), rel, acc
+            )
         else:
-            return {"status": "differs", "passed": False, "detail": "bytes differ (no tolerant comparison for %s files)" % (ext or "extensionless")}
+            return {
+                "status": "differs",
+                "passed": False,
+                "detail": "bytes differ (no tolerant comparison for %s files)"
+                % (ext or "extensionless"),
+            }
     except Exception as exc:
-        return {"status": "differs", "passed": False, "detail": "bytes differ and parsing failed: %s: %s" % (type(exc).__name__, exc)}
+        return {
+            "status": "differs",
+            "passed": False,
+            "detail": "bytes differ and parsing failed: %s: %s" % (type(exc).__name__, exc),
+        }
     if ok:
-        return {"status": "close", "passed": True, "detail": "parsed contents equal within tolerance (max abs diff %.3g)" % acc.max_abs}
-    return {"status": "differs", "passed": False, "detail": _describe_failure(acc), "differences": acc.diffs}
+        return {
+            "status": "close",
+            "passed": True,
+            "detail": "parsed contents equal within tolerance (max abs diff %.3g)" % acc.max_abs,
+        }
+    return {
+        "status": "differs",
+        "passed": False,
+        "detail": _describe_failure(acc),
+        "differences": acc.diffs,
+    }
 
 
 def main(argv=None):
@@ -471,7 +602,11 @@ def main(argv=None):
     with open(argv[0], encoding="utf-8") as f:
         spec = json.load(f)
     opts = _opts(spec.get("options"))
-    out = {"artifacts": compare_manifests(spec["reference"], spec["candidate"], spec.get("names"), opts)}
+    out = {
+        "artifacts": compare_manifests(
+            spec["reference"], spec["candidate"], spec.get("names"), opts
+        )
+    }
     files = []
     for item in spec.get("files") or []:
         r = compare_file(item["path"], item["reference_dir"], item["candidate_dir"], opts)

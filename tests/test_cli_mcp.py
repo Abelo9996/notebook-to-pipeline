@@ -35,5 +35,10 @@ def test_mcp_server_lists_tools():
         tools = await server.list_tools()
         return sorted(t.name for t in tools)
 
-    assert anyio.run(names) == ["analyze_notebook", "capture_reference", "scaffold_pipeline",
-                                "verify_pipeline", "write_report"]
+    assert anyio.run(names) == [
+        "analyze_notebook",
+        "capture_reference",
+        "scaffold_pipeline",
+        "verify_pipeline",
+        "write_report",
+    ]

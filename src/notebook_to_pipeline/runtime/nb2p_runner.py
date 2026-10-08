@@ -94,21 +94,54 @@ def main(argv=None):
         ns = run_pipeline(spec["pipeline"], spec.get("args", []))
     except SystemExit as exc:
         if exc.code not in (None, 0):
-            status.update({"status": "failed", "error_type": "SystemExit", "error": repr(exc.code),
-                           "traceback": traceback.format_exc()})
+            status.update(
+                {
+                    "status": "failed",
+                    "error_type": "SystemExit",
+                    "error": repr(exc.code),
+                    "traceback": traceback.format_exc(),
+                }
+            )
         ns = None
     except BaseException as exc:
-        status.update({"status": "failed", "error_type": type(exc).__name__, "error": str(exc),
-                       "traceback": traceback.format_exc()})
+        status.update(
+            {
+                "status": "failed",
+                "error_type": type(exc).__name__,
+                "error": str(exc),
+                "traceback": traceback.format_exc(),
+            }
+        )
         ns = None
     status["duration_s"] = round(time.time() - t0, 3)
     if ns is None and status["status"] == "ok":
-        status.update({"status": "failed", "error_type": "SystemExit",
-                       "error": "the script exited before finishing, so its globals are unavailable"})
+        status.update(
+            {
+                "status": "failed",
+                "error_type": "SystemExit",
+                "error": "the script exited before finishing, so its globals are unavailable",
+            }
+        )
     if status["status"] == "ok":
-        nb2p_probe.dump(ns, spec.get("names"), outdir, spec.get("max_bytes", 200 * 1024 * 1024))
+        manifest = nb2p_probe.dump(ns, spec.get("names"), outdir, spec.get("max_bytes", 200 * 1024 * 1024))
+        back = spec.get("rename_back") or {}
+        if back:
+            for e in manifest["artifacts"]:
+                e["name"] = back.get(e["name"], e["name"])
+            with open(os.path.join(outdir, "artifacts.json"), "w", encoding="utf-8") as f:
+                json.dump(manifest, f, indent=2, default=str)
     with open(os.path.join(outdir, "run.json"), "w", encoding="utf-8") as f:
         json.dump(status, f, indent=2)
+    comp = spec.get("compare")
+    if status["status"] == "ok" and comp:
+        # Compare in this process: the values are already importable here, no second interpreter start.
+        import nb2p_compare
+
+        results = nb2p_compare.compare_manifests(comp["reference"], outdir, comp.get("names"),
+                                                 comp.get("options"))
+        with open(comp["out"], "w", encoding="utf-8") as f:
+            json.dump({"artifacts": results, "options": nb2p_compare._opts(comp.get("options"))},
+                      f, indent=2, default=str)
     return 0 if status["status"] == "ok" else 3
 
 

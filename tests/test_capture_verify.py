@@ -19,7 +19,7 @@ CELLS = [
     "df.to_csv('summary.csv', index=False)",
 ]
 
-PIPELINE_SAME = '''
+PIPELINE_SAME = """
 import numpy as np
 import pandas as pd
 
@@ -35,7 +35,7 @@ def run():
         "arr": np.linspace(0, 1, 5),
         "config": {"n": 3, "tags": ["x", "y"]},
     }
-'''
+"""
 
 
 @pytest.fixture(scope="module")
@@ -88,8 +88,10 @@ def test_verify_equivalent(captured, tmp_path):
 
 def test_verify_close_within_tolerance(captured, tmp_path):
     root, nb, _ = captured
-    body = PIPELINE_SAME.replace('"mean_temp": float(df["temp"].mean()),',
-                                 '"mean_temp": float(df["temp"].sum() / len(df)) + 1e-12,')
+    body = PIPELINE_SAME.replace(
+        '"mean_temp": float(df["temp"].mean()),',
+        '"mean_temp": float(df["temp"].sum() / len(df)) + 1e-12,',
+    )
     write_pipeline(root, body, "pipe_close.py")
     r = verify("pipe_close.py:run", nb, cwd=root, out=tmp_path)
     assert r["verdict"] == "equivalent"
@@ -139,8 +141,14 @@ def test_verify_pipeline_failure(captured, tmp_path):
 
 def test_verify_artifact_subset(captured, tmp_path):
     root, nb, _ = captured
-    write_pipeline(root, "import numpy as np\ndef run():\n    return {'arr': np.linspace(0, 1, 5)}\n", "pipe_sub.py")
-    r = verify("pipe_sub.py:run", nb, cwd=root, out=tmp_path, artifacts=["arr"], compare_files=False)
+    write_pipeline(
+        root,
+        "import numpy as np\ndef run():\n    return {'arr': np.linspace(0, 1, 5)}\n",
+        "pipe_sub.py",
+    )
+    r = verify(
+        "pipe_sub.py:run", nb, cwd=root, out=tmp_path, artifacts=["arr"], compare_files=False
+    )
     assert r["verdict"] == "equivalent"
     assert [a["name"] for a in r["artifacts"]] == ["arr"]
 
@@ -159,11 +167,14 @@ def test_report_after_verify(captured, tmp_path):
 def test_capture_detects_hidden_state_failure(tmp_path):
     from conftest import make_notebook
 
-    nb = make_notebook(tmp_path / "broken.ipynb", [
-        ("import pandas as pd", 1),
-        ("clean = raw.dropna()", 7),
-        ("raw = pd.DataFrame({'a': [1, None, 3]})", 2),
-    ])
+    nb = make_notebook(
+        tmp_path / "broken.ipynb",
+        [
+            ("import pandas as pd", 1),
+            ("clean = raw.dropna()", 7),
+            ("raw = pd.DataFrame({'a': [1, None, 3]})", 2),
+        ],
+    )
     r = capture(nb)
     ex = r["execution"]
     assert ex["status"] == "failed"
@@ -176,10 +187,58 @@ def test_capture_detects_hidden_state_failure(tmp_path):
 def test_repeat_flags_unstable_outputs(tmp_path):
     from conftest import make_notebook
 
-    nb = make_notebook(tmp_path / "rand.ipynb", [
-        "import numpy as np",
-        "stable = np.arange(3)\nnoisy = np.random.default_rng().random(3)",
-    ])
+    nb = make_notebook(
+        tmp_path / "rand.ipynb",
+        [
+            "import numpy as np",
+            "stable = np.arange(3)\nnoisy = np.random.default_rng().random(3)",
+        ],
+    )
     r = capture(nb, repeat=2)
     stab = {a["name"]: a["stable"] for a in r["artifacts"]}
     assert stab == {"stable": True, "noisy": False}
+
+
+def test_saved_outputs_and_runtime_shared_objects(tmp_path):
+    from conftest import make_notebook
+
+    nb = make_notebook(
+        tmp_path / "shared.ipynb",
+        [
+            ("print('saved')", 1),
+            ("print('changed')", 2),
+            (
+                "from sklearn.preprocessing import StandardScaler\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.linear_model import LinearRegression\nsc = StandardScaler()\np1 = make_pipeline(sc, LinearRegression())\np2 = make_pipeline(sc, LinearRegression())\nalias = p1",
+                None,
+            ),
+        ],
+    )
+    r = capture(nb)
+    ex = r["execution"]
+    assert ex["saved_outputs"] == {"same": 1, "different": 1, "none": 1}
+    changed = next(c for c in ex["cells"] if c["index"] == 1)
+    assert changed["first_difference"] == {"line": 1, "saved": "saved", "fresh": "changed"}
+    shared = [f["names"] for f in r["runtime_findings"] if f["kind"] == "shared_object"]
+    aliases = [set(f["names"]) for f in r["runtime_findings"] if f["kind"] == "alias"]
+    assert shared == [["sc", "p1[0]", "p2[0]"]]
+    assert aliases == [{"p1", "alias"}]
+
+
+def test_verify_shell_command_compares_files(captured, tmp_path):
+    import sys
+
+    root, nb, _ = captured
+    write_pipeline(root, PIPELINE_SAME + "\nrun()\n", "pipe_cmd.py")
+    r = verify(None, nb, cmd=f'"{sys.executable}" pipe_cmd.py', cwd=root, out=tmp_path)
+    assert r["verdict"] == "equivalent", r
+    assert r["files"][0]["status"] == "identical"
+    assert all(a["status"] == "not_compared" for a in r["artifacts"])
+
+    body = PIPELINE_SAME.replace(
+        'df.to_csv("summary.csv", index=False)',
+        'df.assign(temp=df["temp"] + 1e-12).to_csv("summary.csv", index=False)',
+    )
+    write_pipeline(root, body + "\nrun()\n", "pipe_cmd2.py")
+    r = verify(None, nb, cmd=f'"{sys.executable}" pipe_cmd2.py', cwd=root, out=tmp_path)
+    assert r["verdict"] == "equivalent", r
+    assert r["files"][0]["status"] == "close"

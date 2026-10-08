@@ -10,7 +10,11 @@ import pytest
 def make_notebook(path: Path, cells: list, *, executed: bool = False) -> Path:
     """Build a notebook. Each cell is a source string or (source, execution_count)."""
     nb = nbformat.v4.new_notebook()
-    nb.metadata["kernelspec"] = {"name": "python3", "display_name": "Python 3", "language": "python"}
+    nb.metadata["kernelspec"] = {
+        "name": "python3",
+        "display_name": "Python 3",
+        "language": "python",
+    }
     for item in cells:
         if isinstance(item, tuple):
             src, ec = item

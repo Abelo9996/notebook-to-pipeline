@@ -19,78 +19,306 @@ STAGES = ["load", "clean", "features", "train", "evaluate", "report"]
 STAGE_RANK = {s: i for i, s in enumerate(STAGES)}
 
 IPYTHON_NAMES = {
-    "get_ipython", "display", "In", "Out", "exit", "quit", "_", "__", "___",
-    "_i", "_ii", "_iii", "_oh", "_dh", "_ih", "__builtins__", "__name__", "__doc__",
+    "get_ipython",
+    "display",
+    "In",
+    "Out",
+    "exit",
+    "quit",
+    "_",
+    "__",
+    "___",
+    "_i",
+    "_ii",
+    "_iii",
+    "_oh",
+    "_dh",
+    "_ih",
+    "__builtins__",
+    "__name__",
+    "__doc__",
 }
 _IPY_NUMBERED = re.compile(r"^_i?\d+$")
 BUILTIN_NAMES = set(dir(builtins))
 
 MUTATING_METHODS = {
-    "append", "extend", "insert", "pop", "remove", "clear", "update", "sort", "reverse",
-    "add", "discard", "setdefault", "popitem", "appendleft", "extendleft", "fill", "put",
-    "resize", "itemset", "setflags", "fit", "partial_fit", "fit_transform", "fit_predict",
-    "set_params", "set_output", "set_index_inplace", "__setitem__",
+    "append",
+    "extend",
+    "insert",
+    "pop",
+    "remove",
+    "clear",
+    "update",
+    "sort",
+    "reverse",
+    "add",
+    "discard",
+    "setdefault",
+    "popitem",
+    "appendleft",
+    "extendleft",
+    "fill",
+    "put",
+    "resize",
+    "itemset",
+    "setflags",
+    "fit",
+    "partial_fit",
+    "fit_transform",
+    "fit_predict",
+    "set_params",
+    "set_output",
+    "set_index_inplace",
+    "__setitem__",
 }
 FILE_WRITE_METHODS = {
-    "to_csv", "to_parquet", "to_excel", "to_json", "to_pickle", "to_feather", "to_hdf",
-    "to_sql", "to_stata", "to_html", "to_latex", "to_markdown", "to_netcdf", "to_xml",
-    "to_orc", "savefig", "tofile", "write_text", "write_bytes",
+    "to_csv",
+    "to_parquet",
+    "to_excel",
+    "to_json",
+    "to_pickle",
+    "to_feather",
+    "to_hdf",
+    "to_sql",
+    "to_stata",
+    "to_html",
+    "to_latex",
+    "to_markdown",
+    "to_netcdf",
+    "to_xml",
+    "to_orc",
+    "savefig",
+    "tofile",
+    "write_text",
+    "write_bytes",
 }
 NUMPY_WRITERS = {"save", "savez", "savez_compressed", "savetxt"}
 NUMPY_READERS = {"load", "loadtxt", "genfromtxt", "fromfile"}
-FS_MUTATORS = {"remove", "unlink", "rmtree", "rename", "replace", "makedirs", "mkdir", "copy",
-               "copyfile", "copytree", "move", "rmdir"}
+FS_MUTATORS = {
+    "remove",
+    "unlink",
+    "rmtree",
+    "rename",
+    "replace",
+    "makedirs",
+    "mkdir",
+    "copy",
+    "copyfile",
+    "copytree",
+    "move",
+    "rmdir",
+}
 PLOT_BASES = {"plt", "sns", "px", "go", "alt", "pyplot", "seaborn"}
 PLOT_METHODS = {
-    "plot", "hist", "scatter", "bar", "barh", "imshow", "boxplot", "show", "savefig",
-    "figure", "subplots", "heatmap", "lineplot", "scatterplot", "pairplot", "histplot",
-    "countplot", "violinplot", "kdeplot", "displot", "catplot", "regplot", "tight_layout",
-    "set_title", "set_xlabel", "set_ylabel", "legend", "pie", "area", "line", "box", "kde",
+    "plot",
+    "hist",
+    "scatter",
+    "bar",
+    "barh",
+    "imshow",
+    "boxplot",
+    "show",
+    "savefig",
+    "figure",
+    "subplots",
+    "heatmap",
+    "lineplot",
+    "scatterplot",
+    "pairplot",
+    "histplot",
+    "countplot",
+    "violinplot",
+    "kdeplot",
+    "displot",
+    "catplot",
+    "regplot",
+    "tight_layout",
+    "set_title",
+    "set_xlabel",
+    "set_ylabel",
+    "legend",
+    "pie",
+    "area",
+    "line",
+    "box",
+    "kde",
 }
 RANDOM_FNS = {
-    "rand", "randn", "randint", "random", "choice", "shuffle", "permutation", "normal",
-    "uniform", "binomial", "poisson", "sample", "random_sample", "standard_normal",
-    "exponential", "beta", "gamma", "multivariate_normal", "integers", "gauss", "randrange",
+    "rand",
+    "randn",
+    "randint",
+    "random",
+    "choice",
+    "shuffle",
+    "permutation",
+    "normal",
+    "uniform",
+    "binomial",
+    "poisson",
+    "sample",
+    "random_sample",
+    "standard_normal",
+    "exponential",
+    "beta",
+    "gamma",
+    "multivariate_normal",
+    "integers",
+    "gauss",
+    "randrange",
 }
 RANDOM_ESTIMATORS = {
-    "train_test_split", "ShuffleSplit", "StratifiedShuffleSplit", "RandomForestClassifier",
-    "RandomForestRegressor", "ExtraTreesClassifier", "ExtraTreesRegressor",
-    "GradientBoostingClassifier", "GradientBoostingRegressor",
-    "HistGradientBoostingClassifier", "HistGradientBoostingRegressor", "KMeans",
-    "MiniBatchKMeans", "MLPClassifier", "MLPRegressor", "SGDClassifier", "SGDRegressor",
-    "DecisionTreeClassifier", "DecisionTreeRegressor", "RandomizedSearchCV", "TSNE",
-    "IsolationForest", "BaggingClassifier", "BaggingRegressor", "AdaBoostClassifier",
-    "AdaBoostRegressor", "GaussianMixture", "RandomTreesEmbedding",
+    "train_test_split",
+    "ShuffleSplit",
+    "StratifiedShuffleSplit",
+    "RandomForestClassifier",
+    "RandomForestRegressor",
+    "ExtraTreesClassifier",
+    "ExtraTreesRegressor",
+    "GradientBoostingClassifier",
+    "GradientBoostingRegressor",
+    "HistGradientBoostingClassifier",
+    "HistGradientBoostingRegressor",
+    "KMeans",
+    "MiniBatchKMeans",
+    "MLPClassifier",
+    "MLPRegressor",
+    "SGDClassifier",
+    "SGDRegressor",
+    "DecisionTreeClassifier",
+    "DecisionTreeRegressor",
+    "RandomizedSearchCV",
+    "TSNE",
+    "IsolationForest",
+    "BaggingClassifier",
+    "BaggingRegressor",
+    "AdaBoostClassifier",
+    "AdaBoostRegressor",
+    "GaussianMixture",
+    "RandomTreesEmbedding",
 }
 # scikit-learn composites that keep references to their steps instead of copying them.
 COMPOSITE_CTORS = {"make_pipeline", "Pipeline", "make_union", "FeatureUnion"}
 SEED_CALLS = {"seed", "manual_seed", "set_seed", "set_random_seed"}
 CONFIG_CALLS = {
-    "set_option", "set_printoptions", "filterwarnings", "simplefilter", "chdir", "use",
-    "set_theme", "set_style", "set_context", "rc",
+    "set_option",
+    "set_printoptions",
+    "filterwarnings",
+    "simplefilter",
+    "chdir",
+    "use",
+    "set_theme",
+    "set_style",
+    "set_context",
+    "rc",
 }
-LOAD_SIGNALS = {"loadtxt", "genfromtxt", "connect", "load_dataset", "read_sql", "urlopen",
-                "urlretrieve", "open_dataset"}
+LOAD_SIGNALS = {
+    "loadtxt",
+    "genfromtxt",
+    "connect",
+    "load_dataset",
+    "read_sql",
+    "urlopen",
+    "urlretrieve",
+    "open_dataset",
+}
 CLEAN_SIGNALS = {
-    "dropna", "fillna", "drop_duplicates", "drop", "astype", "rename", "replace",
-    "to_datetime", "to_numeric", "strip", "lower", "upper", "str", "clip", "query", "isna",
-    "notna", "isnull", "notnull", "interpolate", "ffill", "bfill", "reset_index", "set_index",
-    "duplicated", "where", "mask", "copy", "contains", "split", "infer_objects",
+    "dropna",
+    "fillna",
+    "drop_duplicates",
+    "drop",
+    "astype",
+    "rename",
+    "replace",
+    "to_datetime",
+    "to_numeric",
+    "strip",
+    "lower",
+    "upper",
+    "str",
+    "clip",
+    "query",
+    "isna",
+    "notna",
+    "isnull",
+    "notnull",
+    "interpolate",
+    "ffill",
+    "bfill",
+    "reset_index",
+    "set_index",
+    "duplicated",
+    "where",
+    "mask",
+    "copy",
+    "contains",
+    "split",
+    "infer_objects",
 }
 FEATURE_SIGNALS = {
-    "get_dummies", "train_test_split", "StandardScaler", "MinMaxScaler", "RobustScaler",
-    "OneHotEncoder", "OrdinalEncoder", "LabelEncoder", "PolynomialFeatures",
-    "ColumnTransformer", "SimpleImputer", "PCA", "TfidfVectorizer", "CountVectorizer",
-    "transform", "fit_transform", "resample", "groupby", "agg", "aggregate", "pivot",
-    "pivot_table", "merge", "concat", "join", "apply", "map", "rolling", "cut", "qcut",
-    "shift", "diff", "pct_change", "cumsum", "melt", "crosstab", "value_counts", "sum",
-    "mean", "median", "weekday", "dayofweek", "month", "year",
+    "get_dummies",
+    "train_test_split",
+    "StandardScaler",
+    "MinMaxScaler",
+    "RobustScaler",
+    "OneHotEncoder",
+    "OrdinalEncoder",
+    "LabelEncoder",
+    "PolynomialFeatures",
+    "ColumnTransformer",
+    "SimpleImputer",
+    "PCA",
+    "TfidfVectorizer",
+    "CountVectorizer",
+    "transform",
+    "fit_transform",
+    "resample",
+    "groupby",
+    "agg",
+    "aggregate",
+    "pivot",
+    "pivot_table",
+    "merge",
+    "concat",
+    "join",
+    "apply",
+    "map",
+    "rolling",
+    "cut",
+    "qcut",
+    "shift",
+    "diff",
+    "pct_change",
+    "cumsum",
+    "melt",
+    "crosstab",
+    "value_counts",
+    "sum",
+    "mean",
+    "median",
+    "weekday",
+    "dayofweek",
+    "month",
+    "year",
 }
-TRAIN_SIGNALS = {"fit", "partial_fit", "GridSearchCV", "RandomizedSearchCV", "make_pipeline",
-                 "Pipeline", "cross_val_predict"}
+TRAIN_SIGNALS = {
+    "fit",
+    "partial_fit",
+    "GridSearchCV",
+    "RandomizedSearchCV",
+    "make_pipeline",
+    "Pipeline",
+    "cross_val_predict",
+}
 EVAL_SIGNALS = {
-    "predict", "predict_proba", "score", "decision_function", "confusion_matrix",
-    "classification_report", "cross_val_score", "cross_validate", "log_loss",
+    "predict",
+    "predict_proba",
+    "score",
+    "decision_function",
+    "confusion_matrix",
+    "classification_report",
+    "cross_val_score",
+    "cross_validate",
+    "log_loss",
 }
 _ESTIMATOR_NAME = re.compile(r"(Classifier|Regressor|Regression|SVC|SVR|KMeans|CV|Model|Booster)$")
 _METRIC_NAME = re.compile(r"(_score|_error|_loss)$")
@@ -182,6 +410,22 @@ def _bound_in(node: ast.AST) -> set[str]:
         elif isinstance(sub, ast.ExceptHandler) and sub.name:
             bound.add(sub.name)
     return bound
+
+
+def _composite_call(node: ast.AST) -> tuple[ast.Call | None, bool]:
+    """Find make_pipeline(...) in `make_pipeline(...)` or `make_pipeline(...).fit(...)`.
+    Returns the constructor call and whether a mutating method was chained onto it."""
+    mutated = False
+    while isinstance(node, ast.Call):
+        name = _dotted(node.func).split(".")[-1]
+        if name in COMPOSITE_CTORS:
+            return node, mutated
+        if isinstance(node.func, ast.Attribute):
+            mutated = mutated or node.func.attr in MUTATING_METHODS
+            node = node.func.value
+        else:
+            break
+    return None, False
 
 
 def _direct_names(call: ast.Call) -> list[str]:
@@ -352,7 +596,9 @@ class _CellVisitor:
                 self._read(root)
                 kind = "attribute set" if isinstance(target, ast.Attribute) else "item set"
                 self.f.mutate(root, kind)
-                if root in {"plt", "matplotlib", "mpl"} or _dotted(target).startswith(("pd.options", "os.environ")):
+                if root in {"plt", "matplotlib", "mpl"} or _dotted(target).startswith(
+                    ("pd.options", "os.environ")
+                ):
                     self.f.config.append(_dotted(target))
 
     depth = 0
@@ -383,12 +629,14 @@ class _CellVisitor:
                 self._bind_target(t)
                 if plotty:
                     f.plot_objects |= set(_target_names(t))
-            if (isinstance(s.value, ast.Call) and len(s.targets) == 1
-                    and isinstance(s.targets[0], ast.Name)
-                    and _dotted(s.value.func).split(".")[-1] in COMPOSITE_CTORS):
-                members = _direct_names(s.value)
+            ctor, fitted_now = _composite_call(s.value)
+            if ctor is not None and len(s.targets) == 1 and isinstance(s.targets[0], ast.Name):
+                members = _direct_names(ctor)
                 if members:
                     f.composites[s.targets[0].id] = members
+                    if fitted_now:
+                        for m in members:
+                            f.mutate(m, f"fitted through `{s.targets[0].id}`, which holds the same object")
             names_read_in_value = set(_loads_in(s.value))
             for t in s.targets:
                 for n in _target_names(t):
@@ -516,33 +764,50 @@ class _CellVisitor:
         # user-defined function calls (resolved after all cells are seen)
         if isinstance(node.func, ast.Name):
             arg_names = [a.id if isinstance(a, ast.Name) else None for a in node.args]
-            kw_names = {k.arg: k.value.id for k in node.keywords
-                        if k.arg and isinstance(k.value, ast.Name)}
+            kw_names = {
+                k.arg: k.value.id for k in node.keywords if k.arg and isinstance(k.value, ast.Name)
+            }
             f.user_calls.append((node.func.id, arg_names, kw_names))
 
         # mutation through methods
         if isinstance(node.func, ast.Attribute):
             root = _root_name(node.func.value)
-            inplace = any(k.arg == "inplace" and isinstance(k.value, ast.Constant)
-                          and k.value.value is True for k in node.keywords)
+            inplace = any(
+                k.arg == "inplace" and isinstance(k.value, ast.Constant) and k.value.value is True
+                for k in node.keywords
+            )
             if root is not None and root not in f.imports and root not in {"np", "pd", "plt"}:
                 if last in MUTATING_METHODS:
                     f.mutate(root, f".{last}()")
                 elif inplace:
                     f.mutate(root, f".{last}(inplace=True)")
-            if base in {"np", "numpy", "random"} and last == "shuffle" and isinstance(first_arg, ast.Name):
+            if (
+                base in {"np", "numpy", "random"}
+                and last == "shuffle"
+                and isinstance(first_arg, ast.Name)
+            ):
                 f.mutate(first_arg.id, f"{dotted}()")
 
         # file reads
         if last.startswith("read_") or (base in {"np", "numpy"} and last in NUMPY_READERS):
-            path = _literal_path(first_arg) or _literal_path(_kw(node, "filepath_or_buffer", "path", "io", "fname", "file"))
+            path = _literal_path(first_arg) or _literal_path(
+                _kw(node, "filepath_or_buffer", "path", "io", "fname", "file")
+            )
             f.files_read.append({"path": path or "<dynamic>", "call": dotted})
             if path and path.startswith(("http://", "https://")):
                 f.network.append(dotted)
-        elif dotted == "open" or last in {"open_dataset", "connect"} or dotted in {"joblib.load", "pickle.load", "torch.load", "Image.open"}:
+        elif (
+            dotted == "open"
+            or last in {"open_dataset", "connect"}
+            or dotted in {"joblib.load", "pickle.load", "torch.load", "Image.open"}
+        ):
             path = _literal_path(first_arg) or _literal_path(_kw(node, "file", "filename", "path"))
             mode_node = node.args[1] if len(node.args) > 1 else _kw(node, "mode")
-            mode = mode_node.value if isinstance(mode_node, ast.Constant) and isinstance(mode_node.value, str) else "r"
+            mode = (
+                mode_node.value
+                if isinstance(mode_node, ast.Constant) and isinstance(mode_node.value, str)
+                else "r"
+            )
             entry = {"path": path or "<dynamic>", "call": dotted}
             if any(c in mode for c in "wax+"):
                 f.files_written.append(entry)
@@ -550,11 +815,17 @@ class _CellVisitor:
                 f.files_read.append(entry)
 
         # file writes
-        if last in FILE_WRITE_METHODS and (node.args or kwnames & {"path", "path_or_buf", "fname", "excel_writer", "name"}):
-            path = _literal_path(first_arg) or _literal_path(_kw(node, "path_or_buf", "path", "fname", "excel_writer"))
+        if last in FILE_WRITE_METHODS and (
+            node.args or kwnames & {"path", "path_or_buf", "fname", "excel_writer", "name"}
+        ):
+            path = _literal_path(first_arg) or _literal_path(
+                _kw(node, "path_or_buf", "path", "fname", "excel_writer")
+            )
             f.files_written.append({"path": path or "<dynamic>", "call": dotted})
         elif base in {"np", "numpy"} and last in NUMPY_WRITERS:
-            f.files_written.append({"path": _literal_path(first_arg) or "<dynamic>", "call": dotted})
+            f.files_written.append(
+                {"path": _literal_path(first_arg) or "<dynamic>", "call": dotted}
+            )
         elif dotted in {"joblib.dump", "torch.save", "pickle.dump", "json.dump"}:
             target = node.args[1] if len(node.args) > 1 else None
             f.files_written.append({"path": _literal_path(target) or "<dynamic>", "call": dotted})
@@ -562,7 +833,11 @@ class _CellVisitor:
             f.fs_changes.append(dotted)
 
         # network, shell
-        if last in {"urlopen", "urlretrieve", "load_dataset"} or base in {"requests", "httpx", "wget"} or last.startswith("fetch_"):
+        if (
+            last in {"urlopen", "urlretrieve", "load_dataset"}
+            or base in {"requests", "httpx", "wget"}
+            or last.startswith("fetch_")
+        ):
             f.network.append(dotted)
         for a in node.args:
             p = _literal_path(a)
@@ -580,17 +855,43 @@ class _CellVisitor:
             f.plots = True
 
         # config and seeds
-        if last in SEED_CALLS and base in {"np", "numpy", "random", "torch", "tf", "keras", "tensorflow"}:
+        if last in SEED_CALLS and base in {
+            "np",
+            "numpy",
+            "random",
+            "torch",
+            "tf",
+            "keras",
+            "tensorflow",
+        }:
             f.seeds.append(dotted)
-        elif (last in CONFIG_CALLS and base in {"pd", "pandas", "np", "numpy", "warnings", "os", "plt", "sns", "matplotlib", "mpl"}) or (base == "sys" and "path" in parts):
+        elif (
+            last in CONFIG_CALLS
+            and base
+            in {"pd", "pandas", "np", "numpy", "warnings", "os", "plt", "sns", "matplotlib", "mpl"}
+        ) or (base == "sys" and "path" in parts):
             f.config.append(dotted)
 
         # randomness
-        if (base in {"np", "numpy"} and len(parts) >= 3 and parts[1] == "random" and last in RANDOM_FNS) or (base == "random" and last in RANDOM_FNS) or (last == "default_rng" and not node.args and "seed" not in kwnames):
+        if (
+            (
+                base in {"np", "numpy"}
+                and len(parts) >= 3
+                and parts[1] == "random"
+                and last in RANDOM_FNS
+            )
+            or (base == "random" and last in RANDOM_FNS)
+            or (last == "default_rng" and not node.args and "seed" not in kwnames)
+        ):
             f.random_calls.append(dotted)
         elif last in RANDOM_ESTIMATORS and "random_state" not in kwnames:
             f.random_calls.append(f"{last}() without random_state")
-        elif last == "sample" and isinstance(node.func, ast.Attribute) and base not in {"random", "np"} and "random_state" not in kwnames:
+        elif (
+            last == "sample"
+            and isinstance(node.func, ast.Attribute)
+            and base not in {"random", "np"}
+            and "random_state" not in kwnames
+        ):
             f.random_calls.append(f"{dotted}() without random_state")
 
 
@@ -619,8 +920,10 @@ def _function_info(fn: ast.FunctionDef | ast.AsyncFunctionDef, cell_index: int) 
     for sub in ast.walk(fn):
         root = None
         if isinstance(sub, ast.Call) and isinstance(sub.func, ast.Attribute):
-            inplace = any(k.arg == "inplace" and isinstance(k.value, ast.Constant) and k.value.value is True
-                          for k in sub.keywords)
+            inplace = any(
+                k.arg == "inplace" and isinstance(k.value, ast.Constant) and k.value.value is True
+                for k in sub.keywords
+            )
             if sub.func.attr in MUTATING_METHODS or inplace:
                 root = _root_name(sub.func.value)
         elif isinstance(sub, ast.Assign | ast.AugAssign):
@@ -679,10 +982,21 @@ def analyze_cells(cells: list[Cell]) -> dict[str, Any]:
         for m in c.magics:
             if m.kind == "shell" or m.name in {"bash", "sh", "system", "script"}:
                 cf.shell.append(f"{m.name} {m.args}".strip())
-            if m.name in {"run", "load", "store", "autoreload", "load_ext", "writefile", "cd", "env"}:
+            if m.name in {
+                "run",
+                "load",
+                "store",
+                "autoreload",
+                "load_ext",
+                "writefile",
+                "cd",
+                "env",
+            }:
                 cf.config.append(f"%{m.name} {m.args}".strip())
             if m.name == "writefile":
-                cf.files_written.append({"path": m.args.split()[-1] if m.args else "<dynamic>", "call": "%%writefile"})
+                cf.files_written.append(
+                    {"path": m.args.split()[-1] if m.args else "<dynamic>", "call": "%%writefile"}
+                )
         facts.append(cf)
 
     # Resolve calls to notebook-defined functions: param mutation, global mutation, deferred reads.
@@ -700,7 +1014,9 @@ def analyze_cells(cells: list[Cell]) -> dict[str, Any]:
                     cf.mutate(argname, f"passed to {fname}() which mutates it")
             for g in info.global_mutations:
                 cf.mutate(g, f"{fname}() mutates global")
-            call_reads.setdefault(cf.cell.index, set()).update(info.free_names - set(functions) - {fname})
+            call_reads.setdefault(cf.cell.index, set()).update(
+                info.free_names - set(functions) - {fname}
+            )
 
     # Fitting a pipeline fits the very objects it was built from (no copies are made).
     composites: dict[str, list[str]] = {}
@@ -717,13 +1033,15 @@ def analyze_cells(cells: list[Cell]) -> dict[str, Any]:
     for m, comps in member_of.items():
         owners = sorted({c for c, _ in comps})
         if len(owners) > 1:
-            shared_findings.append({
-                "kind": "shared_estimator",
-                "severity": "warning",
-                "cells": sorted({facts[i].cell.index for _, i in comps}),
-                "names": [m, *owners],
-                "message": f"`{m}` is a step of {_and_list(owners)} at the same time. Pipelines keep the object itself, not a copy, so fitting one refits `{m}` inside the other{'s' if len(owners) > 2 else ''} too. Use separate instances (or sklearn.base.clone) unless sharing is intended.",
-            })
+            shared_findings.append(
+                {
+                    "kind": "shared_estimator",
+                    "severity": "warning",
+                    "cells": sorted({facts[i].cell.index for _, i in comps}),
+                    "names": [m, *owners],
+                    "message": f"`{m}` is a step of {_and_list(owners)} at the same time. Pipelines keep the object itself, not a copy, so fitting one refits `{m}` inside the other{'s' if len(owners) > 2 else ''} too. Use separate instances (or sklearn.base.clone) unless sharing is intended.",
+                }
+            )
 
     pos = {cf.cell.index: i for i, cf in enumerate(facts)}
     defs: dict[str, list[int]] = {}
@@ -744,7 +1062,9 @@ def analyze_cells(cells: list[Cell]) -> dict[str, Any]:
     reaching: dict[int, dict[str, int | None]] = {}
     for i, cf in enumerate(facts):
         reaching[i] = {}
-        effective_reads = list(cf.reads) + sorted(call_reads.get(cf.cell.index, set()) - set(cf.reads))
+        effective_reads = list(cf.reads) + sorted(
+            call_reads.get(cf.cell.index, set()) - set(cf.reads)
+        )
         for n in effective_reads:
             if n in cf.functions:
                 continue
@@ -765,48 +1085,57 @@ def analyze_cells(cells: list[Cell]) -> dict[str, Any]:
             later = [d for d in defs.get(n, []) if d > i]
             how = " (read inside a function called here)" if via_call else ""
             if later:
-                findings.append({
-                    "kind": "use_before_def",
-                    "severity": "error",
-                    "cells": [cf.cell.index, facts[later[0]].cell.index],
-                    "names": [n],
-                    "message": f"{_label(cf.cell)} reads `{n}`{how} but it is first defined later, in {_label(facts[later[0]].cell)}. A top-to-bottom run will fail here with NameError.",
-                })
+                findings.append(
+                    {
+                        "kind": "use_before_def",
+                        "severity": "error",
+                        "cells": [cf.cell.index, facts[later[0]].cell.index],
+                        "names": [n],
+                        "message": f"{_label(cf.cell)} reads `{n}`{how} but it is first defined later, in {_label(facts[later[0]].cell)}. A top-to-bottom run will fail here with NameError.",
+                    }
+                )
             elif any(s < i for s in star):
-                findings.append({
-                    "kind": "maybe_star_import",
-                    "severity": "warning",
-                    "cells": [cf.cell.index],
-                    "names": [n],
-                    "message": f"{_label(cf.cell)} reads `{n}`{how}, which no cell defines. It may come from a `from ... import *`.",
-                })
+                findings.append(
+                    {
+                        "kind": "maybe_star_import",
+                        "severity": "warning",
+                        "cells": [cf.cell.index],
+                        "names": [n],
+                        "message": f"{_label(cf.cell)} reads `{n}`{how}, which no cell defines. It may come from a `from ... import *`.",
+                    }
+                )
             else:
-                findings.append({
-                    "kind": "undefined_name",
-                    "severity": "error",
-                    "cells": [cf.cell.index],
-                    "names": [n],
-                    "message": f"{_label(cf.cell)} reads `{n}`{how}, which no cell in the notebook defines. It probably came from a deleted cell or from state outside the notebook. A top-to-bottom run will fail here with NameError.",
-                })
+                findings.append(
+                    {
+                        "kind": "undefined_name",
+                        "severity": "error",
+                        "cells": [cf.cell.index],
+                        "names": [n],
+                        "message": f"{_label(cf.cell)} reads `{n}`{how}, which no cell in the notebook defines. It probably came from a deleted cell or from state outside the notebook. A top-to-bottom run will fail here with NameError.",
+                    }
+                )
 
     for cf in facts:
-        missing = sorted(n for n in cf.deferred_reads
-                         if n not in defs and not _is_known_external(n) and not star)
+        missing = sorted(
+            n for n in cf.deferred_reads if n not in defs and not _is_known_external(n) and not star
+        )
         if missing:
-            findings.append({
-                "kind": "function_reads_undefined",
-                "severity": "warning",
-                "cells": [cf.cell.index],
-                "names": missing,
-                "message": f"A function or lambda defined in {_label(cf.cell)} reads {', '.join(f'`{m}`' for m in missing)}, which no cell defines. Calling it will raise NameError.",
-            })
+            findings.append(
+                {
+                    "kind": "function_reads_undefined",
+                    "severity": "warning",
+                    "cells": [cf.cell.index],
+                    "names": missing,
+                    "message": f"A function or lambda defined in {_label(cf.cell)} reads {', '.join(f'`{m}`' for m in missing)}, which no cell defines. Calling it will raise NameError.",
+                }
+            )
 
     findings.extend(shared_findings)
     findings.extend(_execution_order_findings(facts, defs))
     findings.extend(_other_findings(facts, defs, muts, edges))
 
     used_later: dict[int, bool] = {i: False for i in range(len(facts))}
-    for (src, dst, _kind) in edges:
+    for src, dst, _kind in edges:
         if dst > src:
             used_later[src] = True
 
@@ -818,45 +1147,55 @@ def analyze_cells(cells: list[Cell]) -> dict[str, Any]:
             continue
         if cf.files_written or cf.network or cf.shell or cf.config or cf.seeds or cf.mutates:
             continue
-        if not cf.defines or all(n in cf.plot_objects or n in cf.functions for n in cf.defines) or cf.displays or cf.plots or cf.prints:
+        if (
+            not cf.defines
+            or all(n in cf.plot_objects or n in cf.functions for n in cf.defines)
+            or cf.displays
+            or cf.plots
+            or cf.prints
+        ):
             if cf.defines and any(n in [a["name"] for a in artifacts] for n in cf.defines):
                 continue
-            findings.append({
-                "kind": "inspection_only",
-                "severity": "info",
-                "cells": [cf.cell.index],
-                "names": [],
-                "message": f"{_label(cf.cell)} only displays, prints or plots, and no later cell depends on it. Keep it in the report stage or drop it from the pipeline.",
-            })
+            findings.append(
+                {
+                    "kind": "inspection_only",
+                    "severity": "info",
+                    "cells": [cf.cell.index],
+                    "names": [],
+                    "message": f"{_label(cf.cell)} only displays, prints or plots, and no later cell depends on it. Keep it in the report stage or drop it from the pipeline.",
+                }
+            )
 
     graph_nodes = []
     for i, cf in enumerate(facts):
         c = cf.cell
-        graph_nodes.append({
-            "index": c.index,
-            "label": _label(c),
-            "execution_count": c.execution_count,
-            "first_line": c.source.strip().splitlines()[0][:80] if c.source.strip() else "",
-            "defines": cf.defines,
-            "reads": [n for n in cf.reads if not _is_known_external(n) or n in defs],
-            "deferred_reads": sorted(cf.deferred_reads),
-            "mutates": cf.mutates,
-            "imports": cf.imports,
-            "functions": sorted(cf.functions),
-            "files_read": cf.files_read,
-            "files_written": cf.files_written,
-            "network": cf.network,
-            "shell": cf.shell,
-            "magics": [{"kind": m.kind, "name": m.name, "args": m.args} for m in c.magics],
-            "config": cf.config,
-            "random_unseeded": cf.random_calls,
-            "seeds": cf.seeds,
-            "plots": cf.plots,
-            "displays": cf.displays,
-            "prints": cf.prints,
-            "parse_error": c.parse_error,
-            "used_by_later_cells": used_later[i],
-        })
+        graph_nodes.append(
+            {
+                "index": c.index,
+                "label": _label(c),
+                "execution_count": c.execution_count,
+                "first_line": c.source.strip().splitlines()[0][:80] if c.source.strip() else "",
+                "defines": cf.defines,
+                "reads": [n for n in cf.reads if not _is_known_external(n) or n in defs],
+                "deferred_reads": sorted(cf.deferred_reads),
+                "mutates": cf.mutates,
+                "imports": cf.imports,
+                "functions": sorted(cf.functions),
+                "files_read": cf.files_read,
+                "files_written": cf.files_written,
+                "network": cf.network,
+                "shell": cf.shell,
+                "magics": [{"kind": m.kind, "name": m.name, "args": m.args} for m in c.magics],
+                "config": cf.config,
+                "random_unseeded": cf.random_calls,
+                "seeds": cf.seeds,
+                "plots": cf.plots,
+                "displays": cf.displays,
+                "prints": cf.prints,
+                "parse_error": c.parse_error,
+                "used_by_later_cells": used_later[i],
+            }
+        )
     graph_edges = [
         {"from": facts[s].cell.index, "to": facts[d].cell.index, "kind": k, "names": sorted(ns)}
         for (s, d, k), ns in sorted(edges.items())
@@ -874,19 +1213,26 @@ def analyze_cells(cells: list[Cell]) -> dict[str, Any]:
     }
 
 
-def _execution_order_findings(facts: list[CellFacts], defs: dict[str, list[int]]) -> list[dict[str, Any]]:
+def _execution_order_findings(
+    facts: list[CellFacts], defs: dict[str, list[int]]
+) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
-    executed = [(i, cf.cell.execution_count) for i, cf in enumerate(facts)
-                if cf.cell.execution_count is not None]
+    executed = [
+        (i, cf.cell.execution_count)
+        for i, cf in enumerate(facts)
+        if cf.cell.execution_count is not None
+    ]
     nonempty = [i for i, cf in enumerate(facts) if not cf.cell.is_empty]
     if not executed:
-        out.append({
-            "kind": "no_execution_history",
-            "severity": "info",
-            "cells": [],
-            "names": [],
-            "message": "The notebook has no saved execution counts (outputs were cleared or it was never run), so execution-order checks were skipped.",
-        })
+        out.append(
+            {
+                "kind": "no_execution_history",
+                "severity": "info",
+                "cells": [],
+                "names": [],
+                "message": "The notebook has no saved execution counts (outputs were cleared or it was never run), so execution-order checks were skipped.",
+            }
+        )
         return out
     running_max = -1
     max_cell = None
@@ -900,34 +1246,44 @@ def _execution_order_findings(facts: list[CellFacts], defs: dict[str, list[int]]
             running_max = ec
             max_cell = i
     if late:
-        out.append({
-            "kind": "out_of_order_execution",
-            "severity": "warning",
-            "cells": late_cells,
-            "names": [],
-            "message": "Saved execution counts are out of notebook order: " + "; ".join(late) + ". The saved outputs reflect a different order than a top-to-bottom run.",
-        })
+        out.append(
+            {
+                "kind": "out_of_order_execution",
+                "severity": "warning",
+                "cells": late_cells,
+                "names": [],
+                "message": "Saved execution counts are out of notebook order: "
+                + "; ".join(late)
+                + ". The saved outputs reflect a different order than a top-to-bottom run.",
+            }
+        )
     counts = sorted(ec for _, ec in executed)
     hidden = counts[-1] - len(counts) - (counts[0] - 1 if counts[0] > 1 else 0)
     first_hidden = counts[0] - 1 if counts[0] > 1 else 0
     total_hidden = max(hidden, 0) + first_hidden
     if total_hidden > 0:
-        out.append({
-            "kind": "hidden_executions",
-            "severity": "warning",
-            "cells": [],
-            "names": [],
-            "message": f"Execution counts run up to {counts[-1]} but only {len(counts)} executed cells are saved, so {total_hidden} executions are not visible in the notebook (re-runs or deleted cells). Kernel state from those runs may have fed the saved outputs.",
-        })
+        out.append(
+            {
+                "kind": "hidden_executions",
+                "severity": "warning",
+                "cells": [],
+                "names": [],
+                "message": f"Execution counts run up to {counts[-1]} but only {len(counts)} executed cells are saved, so {total_hidden} executions are not visible in the notebook (re-runs or deleted cells). Kernel state from those runs may have fed the saved outputs.",
+            }
+        )
     never = [facts[i].cell.index for i in nonempty if facts[i].cell.execution_count is None]
     if never and len(executed) > 0:
-        out.append({
-            "kind": "never_executed",
-            "severity": "info",
-            "cells": never,
-            "names": [],
-            "message": f"{len(never)} non-empty code cell(s) have no execution count in the saved session: " + ", ".join(f"cell {c + 1}" for c in never) + ".",
-        })
+        out.append(
+            {
+                "kind": "never_executed",
+                "severity": "info",
+                "cells": never,
+                "names": [],
+                "message": f"{len(never)} non-empty code cell(s) have no execution count in the saved session: "
+                + ", ".join(f"cell {c + 1}" for c in never)
+                + ".",
+            }
+        )
 
     # Saved outputs computed from a definition other than the one a clean run would use.
     for i, cf in enumerate(facts):
@@ -942,23 +1298,34 @@ def _execution_order_findings(facts: list[CellFacts], defs: dict[str, list[int]]
                 continue
             clean = [d for d in all_defs if d < i]
             clean_def = clean[-1] if clean else None
-            session = [d for d in all_defs if d != i and facts[d].cell.execution_count is not None
-                       and facts[d].cell.execution_count < ec]
-            session_def = max(session, key=lambda d: facts[d].cell.execution_count) if session else None
+            session = [
+                d
+                for d in all_defs
+                if d != i
+                and facts[d].cell.execution_count is not None
+                and facts[d].cell.execution_count < ec
+            ]
+            session_def = (
+                max(session, key=lambda d: facts[d].cell.execution_count) if session else None
+            )
             if session_def == clean_def:
                 continue
             if session_def is None:
                 src = "an execution that is no longer in the notebook (a deleted cell or an earlier run)"
             else:
                 src = f"{_label(facts[session_def].cell)}"
-            clean_src = _label(facts[clean_def].cell) if clean_def is not None else "nothing (NameError)"
-            out.append({
-                "kind": "stale_output",
-                "severity": "warning",
-                "cells": [cf.cell.index],
-                "names": [n],
-                "message": f"The saved output of {_label(cf.cell)} used `{n}` from {src}, but a top-to-bottom run takes it from {clean_src}. Its saved output may not reproduce.",
-            })
+            clean_src = (
+                _label(facts[clean_def].cell) if clean_def is not None else "nothing (NameError)"
+            )
+            out.append(
+                {
+                    "kind": "stale_output",
+                    "severity": "warning",
+                    "cells": [cf.cell.index],
+                    "names": [n],
+                    "message": f"The saved output of {_label(cf.cell)} used `{n}` from {src}, but a top-to-bottom run takes it from {clean_src}. Its saved output may not reproduce.",
+                }
+            )
     return out
 
 
@@ -968,58 +1335,74 @@ def _other_findings(facts, defs, muts, edges) -> list[dict[str, Any]]:
     for cf in facts:
         if cf.seeds:
             seeded_before = True
-        rnd = [r for r in cf.random_calls if not (seeded_before and ("np.random" in r or r.startswith("random.")))]
+        rnd = [
+            r
+            for r in cf.random_calls
+            if not (seeded_before and ("np.random" in r or r.startswith("random.")))
+        ]
         if rnd:
-            out.append({
-                "kind": "unseeded_randomness",
-                "severity": "warning",
-                "cells": [cf.cell.index],
-                "names": [],
-                "message": f"{_label(cf.cell)} uses randomness without a fixed seed: {', '.join(sorted(set(rnd)))}. Outputs may change between runs; run `capture --repeat 2` to check.",
-            })
+            out.append(
+                {
+                    "kind": "unseeded_randomness",
+                    "severity": "warning",
+                    "cells": [cf.cell.index],
+                    "names": [],
+                    "message": f"{_label(cf.cell)} uses randomness without a fixed seed: {', '.join(sorted(set(rnd)))}. Outputs may change between runs; run `capture --repeat 2` to check.",
+                }
+            )
         if cf.star_imports:
-            out.append({
-                "kind": "star_import",
-                "severity": "warning",
-                "cells": [cf.cell.index],
-                "names": [],
-                "message": f"{_label(cf.cell)} uses `from {', '.join(cf.star_imports)} import *`, which hides which names it defines.",
-            })
+            out.append(
+                {
+                    "kind": "star_import",
+                    "severity": "warning",
+                    "cells": [cf.cell.index],
+                    "names": [],
+                    "message": f"{_label(cf.cell)} uses `from {', '.join(cf.star_imports)} import *`, which hides which names it defines.",
+                }
+            )
         if cf.cell.parse_error:
-            out.append({
-                "kind": "parse_error",
-                "severity": "warning",
-                "cells": [cf.cell.index],
-                "names": [],
-                "message": f"{_label(cf.cell)} could not be analyzed: {cf.cell.parse_error}.",
-            })
+            out.append(
+                {
+                    "kind": "parse_error",
+                    "severity": "warning",
+                    "cells": [cf.cell.index],
+                    "names": [],
+                    "message": f"{_label(cf.cell)} could not be analyzed: {cf.cell.parse_error}.",
+                }
+            )
         ext = [r["call"] for r in cf.files_read] + cf.network + cf.shell
         if cf.network:
-            out.append({
-                "kind": "network_access",
-                "severity": "warning",
-                "cells": [cf.cell.index],
-                "names": [],
-                "message": f"{_label(cf.cell)} touches the network ({', '.join(sorted(set(cf.network)))}). The pipeline depends on remote data that can change.",
-            })
+            out.append(
+                {
+                    "kind": "network_access",
+                    "severity": "warning",
+                    "cells": [cf.cell.index],
+                    "names": [],
+                    "message": f"{_label(cf.cell)} touches the network ({', '.join(sorted(set(cf.network)))}). The pipeline depends on remote data that can change.",
+                }
+            )
         del ext
         if cf.shell:
-            out.append({
-                "kind": "shell_command",
-                "severity": "info",
-                "cells": [cf.cell.index],
-                "names": [],
-                "message": f"{_label(cf.cell)} runs shell commands ({'; '.join(cf.shell)[:200]}). Their effects are not tracked.",
-            })
-        for name in sorted(cf.self_rebinds):
-            if name in cf.reads:  # value came from an earlier cell
-                out.append({
-                    "kind": "rerun_hazard",
+            out.append(
+                {
+                    "kind": "shell_command",
                     "severity": "info",
                     "cells": [cf.cell.index],
-                    "names": [name],
-                    "message": f"{_label(cf.cell)} rebinds `{name}` from its own previous value. Running it twice gives a different state than running it once.",
-                })
+                    "names": [],
+                    "message": f"{_label(cf.cell)} runs shell commands ({'; '.join(cf.shell)[:200]}). Their effects are not tracked.",
+                }
+            )
+        for name in sorted(cf.self_rebinds):
+            if name in cf.reads:  # value came from an earlier cell
+                out.append(
+                    {
+                        "kind": "rerun_hazard",
+                        "severity": "info",
+                        "cells": [cf.cell.index],
+                        "names": [name],
+                        "message": f"{_label(cf.cell)} rebinds `{name}` from its own previous value. Running it twice gives a different state than running it once.",
+                    }
+                )
     # Objects mutated in a cell other than where they were defined, and read later.
     for name, mcells in muts.items():
         dcells = defs.get(name, [])
@@ -1027,18 +1410,25 @@ def _other_findings(facts, defs, muts, edges) -> list[dict[str, Any]]:
             prior = [d for d in dcells if d < m]
             if not prior or prior[-1] == m:
                 continue
-            readers = sorted({dst for (src, dst, kind), ns in edges.items()
-                              if src == m and kind == "mutation" and name in ns})
+            readers = sorted(
+                {
+                    dst
+                    for (src, dst, kind), ns in edges.items()
+                    if src == m and kind == "mutation" and name in ns
+                }
+            )
             if not readers:
                 continue
             reasons = ", ".join(facts[m].mutates.get(name, []))
-            out.append({
-                "kind": "cross_cell_mutation",
-                "severity": "warning",
-                "cells": [facts[m].cell.index] + [facts[r].cell.index for r in readers],
-                "names": [name],
-                "message": f"`{name}` (defined in {_label(facts[prior[-1]].cell)}) is changed in place in {_label(facts[m].cell)} ({reasons}) and later read by {', '.join(_label(facts[r].cell) for r in readers)}. That dependency is invisible in a def/use view: keep the order or make the change explicit.",
-            })
+            out.append(
+                {
+                    "kind": "cross_cell_mutation",
+                    "severity": "warning",
+                    "cells": [facts[m].cell.index] + [facts[r].cell.index for r in readers],
+                    "names": [name],
+                    "message": f"`{name}` (defined in {_label(facts[prior[-1]].cell)}) is changed in place in {_label(facts[m].cell)} ({reasons}) and later read by {', '.join(_label(facts[r].cell) for r in readers)}. That dependency is invisible in a def/use view: keep the order or make the change explicit.",
+                }
+            )
     return out
 
 
@@ -1063,7 +1453,7 @@ def _stage_scores(cf: CellFacts) -> dict[str, int]:
 def _propose_stages(facts, edges, used_later, reaching, defs) -> list[dict[str, Any]]:
     n = len(facts)
     deps: dict[int, set[int]] = {i: set() for i in range(n)}
-    for (src, dst, _k) in edges:
+    for src, dst, _k in edges:
         if src < dst:
             deps[dst].add(src)
     assigned: list[str] = []
@@ -1076,11 +1466,27 @@ def _propose_stages(facts, edges, used_later, reaching, defs) -> list[dict[str, 
             continue
         scores = _stage_scores(cf)
         only_setup = cf.defines and all(d in cf.imports for d in cf.defines)
-        output_only = cf.plots or cf.displays or cf.prints or any(w["call"].endswith("savefig") for w in cf.files_written)
-        if (not used_later[i] and output_only and not cf.files_written and not scores["load"]
-                and not scores["train"] and not scores["evaluate"]):
-            stage, why = "report", "only produces output (display, print or plot) and nothing later depends on it"
-        elif only_setup or (not cf.defines and (cf.config or cf.seeds) and not any(scores.values())):
+        output_only = (
+            cf.plots
+            or cf.displays
+            or cf.prints
+            or any(w["call"].endswith("savefig") for w in cf.files_written)
+        )
+        if (
+            not used_later[i]
+            and output_only
+            and not cf.files_written
+            and not scores["load"]
+            and not scores["train"]
+            and not scores["evaluate"]
+        ):
+            stage, why = (
+                "report",
+                "only produces output (display, print or plot) and nothing later depends on it",
+            )
+        elif only_setup or (
+            not cf.defines and (cf.config or cf.seeds) and not any(scores.values())
+        ):
             stage, why = "load", "imports and configuration"
         elif any(scores.values()):
             stage = max(STAGES[:-1], key=lambda s: (scores[s], -STAGE_RANK[s]))
@@ -1089,7 +1495,10 @@ def _propose_stages(facts, edges, used_later, reaching, defs) -> list[dict[str, 
             stage, why = prev, "no strong signal, kept with the previous cell"
         for d in deps[i]:
             if STAGE_RANK[assigned[d]] > STAGE_RANK[stage] and assigned[d] != "report":
-                stage, why = assigned[d], f"moved to {assigned[d]} because it depends on {_label(facts[d].cell)}"
+                stage, why = (
+                    assigned[d],
+                    f"moved to {assigned[d]} because it depends on {_label(facts[d].cell)}",
+                )
         assigned.append(stage)
         reasons.append(why)
         if stage != "report":
@@ -1107,7 +1516,8 @@ def _propose_stages(facts, edges, used_later, reaching, defs) -> list[dict[str, 
             if d_new != d and d is not None and d != i:
                 where = _label(facts[d_new].cell) if d_new is not None else "nothing"
                 reorder_notes.setdefault(i, []).append(
-                    f"reads `{name}`: in notebook order it comes from {_label(facts[d].cell)}, in this split it would come from {where}")
+                    f"reads `{name}`: in notebook order it comes from {_label(facts[d].cell)}, in this split it would come from {where}"
+                )
 
     out = []
     for stage in STAGES:
@@ -1120,24 +1530,32 @@ def _propose_stages(facts, edges, used_later, reaching, defs) -> list[dict[str, 
         for (src, dst, _k), names in edges.items():
             if dst in member_set and src not in member_set:
                 inputs |= names
-            if src in member_set and dst not in member_set and STAGE_RANK[assigned[dst]] > STAGE_RANK[stage]:
+            if (
+                src in member_set
+                and dst not in member_set
+                and STAGE_RANK[assigned[dst]] > STAGE_RANK[stage]
+            ):
                 outputs |= names
         imports_needed = sorted({m for i in members for m in facts[i].imports.values()})
         imported = {k for i in range(n) for k in facts[i].imports}
         inputs -= imported
         outputs -= imported
-        out.append({
-            "stage": stage,
-            "module": f"{stage}.py",
-            "function": stage,
-            "cells": [facts[i].cell.index for i in members],
-            "inputs": sorted(inputs),
-            "outputs": sorted(outputs),
-            "imports": imports_needed,
-            "signature": f"def {stage}({', '.join(sorted(inputs))}) -> dict",
-            "why": {facts[i].cell.index: reasons[i] for i in members},
-            "reorder_notes": {facts[i].cell.index: reorder_notes[i] for i in members if i in reorder_notes},
-        })
+        out.append(
+            {
+                "stage": stage,
+                "module": f"{stage}.py",
+                "function": stage,
+                "cells": [facts[i].cell.index for i in members],
+                "inputs": sorted(inputs),
+                "outputs": sorted(outputs),
+                "imports": imports_needed,
+                "signature": f"def {stage}({', '.join(sorted(inputs))}) -> dict",
+                "why": {facts[i].cell.index: reasons[i] for i in members},
+                "reorder_notes": {
+                    facts[i].cell.index: reorder_notes[i] for i in members if i in reorder_notes
+                },
+            }
+        )
     return out
 
 
@@ -1157,12 +1575,16 @@ def _suggest_artifacts(facts, defs, edges) -> list[dict[str, Any]]:
                 final_def.pop(name, None)  # rebound to an import/function later
     out = []
     for name, i in final_def.items():
-        read_after = any(src == i and name in ns for (src, dst, _k), ns in edges.items() if dst > src)
-        out.append({
-            "name": name,
-            "defined_in": facts[i].cell.index,
-            "terminal": not read_after,
-        })
+        read_after = any(
+            src == i and name in ns for (src, dst, _k), ns in edges.items() if dst > src
+        )
+        out.append(
+            {
+                "name": name,
+                "defined_in": facts[i].cell.index,
+                "terminal": not read_after,
+            }
+        )
     return out
 
 
@@ -1176,7 +1598,9 @@ def _inputs(facts) -> dict[str, Any]:
         "files_read": reads,
         "files_written": [{**w, "cell": cf.cell.index} for cf in facts for w in cf.files_written],
         "network": sorted({n for cf in facts for n in cf.network}),
-        "imports": sorted({m.split(".")[0] for cf in facts for m in cf.imports.values() if not m.startswith(".")}),
+        "imports": sorted(
+            {m.split(".")[0] for cf in facts for m in cf.imports.values() if not m.startswith(".")}
+        ),
     }
 
 

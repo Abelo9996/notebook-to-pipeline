@@ -17,7 +17,9 @@ def fake_home(tmp_path, monkeypatch):
     (home / ".codex").mkdir()
     (home / ".cursor").mkdir()
     (home / ".codex" / "config.toml").write_text('model = "x"\n')
-    (home / ".cursor" / "mcp.json").write_text(json.dumps({"mcpServers": {"other": {"command": "foo"}}}))
+    (home / ".cursor" / "mcp.json").write_text(
+        json.dumps({"mcpServers": {"other": {"command": "foo"}}})
+    )
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()
     log = tmp_path / "claude.log"
@@ -51,7 +53,10 @@ def test_apply_then_idempotent(fake_home):
     home, log = fake_home
     res = run_setup(yes=True, out=lambda s: None)
     assert all("error" not in a for a in res["applied"]), res
-    assert "mcp add --scope user notebook-to-pipeline -- uvx notebook-to-pipeline mcp" in log.read_text()
+    assert (
+        "mcp add --scope user notebook-to-pipeline -- uvx notebook-to-pipeline mcp"
+        in log.read_text()
+    )
     cfg = tomllib.loads((home / ".codex" / "config.toml").read_text())
     assert cfg["model"] == "x"
     assert cfg["mcp_servers"][NAME] == {"command": "uvx", "args": [NAME, "mcp"]}

@@ -18,8 +18,20 @@ import sys
 import types
 
 SKIP_NAMES = {
-    "In", "Out", "get_ipython", "exit", "quit", "_", "__", "___", "_i", "_ii", "_iii",
-    "_oh", "_dh", "_ih",
+    "In",
+    "Out",
+    "get_ipython",
+    "exit",
+    "quit",
+    "_",
+    "__",
+    "___",
+    "_i",
+    "_ii",
+    "_iii",
+    "_oh",
+    "_dh",
+    "_ih",
 }
 PLOT_MODULES = ("matplotlib", "seaborn", "plotly", "bokeh", "altair", "mpl_toolkits")
 TIMING_KEYS = ("fit_time", "score_time", "_time", "time_")
@@ -166,7 +178,9 @@ def value_hash(obj):
         items = sorted((repr(k), value_hash(v)) for k, v in obj.items())
         return _h("dict", repr(items))
     if isinstance(obj, (list, tuple)):
-        return _h(type(obj).__name__, *[value_hash(v) for v in obj]) if obj else _h(type(obj).__name__)
+        return (
+            _h(type(obj).__name__, *[value_hash(v) for v in obj]) if obj else _h(type(obj).__name__)
+        )
     if isinstance(obj, (set, frozenset)):
         return _h("set", repr(sorted(value_hash(v) for v in obj)))
     if isinstance(obj, range):
@@ -192,7 +206,13 @@ def _plain(value, depth=0):
         }
     if isinstance(value, (list, tuple)):
         return type(value)(_plain(v, depth + 1) for v in value)
-    if is_scalar(value) or is_np_scalar(value) or is_ndarray(value) or is_dataframe(value) or is_series(value):
+    if (
+        is_scalar(value)
+        or is_np_scalar(value)
+        or is_ndarray(value)
+        or is_dataframe(value)
+        or is_series(value)
+    ):
         return value
     return repr(value)
 
@@ -245,7 +265,9 @@ def summarize(obj, kind):
             out = {
                 "shape": list(obj.shape),
                 "columns": [str(c) for c in cols[:MAX_SUMMARY_COLUMNS]],
-                "dtypes": {str(c): str(t) for c, t in list(obj.dtypes.items())[:MAX_SUMMARY_COLUMNS]},
+                "dtypes": {
+                    str(c): str(t) for c, t in list(obj.dtypes.items())[:MAX_SUMMARY_COLUMNS]
+                },
                 "index": "%s (%s)" % (type(obj.index).__name__, obj.index.dtype),
                 "nulls": int(obj.isna().sum().sum()),
             }
@@ -256,16 +278,24 @@ def summarize(obj, kind):
                     continue
                 if s.dtype.kind in "biuf":
                     stats[str(c)] = {
-                        "mean": _num(s.mean()), "std": _num(s.std()),
-                        "min": _num(s.min()), "max": _num(s.max()),
+                        "mean": _num(s.mean()),
+                        "std": _num(s.std()),
+                        "min": _num(s.min()),
+                        "max": _num(s.max()),
                     }
             out["numeric_stats"] = stats
             return out
         if kind == "series":
-            out = {"length": int(len(obj)), "dtype": str(obj.dtype), "name": repr(obj.name),
-                   "nulls": int(obj.isna().sum())}
+            out = {
+                "length": int(len(obj)),
+                "dtype": str(obj.dtype),
+                "name": repr(obj.name),
+                "nulls": int(obj.isna().sum()),
+            }
             if obj.dtype.kind in "biuf" and len(obj):
-                out.update({"mean": _num(obj.mean()), "min": _num(obj.min()), "max": _num(obj.max())})
+                out.update(
+                    {"mean": _num(obj.mean()), "min": _num(obj.min()), "max": _num(obj.max())}
+                )
             return out
         if kind == "index":
             return {"length": int(len(obj)), "dtype": str(obj.dtype), "head": repr(list(obj[:5]))}
@@ -274,21 +304,28 @@ def summarize(obj, kind):
             if obj.dtype.kind in "biuf" and obj.size:
                 import numpy as np
 
-                out.update({"min": _num(np.nanmin(obj)), "max": _num(np.nanmax(obj)),
-                            "mean": _num(np.nanmean(obj))})
+                out.update(
+                    {
+                        "min": _num(np.nanmin(obj)),
+                        "max": _num(np.nanmax(obj)),
+                        "mean": _num(np.nanmean(obj)),
+                    }
+                )
             return out
         if kind == "scalar":
             v = obj.item() if is_np_scalar(obj) else obj
             r = repr(v)
             return {"value": r if len(r) <= 200 else r[:197] + "...", "type": type(v).__name__}
         if kind == "container":
-            return {"type": type(obj).__name__, "length": len(obj),
-                    "preview": repr(obj)[:200]}
+            return {"type": type(obj).__name__, "length": len(obj), "preview": repr(obj)[:200]}
         if kind == "estimator":
             st = estimator_state(obj)
-            return {"class": st["__estimator__"], "params": len(st["params"]),
-                    "fitted_attributes": sorted(st["fitted"])[:30],
-                    "steps": sorted(st["steps"])}
+            return {
+                "class": st["__estimator__"],
+                "params": len(st["params"]),
+                "fitted_attributes": sorted(st["fitted"])[:30],
+                "steps": sorted(st["steps"]),
+            }
         return {"type": _type_name(obj), "repr": repr(obj)[:200]}
     except Exception as exc:  # summaries are best effort
         return {"error": "summary failed: %s" % exc}
@@ -317,7 +354,12 @@ def env_info():
         metadata = None
     seen = {}
     for name in sorted({m.split(".")[0] for m in list(sys.modules)}):
-        if not name or name.startswith("_") or name in stdlib or name in ("nb2p_probe", "nb2p_runner", "nb2p_compare"):
+        if (
+            not name
+            or name.startswith("_")
+            or name in stdlib
+            or name in ("nb2p_probe", "nb2p_runner", "nb2p_compare")
+        ):
             continue
         version = None
         for dist in dists.get(name, []):
@@ -374,9 +416,10 @@ def shared_objects(namespace, names):
             return
         if isinstance(obj, (tuple, range, frozenset, str, bytes)):
             return
+        seen_before = id(obj) in paths
         paths.setdefault(id(obj), []).append(path)
         kinds[id(obj)] = _type_name(obj)
-        if kind == "estimator" and depth < 4:
+        if kind == "estimator" and depth < 4 and not seen_before:
             steps = getattr(obj, "steps", None) or getattr(obj, "transformer_list", None)
             if isinstance(steps, list):
                 for i, item in enumerate(steps):
@@ -434,7 +477,9 @@ def dump(namespace, names, outdir, max_bytes=200 * 1024 * 1024):
             data = None
             entry["payload_note"] = "not picklable (%s); compared by hash only" % type(exc).__name__
         if data is not None and len(data) > max_bytes:
-            entry["payload_note"] = "payload is %d bytes, over the limit; compared by hash only" % len(data)
+            entry["payload_note"] = (
+                "payload is %d bytes, over the limit; compared by hash only" % len(data)
+            )
             data = None
         if data is not None:
             fname = _safe_filename(name, used) + ".pkl"
@@ -445,7 +490,9 @@ def dump(namespace, names, outdir, max_bytes=200 * 1024 * 1024):
         entry["status"] = "captured"
         entries.append(entry)
     try:
-        shared = shared_objects(namespace, [e["name"] for e in entries if e.get("status") == "captured"])
+        shared = shared_objects(
+            namespace, [e["name"] for e in entries if e.get("status") == "captured"]
+        )
     except Exception as exc:
         shared = [{"kind": "error", "paths": [], "type": "shared object check failed: %s" % exc}]
     manifest = {"artifacts": entries, "env": env_info(), "shared_objects": shared}

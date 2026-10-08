@@ -15,13 +15,47 @@ from .capture import load_capture
 from .notebook import PYTHON_BODY_CELL_MAGICS, load_cells, read_notebook
 
 IMPORT_TO_DIST = {
-    "sklearn": "scikit-learn", "PIL": "pillow", "cv2": "opencv-python", "yaml": "PyYAML",
-    "skimage": "scikit-image", "bs4": "beautifulsoup4", "dateutil": "python-dateutil",
+    "sklearn": "scikit-learn",
+    "PIL": "pillow",
+    "cv2": "opencv-python",
+    "yaml": "PyYAML",
+    "skimage": "scikit-image",
+    "bs4": "beautifulsoup4",
+    "dateutil": "python-dateutil",
 }
-STDLIB_HINT = {"os", "sys", "re", "json", "math", "random", "time", "datetime", "pathlib",
-               "collections", "itertools", "functools", "warnings", "pickle", "csv", "glob",
-               "shutil", "subprocess", "typing", "string", "statistics", "urllib", "zipfile",
-               "io", "sqlite3", "copy", "logging", "decimal", "fractions", "operator", "textwrap"}
+STDLIB_HINT = {
+    "os",
+    "sys",
+    "re",
+    "json",
+    "math",
+    "random",
+    "time",
+    "datetime",
+    "pathlib",
+    "collections",
+    "itertools",
+    "functools",
+    "warnings",
+    "pickle",
+    "csv",
+    "glob",
+    "shutil",
+    "subprocess",
+    "typing",
+    "string",
+    "statistics",
+    "urllib",
+    "zipfile",
+    "io",
+    "sqlite3",
+    "copy",
+    "logging",
+    "decimal",
+    "fractions",
+    "operator",
+    "textwrap",
+}
 
 
 def _indent_code(code: str, prefix: str = "    ") -> str:
@@ -69,7 +103,9 @@ def _package_name(name: str) -> str:
     return s
 
 
-def _write(path: Path, content: str, force: bool, created: list[str], skipped: list[str], root: Path) -> None:
+def _write(
+    path: Path, content: str, force: bool, created: list[str], skipped: list[str], root: Path
+) -> None:
     rel = str(path.relative_to(root))
     if path.exists() and not force:
         skipped.append(rel)
@@ -118,12 +154,16 @@ def scaffold(
         for idx in st["cells"]:
             node = next(n for n in analysis["cells"] if n["index"] == idx)
             defined_here |= set(node["defines"])
-        finals = {a["name"] for a in analysis["suggested_artifacts"] if a["defined_in"] in st["cells"]}
+        finals = {
+            a["name"] for a in analysis["suggested_artifacts"] if a["defined_in"] in st["cells"]
+        }
         returns = sorted((set(st["outputs"]) | finals) & defined_here)
         ret = "{" + ", ".join(f'"{o}": {o}' for o in returns) + "}"
         word = "Cell" if len(st["cells"]) == 1 else "Cells"
-        doc = (f'"""{word} {", ".join(str(i + 1) for i in st["cells"])} of {nb_path.name}. '
-               f'Inputs: {", ".join(st["inputs"]) or "none"}."""')
+        doc = (
+            f'"""{word} {", ".join(str(i + 1) for i in st["cells"])} of {nb_path.name}. '
+            f'Inputs: {", ".join(st["inputs"]) or "none"}."""'
+        )
         code = (
             f"def {name}({', '.join(st['inputs'])}):\n"
             f"    {doc}\n"
@@ -133,8 +173,14 @@ def scaffold(
         stage_funcs.append((name, st, code))
 
     pkg_dir = root / "src" / pkg
-    _write(pkg_dir / "__init__.py", f'"""Pipeline generated from {nb_path.name} by notebook-to-pipeline."""\n',
-           force, created, skipped, root)
+    _write(
+        pkg_dir / "__init__.py",
+        f'"""Pipeline generated from {nb_path.name} by notebook-to-pipeline."""\n',
+        force,
+        created,
+        skipped,
+        root,
+    )
     for name, _st, code in stage_funcs:
         header = (
             f'"""Stage `{name}`: mechanical first draft extracted from the notebook.\n\n'
@@ -143,16 +189,28 @@ def scaffold(
         )
         _write(pkg_dir / f"{name}.py", header + code, force, created, skipped, root)
 
-    lines = ['"""Entry point: runs every stage in order and returns the artifacts to verify."""', "",
-             "from __future__ import annotations", ""]
+    lines = [
+        '"""Entry point: runs every stage in order and returns the artifacts to verify."""',
+        "",
+        "from __future__ import annotations",
+        "",
+    ]
     for name, _st, _code in stage_funcs:
         lines.append(f"from .{name} import {name}")
     lines += ["", "", "def run() -> dict:", "    ns: dict = {}"]
     for name, st, _code in stage_funcs:
         args = ", ".join(f'{i}=ns["{i}"]' for i in st["inputs"])
         lines.append(f"    ns.update({name}({args}))")
-    lines += ["    return ns", "", "", 'if __name__ == "__main__":', "    results = run()",
-              "    for key, value in results.items():", '        print(f"{key}: {type(value).__name__}")', ""]
+    lines += [
+        "    return ns",
+        "",
+        "",
+        'if __name__ == "__main__":',
+        "    results = run()",
+        "    for key, value in results.items():",
+        '        print(f"{key}: {type(value).__name__}")',
+        "",
+    ]
     _write(pkg_dir / "pipeline.py", "\n".join(lines), force, created, skipped, root)
 
     ref_rel = "tests/reference"
@@ -211,7 +269,7 @@ def scaffold(
         'version = "0.1.0"\n'
         'requires-python = ">=3.11"\n'
         f"dependencies = [\n{dep_lines}]\n"
-    ) + textwrap.dedent(f'''
+    ) + textwrap.dedent(f"""
 
         [dependency-groups]
         dev = ["pytest>=8", "notebook-to-pipeline"]
@@ -222,7 +280,7 @@ def scaffold(
 
         [tool.hatch.build.targets.wheel]
         packages = ["src/{pkg}"]
-        ''')
+        """)
     _write(root / "pyproject.toml", pyproject, force, created, skipped, root)
 
     try:
@@ -276,6 +334,8 @@ def scaffold(
             f"Run `nb2p verify --pipeline src/{pkg}/pipeline.py:run --reference {ref_rel}` from {root} (or `make verify`).",
             "Refactor one stage at a time and verify after each change.",
         ],
-        "notes": [n for s in analysis["stages"] for notes in s["reorder_notes"].values() for n in notes],
+        "notes": [
+            n for s in analysis["stages"] for notes in s["reorder_notes"].values() for n in notes
+        ],
         "analysis_findings": analysis["summary"]["findings"],
     }

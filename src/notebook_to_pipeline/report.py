@@ -27,8 +27,14 @@ def _md_escape(s: Any) -> str:
 
 def _key_packages(env: dict[str, Any], imports: list[str]) -> dict[str, str]:
     pk = env.get("packages", {}) if env else {}
-    alias = {"sklearn": "scikit-learn", "PIL": "pillow", "cv2": "opencv-python", "yaml": "PyYAML",
-             "skimage": "scikit-image", "bs4": "beautifulsoup4"}
+    alias = {
+        "sklearn": "scikit-learn",
+        "PIL": "pillow",
+        "cv2": "opencv-python",
+        "yaml": "PyYAML",
+        "skimage": "scikit-image",
+        "bs4": "beautifulsoup4",
+    }
     out = {}
     lower = {k.lower(): (k, v) for k, v in pk.items()}
     for imp in imports:
@@ -43,8 +49,9 @@ def _key_packages(env: dict[str, Any], imports: list[str]) -> dict[str, str]:
     return out
 
 
-def build_report(reference: str | Path, verify_json: str | Path | None = None,
-                 out: str | Path | None = None) -> dict[str, Any]:
+def build_report(
+    reference: str | Path, verify_json: str | Path | None = None, out: str | Path | None = None
+) -> dict[str, Any]:
     ref_dir, cap = load_capture(reference)
     work = ref_dir.parent
     analysis_path = ref_dir / "analysis.json"
@@ -64,7 +71,11 @@ def build_report(reference: str | Path, verify_json: str | Path | None = None,
 
         notebook_changed = sha256_file(nb_now) != cap["notebook"]["sha256"]
 
-    verdict = ver["verdict"] if ver else ("not_verified" if cap["execution"]["status"] == "ok" else "reference_invalid")
+    verdict = (
+        ver["verdict"]
+        if ver
+        else ("not_verified" if cap["execution"]["status"] == "ok" else "reference_invalid")
+    )
     data = {
         "tool": {"name": "notebook-to-pipeline", "version": __version__},
         "kind": "report",
@@ -79,12 +90,29 @@ def build_report(reference: str | Path, verify_json: str | Path | None = None,
             "execution": {k: v for k, v in cap["execution"].items() if k != "cells"},
             "saved_output_differences": [
                 {"cell": c.get("label"), **c.get("first_difference", {})}
-                for c in cap["execution"].get("cells", []) if c.get("saved_output") == "different"
+                for c in cap["execution"].get("cells", [])
+                if c.get("saved_output") == "different"
             ],
             "prediction": cap.get("prediction"),
-            "key_packages": _key_packages(cap.get("env", {}), analysis.get("inputs", {}).get("imports", [])),
-            "artifacts": [{k: a.get(k) for k in ("name", "status", "kind", "type", "hash", "summary", "reason", "stable")}
-                          for a in cap.get("artifacts", [])],
+            "key_packages": _key_packages(
+                cap.get("env", {}), analysis.get("inputs", {}).get("imports", [])
+            ),
+            "artifacts": [
+                {
+                    k: a.get(k)
+                    for k in (
+                        "name",
+                        "status",
+                        "kind",
+                        "type",
+                        "hash",
+                        "summary",
+                        "reason",
+                        "stable",
+                    )
+                }
+                for a in cap.get("artifacts", [])
+            ],
             "files_written": cap.get("files_written", []),
             "stability": cap.get("stability"),
         },
@@ -93,8 +121,10 @@ def build_report(reference: str | Path, verify_json: str | Path | None = None,
             "findings": analysis["findings"],
             "runtime_findings": cap.get("runtime_findings", []),
         },
-        "proposed_stages": [{k: s[k] for k in ("stage", "cells", "inputs", "outputs", "signature")}
-                            for s in analysis["stages"]],
+        "proposed_stages": [
+            {k: s[k] for k in ("stage", "cells", "inputs", "outputs", "signature")}
+            for s in analysis["stages"]
+        ],
         "verification": None,
         "limits": LIMITS,
     }
@@ -107,7 +137,9 @@ def build_report(reference: str | Path, verify_json: str | Path | None = None,
             "artifacts": ver.get("artifacts"),
             "files": ver.get("files"),
             "counts": ver.get("counts"),
-            "key_packages": _key_packages(ver.get("candidate_env", {}), analysis.get("inputs", {}).get("imports", [])),
+            "key_packages": _key_packages(
+                ver.get("candidate_env", {}), analysis.get("inputs", {}).get("imports", [])
+            ),
             "created_at": ver.get("created_at"),
         }
     md = render_markdown(data)
@@ -154,7 +186,10 @@ def render_markdown(d: dict[str, Any]) -> str:
     L.append("## Notebook")
     L.append("")
     L.append(f"- File: `{Path(nb['path']).name}`")
-    L.append(f"- sha256: `{nb['sha256']}`" + (" (the file has changed since this capture)" if nb.get("changed_since_capture") else ""))
+    L.append(
+        f"- sha256: `{nb['sha256']}`"
+        + (" (the file has changed since this capture)" if nb.get("changed_since_capture") else "")
+    )
     L.append(f"- Cells: {nb['cells_total']} total, {nb['code_cells']} code")
     L.append("")
 
@@ -164,14 +199,25 @@ def render_markdown(d: dict[str, Any]) -> str:
     L.append("")
     py = ref.get("python") or {}
     L.append(f"- Command: `{ref.get('command')}`")
-    L.append(f"- Python {py.get('version', '?')} ({py.get('chosen_by', '')}), ipykernel {py.get('ipykernel', '?')}")
+    L.append(
+        f"- Python {py.get('version', '?')} ({py.get('chosen_by', '')}), ipykernel {py.get('ipykernel', '?')}"
+    )
     if ref.get("key_packages"):
         L.append("- Packages: " + ", ".join(f"{k} {v}" for k, v in ref["key_packages"].items()))
     if ex["status"] == "ok":
-        L.append(f"- Result: **ran to completion**, {ex.get('cells_run')} of {ex.get('code_cells')} code cells in {ex.get('duration_s')} s")
+        L.append(
+            f"- Result: **ran to completion**, {ex.get('cells_run')} of {ex.get('code_cells')} code cells in {ex.get('duration_s')} s"
+        )
     else:
         fc = ex.get("failed_cell") or {}
-        L.append(f"- Result: **{ex['status']}**" + (f" at {fc.get('label', '')}: `{fc.get('ename')}: {_md_escape(fc.get('evalue'))}`" if fc else ""))
+        L.append(
+            f"- Result: **{ex['status']}**"
+            + (
+                f" at {fc.get('label', '')}: `{fc.get('ename')}: {_md_escape(fc.get('evalue'))}`"
+                if fc
+                else ""
+            )
+        )
         if fc.get("source_head"):
             L.append("")
             L.append("  Failing cell starts with:")
@@ -182,7 +228,9 @@ def render_markdown(d: dict[str, Any]) -> str:
             L.append("  ```")
         pred = ref.get("prediction")
         if pred and pred.get("predicted"):
-            L.append(f"- Static analysis predicted this failure before running anything: {pred['finding']['message']}")
+            L.append(
+                f"- Static analysis predicted this failure before running anything: {pred['finding']['message']}"
+            )
         elif pred:
             L.append(f"- {pred.get('note', '')}")
         if ex.get("error"):
@@ -193,23 +241,29 @@ def render_markdown(d: dict[str, Any]) -> str:
     if so and (so["same"] or so["different"]):
         L.append("### Saved outputs vs fresh run")
         L.append("")
-        L.append(f"Text outputs saved in the notebook were compared with the fresh run: {so['same']} cell(s) same, "
-                 f"{so['different']} different, {so['none']} with no saved text output. Differences can come from "
-                 "hidden state or from different library versions.")
+        L.append(
+            f"Text outputs saved in the notebook were compared with the fresh run: {so['same']} cell(s) same, "
+            f"{so['different']} different, {so['none']} with no saved text output. Differences can come from "
+            "hidden state or from different library versions."
+        )
         L.append("")
         diffs = ref.get("saved_output_differences") or []
         if diffs:
             L.append("| Cell | First differing line (saved) | Fresh run |")
             L.append("|---|---|---|")
             for dd in diffs:
-                L.append(f"| {dd.get('cell')} | `{_md_escape(dd.get('saved', ''))}` | `{_md_escape(dd.get('fresh', ''))}` |")
+                L.append(
+                    f"| {dd.get('cell')} | `{_md_escape(dd.get('saved', ''))}` | `{_md_escape(dd.get('fresh', ''))}` |"
+                )
             L.append("")
 
     hs = d["hidden_state"]
     L.append("## Hidden-state findings")
     L.append("")
     s = hs["summary"]
-    L.append(f"{s['error']} error(s), {s['warning']} warning(s), {s['info']} info. Cell numbers count every cell from the top, markdown included; `In [n]` is the saved execution count.")
+    L.append(
+        f"{s['error']} error(s), {s['warning']} warning(s), {s['info']} info. Cell numbers count every cell from the top, markdown included; `In [n]` is the saved execution count."
+    )
     L.append("")
     if hs["findings"]:
         L.append("| Severity | Kind | Finding |")
@@ -235,7 +289,9 @@ def render_markdown(d: dict[str, Any]) -> str:
         L.append("|---|---|---|---|")
         for a in ref["artifacts"]:
             if a.get("status") != "captured":
-                L.append(f"| `{a['name']}` | {a.get('status')} | {_md_escape(a.get('reason', ''))} | |")
+                L.append(
+                    f"| `{a['name']}` | {a.get('status')} | {_md_escape(a.get('reason', ''))} | |"
+                )
                 continue
             summ = a.get("summary") or {}
             if a["kind"] == "dataframe":
@@ -252,13 +308,21 @@ def render_markdown(d: dict[str, Any]) -> str:
                 text = summ.get("preview") or summ.get("type", "")
             if a.get("stable") is False:
                 text += " (NOT stable across runs)"
-            L.append(f"| `{a['name']}` | {a['kind']} | {_md_escape(text)[:100]} | `{(a.get('hash') or '')[:12]}` |")
+            L.append(
+                f"| `{a['name']}` | {a['kind']} | {_md_escape(text)[:100]} | `{(a.get('hash') or '')[:12]}` |"
+            )
         L.append("")
     if ref.get("stability"):
         st = ref["stability"]
         unstable = [r["name"] for r in st["artifacts"] if not r["passed"]]
-        L.append(f"Determinism check: the notebook was run {st['repeats']} times. " +
-                 (f"Unstable artifacts: {', '.join(f'`{u}`' for u in unstable)}." if unstable else "Every artifact was reproduced."))
+        L.append(
+            f"Determinism check: the notebook was run {st['repeats']} times. "
+            + (
+                f"Unstable artifacts: {', '.join(f'`{u}`' for u in unstable)}."
+                if unstable
+                else "Every artifact was reproduced."
+            )
+        )
         L.append("")
 
     v = d.get("verification")
@@ -274,16 +338,22 @@ def render_markdown(d: dict[str, Any]) -> str:
             L.append(run["traceback"][-1500:].rstrip())
             L.append("```")
         if v.get("key_packages"):
-            L.append("- Packages: " + ", ".join(f"{k} {val}" for k, val in v["key_packages"].items()))
+            L.append(
+                "- Packages: " + ", ".join(f"{k} {val}" for k, val in v["key_packages"].items())
+            )
         o = v.get("options") or {}
-        L.append(f"- Tolerance: rtol={o.get('rtol')}, atol={o.get('atol')}; ignore row order: {o.get('ignore_row_order')}, ignore column order: {o.get('ignore_column_order')}, ignore index: {o.get('ignore_index')}, check dtype: {o.get('check_dtype')}")
+        L.append(
+            f"- Tolerance: rtol={o.get('rtol')}, atol={o.get('atol')}; ignore row order: {o.get('ignore_row_order')}, ignore column order: {o.get('ignore_column_order')}, ignore index: {o.get('ignore_index')}, check dtype: {o.get('check_dtype')}"
+        )
         L.append("")
         if v.get("artifacts"):
             L.append("| Artifact | Kind | Result | Detail |")
             L.append("|---|---|---|---|")
             for a in v["artifacts"]:
                 mark = {True: "PASS", False: "FAIL", None: "n/a"}[a.get("passed")]
-                L.append(f"| `{a['name']}` | {a.get('kind') or ''} | {mark} ({a['status']}) | {_md_escape(a.get('detail', ''))} |")
+                L.append(
+                    f"| `{a['name']}` | {a.get('kind') or ''} | {mark} ({a['status']}) | {_md_escape(a.get('detail', ''))} |"
+                )
             L.append("")
             for a in v["artifacts"]:
                 if a.get("passed") is False and a.get("differences"):
@@ -291,21 +361,27 @@ def render_markdown(d: dict[str, Any]) -> str:
                     L.append("")
                     for diff in a["differences"]:
                         why = f" ({diff['why']})" if diff.get("why") else ""
-                        L.append(f"- `{_md_escape(diff['path'])}`: reference `{_md_escape(diff['reference'])}`, candidate `{_md_escape(diff['candidate'])}`{why}")
+                        L.append(
+                            f"- `{_md_escape(diff['path'])}`: reference `{_md_escape(diff['reference'])}`, candidate `{_md_escape(diff['candidate'])}`{why}"
+                        )
                     L.append("")
         if v.get("files"):
             L.append("| File | Result | Detail |")
             L.append("|---|---|---|")
             for f in v["files"]:
                 mark = {True: "PASS", False: "FAIL", None: "n/a"}[f.get("passed")]
-                L.append(f"| `{f['path']}` | {mark} ({f['status']}) | {_md_escape(f.get('detail', ''))} |")
+                L.append(
+                    f"| `{f['path']}` | {mark} ({f['status']}) | {_md_escape(f.get('detail', ''))} |"
+                )
             L.append("")
 
     if ref.get("files_written"):
         L.append("## Files the notebook wrote")
         L.append("")
         for f in ref["files_written"]:
-            L.append(f"- `{f['path']}` ({f['kind']}, {f['bytes']} bytes, sha256 `{f['sha256'][:12]}`)")
+            L.append(
+                f"- `{f['path']}` ({f['kind']}, {f['bytes']} bytes, sha256 `{f['sha256'][:12]}`)"
+            )
         L.append("")
 
     if d.get("proposed_stages"):
@@ -315,7 +391,9 @@ def render_markdown(d: dict[str, Any]) -> str:
         L.append("|---|---|---|---|")
         for st in d["proposed_stages"]:
             cells = ", ".join(str(c + 1) for c in st["cells"])
-            L.append(f"| {st['stage']} | {cells} | {', '.join(st['inputs']) or '-'} | {', '.join(st['outputs']) or '-'} |")
+            L.append(
+                f"| {st['stage']} | {cells} | {', '.join(st['inputs']) or '-'} | {', '.join(st['outputs']) or '-'} |"
+            )
         L.append("")
 
     L.append("## Limits")

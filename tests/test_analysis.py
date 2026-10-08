@@ -51,11 +51,14 @@ def test_function_free_variable_defined_after_call(nb_factory):
 def test_out_of_order_and_stale_output(tmp_path):
     from conftest import make_notebook
 
-    nb = make_notebook(tmp_path / "nb.ipynb", [
-        ("import pandas as pd", 1),
-        ("s = pd.Series([1, 2, 3])", 9),
-        ("s.head()", 4),
-    ])
+    nb = make_notebook(
+        tmp_path / "nb.ipynb",
+        [
+            ("import pandas as pd", 1),
+            ("s = pd.Series([1, 2, 3])", 9),
+            ("s.head()", 4),
+        ],
+    )
     r = analyze(nb)
     assert "out_of_order_execution" in kinds(r)
     assert "hidden_executions" in kinds(r)
@@ -77,12 +80,14 @@ def test_cross_cell_mutation(nb_factory):
 
 
 def test_mutation_through_notebook_function(nb_factory):
-    nb = nb_factory([
-        "def add_one(target):\n    target.append(1)",
-        "values = []",
-        "add_one(values)",
-        "n = len(values)",
-    ])
+    nb = nb_factory(
+        [
+            "def add_one(target):\n    target.append(1)",
+            "values = []",
+            "add_one(values)",
+            "n = len(values)",
+        ]
+    )
     r = analyze(nb)
     cell = next(c for c in r["cells"] if c["index"] == 2)
     assert "values" in cell["mutates"]
@@ -101,10 +106,12 @@ def test_magics_and_shell_are_parsed(nb_factory):
 
 
 def test_file_io_detection(nb_factory):
-    nb = nb_factory([
-        "import pandas as pd\ndf = pd.read_csv('data/in.csv')",
-        "df.to_csv('out/clean.csv', index=False)\nwith open('notes.txt', 'w') as f:\n    f.write('x')",
-    ])
+    nb = nb_factory(
+        [
+            "import pandas as pd\ndf = pd.read_csv('data/in.csv')",
+            "df.to_csv('out/clean.csv', index=False)\nwith open('notes.txt', 'w') as f:\n    f.write('x')",
+        ]
+    )
     r = analyze(nb)
     assert r["cells"][0]["files_read"][0]["path"] == "data/in.csv"
     written = {w["path"] for w in r["cells"][1]["files_written"]}
@@ -114,22 +121,33 @@ def test_file_io_detection(nb_factory):
 def test_unseeded_randomness(nb_factory):
     r = analyze(nb_factory(["import numpy as np\nx = np.random.rand(3)"]))
     assert find(r, "unseeded_randomness")
-    r = analyze(nb_factory(["import numpy as np\nnp.random.seed(0)", "x = np.random.rand(3)"], name="b.ipynb"))
+    r = analyze(
+        nb_factory(
+            ["import numpy as np\nnp.random.seed(0)", "x = np.random.rand(3)"], name="b.ipynb"
+        )
+    )
     assert not find(r, "unseeded_randomness")
-    r = analyze(nb_factory(["from sklearn.ensemble import RandomForestClassifier\nm = RandomForestClassifier()"], name="c.ipynb"))
+    r = analyze(
+        nb_factory(
+            ["from sklearn.ensemble import RandomForestClassifier\nm = RandomForestClassifier()"],
+            name="c.ipynb",
+        )
+    )
     assert find(r, "unseeded_randomness")
 
 
 def test_stage_proposal_follows_ml_shape(nb_factory):
-    nb = nb_factory([
-        "import pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import accuracy_score\nimport matplotlib.pyplot as plt",
-        "df = pd.read_csv('data.csv')",
-        "df = df.dropna().rename(columns=str.lower)",
-        "X_train, X_test, y_train, y_test = train_test_split(df[['a']], df['y'], random_state=0)",
-        "model = LogisticRegression().fit(X_train, y_train)",
-        "acc = accuracy_score(y_test, model.predict(X_test))",
-        "plt.plot([acc])",
-    ])
+    nb = nb_factory(
+        [
+            "import pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import accuracy_score\nimport matplotlib.pyplot as plt",
+            "df = pd.read_csv('data.csv')",
+            "df = df.dropna().rename(columns=str.lower)",
+            "X_train, X_test, y_train, y_test = train_test_split(df[['a']], df['y'], random_state=0)",
+            "model = LogisticRegression().fit(X_train, y_train)",
+            "acc = accuracy_score(y_test, model.predict(X_test))",
+            "plt.plot([acc])",
+        ]
+    )
     r = analyze(nb)
     by_stage = {s["stage"]: s for s in r["stages"]}
     assert list(by_stage) == ["load", "clean", "features", "train", "evaluate", "report"]
@@ -145,10 +163,28 @@ def test_comment_only_cell_is_empty(nb_factory):
 
 
 def test_loop_variables_and_plots_are_not_suggested(nb_factory):
-    nb = nb_factory([
-        "import matplotlib.pyplot as plt\nfig, ax = plt.subplots()",
-        "total = 0\nfor i in range(3):\n    total += i",
-    ])
+    nb = nb_factory(
+        [
+            "import matplotlib.pyplot as plt\nfig, ax = plt.subplots()",
+            "total = 0\nfor i in range(3):\n    total += i",
+        ]
+    )
     names = [a["name"] for a in analyze(nb)["suggested_artifacts"]]
     assert "total" in names
     assert "i" not in names and "fig" not in names and "ax" not in names
+
+
+def test_estimator_shared_between_pipelines(nb_factory):
+    nb = nb_factory(
+        [
+            "from sklearn.decomposition import PCA\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.linear_model import LogisticRegression",
+            "pca = PCA(n_components=2)",
+            "a = make_pipeline(pca, LogisticRegression()).fit(X, y)",
+            "b = make_pipeline(StandardScaler(), pca, LogisticRegression())\nb.fit(X, y)",
+        ]
+    )
+    r = analyze(nb)
+    f = find(r, "shared_estimator")
+    assert f and f[0]["names"] == ["pca", "a", "b"]
+    cell = next(c for c in r["cells"] if c["index"] == 3)
+    assert "pca" in cell["mutates"]

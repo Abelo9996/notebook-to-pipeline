@@ -16,13 +16,42 @@ from typing import Any
 
 RUNTIME_DIR = Path(__file__).parent / "runtime"
 SKIP_DIRS = {
-    ".git", ".hg", ".svn", ".nb2p", ".venv", "venv", "env", "node_modules", "__pycache__",
-    ".ipynb_checkpoints", ".mypy_cache", ".pytest_cache", ".ruff_cache", ".tox", ".idea",
+    ".git",
+    ".hg",
+    ".svn",
+    ".nb2p",
+    ".venv",
+    "venv",
+    "env",
+    "node_modules",
+    "__pycache__",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".tox",
+    ".idea",
     ".vscode",
 }
 FIGURE_EXTS = {".png", ".jpg", ".jpeg", ".svg", ".pdf", ".gif", ".webp", ".eps"}
-DATA_EXTS = {".csv", ".tsv", ".json", ".parquet", ".feather", ".npy", ".npz", ".pkl", ".pickle",
-             ".joblib", ".txt", ".xlsx", ".h5", ".hdf5", ".db", ".sqlite"}
+DATA_EXTS = {
+    ".csv",
+    ".tsv",
+    ".json",
+    ".parquet",
+    ".feather",
+    ".npy",
+    ".npz",
+    ".pkl",
+    ".pickle",
+    ".joblib",
+    ".txt",
+    ".xlsx",
+    ".h5",
+    ".hdf5",
+    ".db",
+    ".sqlite",
+}
 MAX_COPY_BYTES = 50 * 1024 * 1024
 _ANSI = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")
 
@@ -88,14 +117,21 @@ def run_env() -> dict[str, str]:
 # --------------------------------------------------------------------------
 
 
-def snapshot(root: Path, limit: int = 50000, exclude: list[Path] | None = None) -> dict[str, tuple[int, int]]:
+def snapshot(
+    root: Path, limit: int = 50000, exclude: list[Path] | None = None
+) -> dict[str, tuple[int, int]]:
     """Size and mtime of every file under root, skipping VCS, virtualenv, cache and excluded dirs."""
     out: dict[str, tuple[int, int]] = {}
     root = root.resolve()
     excluded = {p.resolve() for p in exclude or []}
     for dirpath, dirnames, filenames in os.walk(root):
-        dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS and not d.startswith(".")
-                       and (Path(dirpath) / d).resolve() not in excluded]
+        dirnames[:] = [
+            d
+            for d in dirnames
+            if d not in SKIP_DIRS
+            and not d.startswith(".")
+            and (Path(dirpath) / d).resolve() not in excluded
+        ]
         for fn in filenames:
             p = Path(dirpath) / fn
             try:
@@ -141,14 +177,16 @@ def collect_written(root: Path, before: dict, after: dict, dest: Path) -> list[d
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(src, target)
             copied = True
-        out.append({
-            "path": rel,
-            "sha256": digest,
-            "bytes": size,
-            "new": rel not in before,
-            "kind": file_kind(rel),
-            "copied": copied,
-        })
+        out.append(
+            {
+                "path": rel,
+                "sha256": digest,
+                "bytes": size,
+                "new": rel not in before,
+                "kind": file_kind(rel),
+                "copied": copied,
+            }
+        )
     return out
 
 
@@ -190,8 +228,10 @@ def compare_saved_output(saved: str | None, fresh: str | None) -> dict[str, Any]
         a = s_lines[i] if i < len(s_lines) else "<no line>"
         b = f_lines[i] if i < len(f_lines) else "<no line>"
         if a != b:
-            return {"saved_output": "different",
-                    "first_difference": {"line": i + 1, "saved": a[:200], "fresh": b[:200]}}
+            return {
+                "saved_output": "different",
+                "first_difference": {"line": i + 1, "saved": a[:200], "fresh": b[:200]},
+            }
     return {"saved_output": "different"}
 
 
@@ -232,11 +272,15 @@ def execute_notebook(
     kdir = Path(tempfile.mkdtemp(prefix="nb2p-kernel-"))
     spec_dir = kdir / "nb2p"
     spec_dir.mkdir()
-    (spec_dir / "kernel.json").write_text(json.dumps({
-        "argv": [python, "-m", "ipykernel_launcher", "-f", "{connection_file}"],
-        "display_name": "nb2p",
-        "language": "python",
-    }))
+    (spec_dir / "kernel.json").write_text(
+        json.dumps(
+            {
+                "argv": [python, "-m", "ipykernel_launcher", "-f", "{connection_file}"],
+                "display_name": "nb2p",
+                "language": "python",
+            }
+        )
+    )
     ksm = KernelSpecManager(kernel_dirs=[str(kdir)])
     km = KernelManager(kernel_name="nb2p", kernel_spec_manager=ksm)
     if os.name == "posix":
@@ -265,9 +309,15 @@ def execute_notebook(
                 t0 = time.monotonic()
                 try:
                     client.execute_cell(cell, idx)
-                    entry = {"index": idx, "status": "ok",
-                             "duration_s": round(time.monotonic() - t0, 3)}
-                    entry.update(compare_saved_output(saved, text_outputs(cell)))
+                    entry = {
+                        "index": idx,
+                        "status": "ok",
+                        "duration_s": round(time.monotonic() - t0, 3),
+                    }
+                    fresh = text_outputs(cell)
+                    entry.update(compare_saved_output(saved, fresh))
+                    if fresh:
+                        entry["fresh_output"] = fresh[:2000]
                     record["cells"].append(entry)
                 except CellExecutionError as exc:
                     record["status"] = "failed"
@@ -278,15 +328,23 @@ def execute_notebook(
                         "traceback": strip_ansi(getattr(exc, "traceback", "") or str(exc))[-4000:],
                         "source_head": _cell_head(cell.source),
                     }
-                    record["cells"].append({"index": idx, "status": "error",
-                                            "duration_s": round(time.monotonic() - t0, 3)})
+                    record["cells"].append(
+                        {
+                            "index": idx,
+                            "status": "error",
+                            "duration_s": round(time.monotonic() - t0, 3),
+                        }
+                    )
                     break
                 except CellTimeoutError as exc:
                     record["status"] = "timeout"
-                    record["failed_cell"] = {"index": idx, "ename": "CellTimeoutError",
-                                             "evalue": f"cell exceeded {timeout}s",
-                                             "traceback": str(exc)[-2000:],
-                                             "source_head": _cell_head(cell.source)}
+                    record["failed_cell"] = {
+                        "index": idx,
+                        "ename": "CellTimeoutError",
+                        "evalue": f"cell exceeded {timeout}s",
+                        "traceback": str(exc)[-2000:],
+                        "source_head": _cell_head(cell.source),
+                    }
                     break
             if record["status"] in ("ok", "failed"):
                 # After a failure the probe saves no artifacts, only the environment versions.
@@ -320,8 +378,9 @@ def execute_notebook(
     return record
 
 
-def run_runtime_script(python: str, script: str, spec: dict[str, Any], *, cwd: Path,
-                       timeout: int | None) -> subprocess.CompletedProcess:
+def run_runtime_script(
+    python: str, script: str, spec: dict[str, Any], *, cwd: Path, timeout: int | None
+) -> subprocess.CompletedProcess:
     """Run one of the runtime scripts in the target interpreter with a JSON spec file."""
     with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as f:
         json.dump(spec, f)
