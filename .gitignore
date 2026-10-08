@@ -1,0 +1,20 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+.DS_Store
+
+# nb2p working directories (reference captures hold pickles; regenerate them locally)
+.nb2p/
+.nb2p-verify/
+
+# Example runs: keep the JSON and Markdown evidence, not the pickled payloads.
+examples/**/artifacts/*.pkl
+examples/**/candidate/

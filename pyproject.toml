@@ -1,0 +1,77 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "notebook-to-pipeline"
+version = "0.1.0"
+description = "Turn a messy Jupyter notebook into a tested pipeline and prove the outputs didn't change."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Abel Yagubyan" }]
+requires-python = ">=3.11"
+keywords = ["jupyter", "notebook", "pipeline", "refactoring", "reproducibility", "mcp", "agents"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Framework :: Jupyter",
+  "Topic :: Software Development :: Testing",
+]
+dependencies = [
+  "nbformat>=5.9",
+  "nbclient>=0.10",
+  "jupyter_client>=8.0",
+  "ipykernel>=6.29",
+  "mcp>=1.2",
+  "anyio>=4",
+]
+
+[project.urls]
+Homepage = "https://github.com/Abelo9996/notebook-to-pipeline"
+Issues = "https://github.com/Abelo9996/notebook-to-pipeline/issues"
+
+[project.scripts]
+nb2p = "notebook_to_pipeline.cli:main"
+notebook-to-pipeline = "notebook_to_pipeline.cli:main"
+
+[dependency-groups]
+dev = [
+  "pytest>=8",
+  "ruff>=0.6",
+  "numpy>=1.26",
+  "pandas>=2.1",
+  "scikit-learn>=1.4",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/notebook_to_pipeline"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"skills/notebook-to-pipeline/SKILL.md" = "notebook_to_pipeline/_skill/SKILL.md"
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "skills", "tests", "README.md", "LICENSE", "CHANGELOG.md"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["examples"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
+ignore = ["E501", "SIM105", "RUF012", "SIM108", "SIM102"]
+
+[tool.ruff.lint.per-file-ignores]
+# Runtime scripts run inside the user's interpreter and must stay Python 3.8 compatible.
+"src/notebook_to_pipeline/runtime/*.py" = ["UP", "SIM", "B", "RUF"]
