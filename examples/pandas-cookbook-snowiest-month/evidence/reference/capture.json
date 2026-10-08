@@ -1,10 +1,10 @@
 {
   "tool": {
     "name": "notebook-to-pipeline",
-    "version": "0.1.0"
+    "version": "0.1.1"
   },
   "kind": "capture",
-  "created_at": "2026-10-08T11:09:20+00:00",
+  "created_at": "2026-10-08T19:42:54+00:00",
   "command": "nb2p capture snowiest_month.ipynb --out evidence/reference --repeat 2",
   "notebook": {
     "path": "~/Downloads/notebook-to-pipeline/examples/pandas-cookbook-snowiest-month/snowiest_month.ipynb",
@@ -38,14 +38,14 @@
       {
         "index": 0,
         "status": "ok",
-        "duration_s": 1.358,
+        "duration_s": 3.459,
         "saved_output": "none",
         "label": "cell 1"
       },
       {
         "index": 2,
         "status": "ok",
-        "duration_s": 0.094,
+        "duration_s": 0.417,
         "saved_output": "same",
         "fresh_output": "Temp (C)  Dew Point Temp (C)  Rel Hum (%)  \\\nDate/Time                                                        \n2012-01-01 00:00:00      -1.8                -3.9           86   \n2012-01-01 01:00:00      -1.8                -3.7           87   \n2012-01-01 02:00:00      -1.8                -3.4           89   \n2012-01-01 03:00:00      -1.5                -3.2           88   \n2012-01-01 04:00:00      -1.5                -3.3           88   \n\n                     Wind Spd (km/h)  Visibility (km)  Stn Press (kPa)  \\\nDate/Time                                                                \n2012-01-01 00:00:00                4              8.0           101.24   \n2012-01-01 01:00:00                4              8.0           101.24   \n2012-01-01 02:00:00                7              4.0           101.26   \n2012-01-01 03:00:00                6              4.0           101.27   \n2012-01-01 04:00:00                7              4.8           101.23   \n\n                                  Weather  \nDate/Time                                  \n2012-01-01 00:00:00                   Fog  \n2012-01-01 01:00:00                   Fog  \n2012-01-01 02:00:00  Freezing Drizzle,Fog  \n2012-01-01 03:00:00  Freezing Drizzle,Fog  \n2012-01-01 04:00:00                   Fog",
         "label": "cell 3"
@@ -53,14 +53,14 @@
       {
         "index": 5,
         "status": "ok",
-        "duration_s": 0.01,
+        "duration_s": 0.091,
         "saved_output": "none",
         "label": "cell 6"
       },
       {
         "index": 7,
         "status": "ok",
-        "duration_s": 0.008,
+        "duration_s": 0.113,
         "saved_output": "same",
         "fresh_output": "Date/Time\n2012-01-01 00:00:00    False\n2012-01-01 01:00:00    False\n2012-01-01 02:00:00    False\n2012-01-01 03:00:00    False\n2012-01-01 04:00:00    False\nName: Weather, dtype: bool",
         "label": "cell 8"
@@ -68,7 +68,7 @@
       {
         "index": 8,
         "status": "ok",
-        "duration_s": 0.274,
+        "duration_s": 2.777,
         "saved_output": "different",
         "first_difference": {
           "line": 1,
@@ -76,12 +76,13 @@
           "fresh": "<Axes: xlabel='Date/Time'>"
         },
         "fresh_output": "<Axes: xlabel='Date/Time'>\n<Figure size 1500x300 with 1 Axes>",
+        "inline_images": 1,
         "label": "cell 9"
       },
       {
         "index": 11,
         "status": "ok",
-        "duration_s": 0.113,
+        "duration_s": 1.5,
         "saved_output": "different",
         "first_difference": {
           "line": 1,
@@ -89,12 +90,13 @@
           "fresh": "<Axes: xlabel='Date/Time'>"
         },
         "fresh_output": "<Axes: xlabel='Date/Time'>\n<Figure size 1500x300 with 1 Axes>",
+        "inline_images": 1,
         "label": "cell 12"
       },
       {
         "index": 14,
         "status": "ok",
-        "duration_s": 0.008,
+        "duration_s": 0.122,
         "saved_output": "same",
         "fresh_output": "Date/Time\n2012-01-01 00:00:00    0.0\n2012-01-01 01:00:00    0.0\n2012-01-01 02:00:00    0.0\n2012-01-01 03:00:00    0.0\n2012-01-01 04:00:00    0.0\n2012-01-01 05:00:00    0.0\n2012-01-01 06:00:00    0.0\n2012-01-01 07:00:00    0.0\n2012-01-01 08:00:00    0.0\n2012-01-01 09:00:00    0.0\nName: Weather, dtype: float64",
         "label": "cell 15"
@@ -102,7 +104,7 @@
       {
         "index": 16,
         "status": "ok",
-        "duration_s": 0.011,
+        "duration_s": 0.096,
         "saved_output": "different",
         "first_difference": {
           "line": 14,
@@ -115,7 +117,7 @@
       {
         "index": 17,
         "status": "ok",
-        "duration_s": 0.126,
+        "duration_s": 1.633,
         "saved_output": "different",
         "first_difference": {
           "line": 1,
@@ -123,19 +125,20 @@
           "fresh": "<Axes: xlabel='Date/Time'>"
         },
         "fresh_output": "<Axes: xlabel='Date/Time'>\n<Figure size 1500x300 with 1 Axes>",
+        "inline_images": 1,
         "label": "cell 18"
       },
       {
         "index": 21,
         "status": "ok",
-        "duration_s": 0.015,
+        "duration_s": 0.191,
         "saved_output": "none",
         "label": "cell 22"
       },
       {
         "index": 23,
         "status": "ok",
-        "duration_s": 0.011,
+        "duration_s": 0.07,
         "saved_output": "same",
         "fresh_output": "Temperature  Snowiness\nDate/Time                         \n2012-01-31        -7.05   0.240591\n2012-02-29        -4.10   0.162356\n2012-03-31         2.60   0.087366\n2012-04-30         6.30   0.015278\n2012-05-31        16.05   0.000000\n2012-06-30        19.60   0.000000\n2012-07-31        22.90   0.000000\n2012-08-31        22.20   0.000000\n2012-09-30        16.10   0.000000\n2012-10-31        11.30   0.000000\n2012-11-30         1.05   0.038889\n2012-12-31        -2.85   0.251344",
         "label": "cell 24"
@@ -143,7 +146,7 @@
       {
         "index": 24,
         "status": "ok",
-        "duration_s": 0.161,
+        "duration_s": 1.972,
         "saved_output": "different",
         "first_difference": {
           "line": 1,
@@ -151,12 +154,13 @@
           "fresh": "<Axes: xlabel='Date/Time'>"
         },
         "fresh_output": "<Axes: xlabel='Date/Time'>\n<Figure size 1500x300 with 1 Axes>",
+        "inline_images": 1,
         "label": "cell 25"
       },
       {
         "index": 26,
         "status": "ok",
-        "duration_s": 0.301,
+        "duration_s": 3.342,
         "saved_output": "different",
         "first_difference": {
           "line": 1,
@@ -164,18 +168,21 @@
           "fresh": "array([<Axes: title={'center': 'Temperature'}, xlabel='Date/Time'>,"
         },
         "fresh_output": "array([<Axes: title={'center': 'Temperature'}, xlabel='Date/Time'>,\n       <Axes: title={'center': 'Snowiness'}, xlabel='Date/Time'>],\n      dtype=object)\n<Figure size 1500x1000 with 2 Axes>",
+        "inline_images": 1,
         "label": "cell 27"
       }
     ],
     "failed_cell": null,
     "code_cells": 13,
+    "figures_hook": "ok",
     "cells_run": 13,
     "saved_outputs": {
       "same": 4,
       "different": 6,
       "none": 3
     },
-    "duration_s": 4.603
+    "duration_s": 28.795,
+    "inline_images": 5
   },
   "artifacts": [
     {
@@ -453,7 +460,77 @@
         "passed": true,
         "detail": "hash match"
       }
-    ]
+    ],
+    "unstable_figures": []
   },
-  "runtime_findings": []
+  "figures": [
+    {
+      "index": 1,
+      "file": "figure-01.png",
+      "label": "",
+      "size_inches": [
+        15.0,
+        3.0
+      ],
+      "axes": 1,
+      "status": "saved",
+      "stable": true
+    },
+    {
+      "index": 2,
+      "file": "figure-02.png",
+      "label": "",
+      "size_inches": [
+        15.0,
+        3.0
+      ],
+      "axes": 1,
+      "status": "saved",
+      "stable": true
+    },
+    {
+      "index": 3,
+      "file": "figure-03.png",
+      "label": "",
+      "size_inches": [
+        15.0,
+        3.0
+      ],
+      "axes": 1,
+      "status": "saved",
+      "stable": true
+    },
+    {
+      "index": 4,
+      "file": "figure-04.png",
+      "label": "",
+      "size_inches": [
+        15.0,
+        3.0
+      ],
+      "axes": 1,
+      "status": "saved",
+      "stable": true
+    },
+    {
+      "index": 5,
+      "file": "figure-05.png",
+      "label": "Temperature; Snowiness",
+      "size_inches": [
+        15.0,
+        10.0
+      ],
+      "axes": 2,
+      "status": "saved",
+      "stable": true
+    }
+  ],
+  "printed": {
+    "lines": 0
+  },
+  "runtime_findings": [],
+  "next_steps": [
+    "Write the pipeline as a function returning a dict {artifact name: value} (for example src/<package>/pipeline.py:run), or start from a mechanical draft (MCP scaffold_pipeline, or `nb2p scaffold`).",
+    "Verify after every change (MCP verify_pipeline, or `nb2p verify --pipeline <file.py:run> --reference ~/Downloads/notebook-to-pipeline/examples/pandas-cookbook-snowiest-month/evidence/reference`)."
+  ]
 }

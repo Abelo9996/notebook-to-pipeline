@@ -1,10 +1,10 @@
 {
   "tool": {
     "name": "notebook-to-pipeline",
-    "version": "0.1.0"
+    "version": "0.1.1"
   },
   "kind": "verify",
-  "created_at": "2026-10-08T11:10:14+00:00",
+  "created_at": "2026-10-08T19:46:26+00:00",
   "command": "nb2p verify --pipeline pipeline.py:run --reference evidence/reference --out evidence",
   "reference": {
     "dir": "~/Downloads/notebook-to-pipeline/examples/broken-hidden-state/evidence/reference",
@@ -15,7 +15,7 @@
       "code_cells": 6
     },
     "execution_status": "failed",
-    "created_at": "2026-10-08T11:10:10+00:00"
+    "created_at": "2026-10-08T19:46:20+00:00"
   },
   "pipeline": {
     "spec": "pipeline.py:run",
@@ -40,7 +40,11 @@
   },
   "artifacts": [],
   "files": [],
+  "figures": [],
   "verdict": "reference_invalid",
   "reason": "the notebook does not run top to bottom (status failed, NameError in cell 4), so there are no reference outputs to compare against. Fix the notebook or the hidden state first.",
-  "counts": {}
+  "counts": {},
+  "next_steps": [
+    "The notebook itself does not run top to bottom. Tell the user, and capture again once it runs."
+  ]
 }

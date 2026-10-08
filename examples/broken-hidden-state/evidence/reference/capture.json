@@ -1,10 +1,10 @@
 {
   "tool": {
     "name": "notebook-to-pipeline",
-    "version": "0.1.0"
+    "version": "0.1.1"
   },
   "kind": "capture",
-  "created_at": "2026-10-08T11:10:10+00:00",
+  "created_at": "2026-10-08T19:46:20+00:00",
   "command": "nb2p capture iris_session.ipynb --out evidence/reference",
   "notebook": {
     "path": "~/Downloads/notebook-to-pipeline/examples/broken-hidden-state/iris_session.ipynb",
@@ -38,14 +38,14 @@
       {
         "index": 1,
         "status": "ok",
-        "duration_s": 1.505,
+        "duration_s": 3.072,
         "saved_output": "none",
         "label": "cell 2"
       },
       {
         "index": 2,
         "status": "ok",
-        "duration_s": 0.02,
+        "duration_s": 0.032,
         "saved_output": "same",
         "fresh_output": "(150, 5)",
         "label": "cell 3"
@@ -53,7 +53,7 @@
       {
         "index": 3,
         "status": "error",
-        "duration_s": 0.252,
+        "duration_s": 0.251,
         "label": "cell 4"
       }
     ],
@@ -66,13 +66,16 @@
       "label": "cell 4"
     },
     "code_cells": 6,
+    "figures_hook": "ok",
     "cells_run": 2,
     "saved_outputs": {
       "same": 1,
       "different": 0,
       "none": 1
     },
-    "duration_s": 3.08
+    "duration_s": 5.388,
+    "inline_images": 0,
+    "hint": "A name is used before any cell defines it in top-to-bottom order: the notebook depended on hidden state from an earlier session. See the analyze findings."
   },
   "artifacts": [],
   "env": {
@@ -85,6 +88,7 @@
       "asttokens": "3.0.2",
       "cloudpickle": "3.1.2",
       "comm": "0.2.3",
+      "cycler": "0.12.1",
       "debugpy": "1.8.22",
       "executing": "2.2.1",
       "ipykernel": "7.4.0",
@@ -92,15 +96,19 @@
       "joblib": "1.6.0",
       "jupyter_client": "8.10.0",
       "jupyter_core": "5.9.1",
+      "kiwisolver": "1.5.1",
+      "matplotlib": "3.9.2",
       "narwhals": "2.26.0",
       "numpy": "2.1.2",
       "packaging": "26.3",
       "pandas": "2.2.3",
+      "pillow": "12.3.0",
       "platformdirs": "4.12.4",
       "psutil": "7.2.2",
       "pure_eval": "0.2.4",
       "pydevd": "3.5.0",
       "Pygments": "2.21.0",
+      "pyparsing": "3.3.3",
       "python-dateutil": "2.9.0.post0",
       "pytz": "2026.5",
       "pyzmq": "27.2.0",
@@ -130,5 +138,13 @@
     }
   },
   "stability": null,
-  "runtime_findings": []
+  "figures": [],
+  "printed": {
+    "lines": 0
+  },
+  "runtime_findings": [],
+  "next_steps": [
+    "A name is used before any cell defines it in top-to-bottom order: the notebook depended on hidden state from an earlier session. See the analyze findings.",
+    "Tell the user the notebook does not run top to bottom (cell and error above). Do not fix it silently: if they want a fix, make the smallest change, say what it is, and capture again."
+  ]
 }

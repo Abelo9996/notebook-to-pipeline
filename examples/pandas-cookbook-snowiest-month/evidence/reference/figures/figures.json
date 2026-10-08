@@ -1,0 +1,60 @@
+{
+  "figures": [
+    {
+      "index": 1,
+      "file": "figure-01.png",
+      "label": "",
+      "size_inches": [
+        15.0,
+        3.0
+      ],
+      "axes": 1,
+      "status": "saved"
+    },
+    {
+      "index": 2,
+      "file": "figure-02.png",
+      "label": "",
+      "size_inches": [
+        15.0,
+        3.0
+      ],
+      "axes": 1,
+      "status": "saved"
+    },
+    {
+      "index": 3,
+      "file": "figure-03.png",
+      "label": "",
+      "size_inches": [
+        15.0,
+        3.0
+      ],
+      "axes": 1,
+      "status": "saved"
+    },
+    {
+      "index": 4,
+      "file": "figure-04.png",
+      "label": "",
+      "size_inches": [
+        15.0,
+        3.0
+      ],
+      "axes": 1,
+      "status": "saved"
+    },
+    {
+      "index": 5,
+      "file": "figure-05.png",
+      "label": "Temperature; Snowiness",
+      "size_inches": [
+        15.0,
+        10.0
+      ],
+      "axes": 2,
+      "status": "saved"
+    }
+  ],
+  "not_recorded": 0
+}

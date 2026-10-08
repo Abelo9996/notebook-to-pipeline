@@ -1,0 +1,38 @@
+{
+  "figures": [
+    {
+      "index": 1,
+      "file": "figure-01.png",
+      "label": "KNN without scaling; KNN with scaling",
+      "size_inches": [
+        12.0,
+        6.0
+      ],
+      "axes": 2,
+      "status": "saved"
+    },
+    {
+      "index": 2,
+      "file": "figure-02.png",
+      "label": "Weights of the first principal component",
+      "size_inches": [
+        6.0,
+        8.0
+      ],
+      "axes": 1,
+      "status": "saved"
+    },
+    {
+      "index": 3,
+      "file": "figure-03.png",
+      "label": "Unscaled training dataset after PCA; Standardized training dataset after PCA",
+      "size_inches": [
+        10.0,
+        5.0
+      ],
+      "axes": 2,
+      "status": "saved"
+    }
+  ],
+  "not_recorded": 0
+}

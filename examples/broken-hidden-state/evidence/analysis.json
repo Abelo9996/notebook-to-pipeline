@@ -1,7 +1,7 @@
 {
   "tool": {
     "name": "notebook-to-pipeline",
-    "version": "0.1.0"
+    "version": "0.1.1"
   },
   "notebook": {
     "path": "~/Downloads/notebook-to-pipeline/examples/broken-hidden-state/iris_session.ipynb",
@@ -341,7 +341,7 @@
       "signature": "def load() -> dict",
       "why": {
         "1": "imports and configuration",
-        "2": "signals: load=3",
+        "2": "loads data (`load_iris`)",
         "3": "no strong signal, kept with the previous cell"
       },
       "reorder_notes": {}
@@ -362,7 +362,7 @@
       "imports": [],
       "signature": "def features(X) -> dict",
       "why": {
-        "5": "signals: features=1"
+        "5": "builds features (`mean`)"
       },
       "reorder_notes": {}
     },
@@ -380,7 +380,7 @@
       "imports": [],
       "signature": "def train(df) -> dict",
       "why": {
-        "4": "signals: train=4, evaluate=2"
+        "4": "fits a model (`LogisticRegression`, `fit`)"
       },
       "reorder_notes": {}
     },

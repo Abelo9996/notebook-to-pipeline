@@ -1,11 +1,11 @@
 {
   "tool": {
     "name": "notebook-to-pipeline",
-    "version": "0.1.0"
+    "version": "0.1.1"
   },
   "kind": "verify",
-  "created_at": "2026-10-08T11:09:36+00:00",
-  "command": "nb2p verify --pipeline /var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.FMgDb3i3WI/src/snowiest_draft/pipeline.py:run --reference evidence/reference --out evidence/scaffold-draft",
+  "created_at": "2026-10-08T19:44:28+00:00",
+  "command": "nb2p verify --pipeline /var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.A3yJVK4pHz/src/snowiest_draft/pipeline.py:run --reference evidence/reference --out evidence/scaffold-draft",
   "reference": {
     "dir": "~/Downloads/notebook-to-pipeline/examples/pandas-cookbook-snowiest-month/evidence/reference",
     "notebook": {
@@ -15,20 +15,20 @@
       "code_cells": 14
     },
     "execution_status": "ok",
-    "created_at": "2026-10-08T11:09:20+00:00"
+    "created_at": "2026-10-08T19:42:54+00:00"
   },
   "pipeline": {
-    "spec": "/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.FMgDb3i3WI/src/snowiest_draft/pipeline.py:run",
+    "spec": "/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.A3yJVK4pHz/src/snowiest_draft/pipeline.py:run",
     "cmd": null,
     "cwd": "~/Downloads/notebook-to-pipeline/examples/pandas-cookbook-snowiest-month",
     "run": {
       "status": "ok",
-      "pipeline": "/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.FMgDb3i3WI/src/snowiest_draft/pipeline.py:run",
+      "pipeline": "/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.A3yJVK4pHz/src/snowiest_draft/pipeline.py:run",
       "args": [],
-      "duration_s": 1.819,
+      "duration_s": 24.836,
       "exit_code": 0,
       "stdout_tail": "",
-      "stderr_tail": "...dian at 0x109f228e0> is currently using DatetimeIndexResampler.median. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string \"median\" instead.\n  temperature = weather_2012['Temp (C)'].resample('M').apply(np.median)\n/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.FMgDb3i3WI/src/snowiest_draft/features.py:15: FutureWarning: 'M' is deprecated and will be removed in a future version, please use 'ME' instead.\n  snowiness = is_snowing.astype(float).resample('M').apply(np.mean)\n/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.FMgDb3i3WI/src/snowiest_draft/features.py:15: FutureWarning: The provided callable <function mean at 0x109c99940> is currently using DatetimeIndexResampler.mean. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string \"mean\" instead.\n  snowiness = is_snowing.astype(float).resample('M').apply(np.mean)\n/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.FMgDb3i3WI/src/snowiest_draft/report.py:16: FutureWarning: 'M' is deprecated and will be removed in a future version, please use 'ME' instead.\n  weather_2012['Temp (C)'].resample('M').apply(np.median).plot(kind='bar')\n/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.FMgDb3i3WI/src/snowiest_draft/report.py:16: FutureWarning: The provided callable <function median at 0x109f228e0> is currently using DatetimeIndexResampler.median. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string \"median\" instead.\n  weather_2012['Temp (C)'].resample('M').apply(np.median).plot(kind='bar')\n/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.FMgDb3i3WI/src/snowiest_draft/report.py:22: FutureWarning: 'M' is deprecated and will be removed in a future version, please use 'ME' instead.\n  is_snowing.astype(float).resample('M').apply(np.mean)\n/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.FMgDb3i3WI/src/snowiest_draft/report.py:22: FutureWarning: The provided callable <function mean at 0x109c99940> is currently using DatetimeIndexResampler.mean. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string \"mean\" instead.\n  is_snowing.astype(float).resample('M').apply(np.mean)\n/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.FMgDb3i3WI/src/snowiest_draft/report.py:25: FutureWarning: 'M' is deprecated and will be removed in a future version, please use 'ME' instead.\n  is_snowing.astype(float).resample('M').apply(np.mean).plot(kind='bar')\n/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.FMgDb3i3WI/src/snowiest_draft/report.py:25: FutureWarning: The provided callable <function mean at 0x109c99940> is currently using DatetimeIndexResampler.mean. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string \"mean\" instead.\n  is_snowing.astype(float).resample('M').apply(np.mean).plot(kind='bar')\n"
+      "stderr_tail": "...dian at 0x10a008cc0> is currently using DatetimeIndexResampler.median. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string \"median\" instead.\n  temperature = weather_2012['Temp (C)'].resample('M').apply(np.median)\n/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.A3yJVK4pHz/src/snowiest_draft/features.py:15: FutureWarning: 'M' is deprecated and will be removed in a future version, please use 'ME' instead.\n  snowiness = is_snowing.astype(float).resample('M').apply(np.mean)\n/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.A3yJVK4pHz/src/snowiest_draft/features.py:15: FutureWarning: The provided callable <function mean at 0x1099844a0> is currently using DatetimeIndexResampler.mean. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string \"mean\" instead.\n  snowiness = is_snowing.astype(float).resample('M').apply(np.mean)\n/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.A3yJVK4pHz/src/snowiest_draft/report.py:17: FutureWarning: 'M' is deprecated and will be removed in a future version, please use 'ME' instead.\n  weather_2012['Temp (C)'].resample('M').apply(np.median).plot(kind='bar')\n/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.A3yJVK4pHz/src/snowiest_draft/report.py:17: FutureWarning: The provided callable <function median at 0x10a008cc0> is currently using DatetimeIndexResampler.median. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string \"median\" instead.\n  weather_2012['Temp (C)'].resample('M').apply(np.median).plot(kind='bar')\n/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.A3yJVK4pHz/src/snowiest_draft/report.py:24: FutureWarning: 'M' is deprecated and will be removed in a future version, please use 'ME' instead.\n  is_snowing.astype(float).resample('M').apply(np.mean)\n/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.A3yJVK4pHz/src/snowiest_draft/report.py:24: FutureWarning: The provided callable <function mean at 0x1099844a0> is currently using DatetimeIndexResampler.mean. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string \"mean\" instead.\n  is_snowing.astype(float).resample('M').apply(np.mean)\n/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.A3yJVK4pHz/src/snowiest_draft/report.py:27: FutureWarning: 'M' is deprecated and will be removed in a future version, please use 'ME' instead.\n  is_snowing.astype(float).resample('M').apply(np.mean).plot(kind='bar')\n/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.A3yJVK4pHz/src/snowiest_draft/report.py:27: FutureWarning: The provided callable <function mean at 0x1099844a0> is currently using DatetimeIndexResampler.mean. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string \"mean\" instead.\n  is_snowing.astype(float).resample('M').apply(np.mean).plot(kind='bar')\n"
     },
     "files_written": []
   },
@@ -93,6 +93,48 @@
     }
   ],
   "files": [],
+  "figures": [
+    {
+      "name": "figure 1",
+      "kind": "figure",
+      "status": "identical_pixels",
+      "passed": true,
+      "detail": "same pixels at 72 dpi",
+      "candidate_figure": 1
+    },
+    {
+      "name": "figure 2",
+      "kind": "figure",
+      "status": "identical_pixels",
+      "passed": true,
+      "detail": "same pixels at 72 dpi",
+      "candidate_figure": 2
+    },
+    {
+      "name": "figure 3",
+      "kind": "figure",
+      "status": "identical_pixels",
+      "passed": true,
+      "detail": "same pixels at 72 dpi",
+      "candidate_figure": 3
+    },
+    {
+      "name": "figure 4",
+      "kind": "figure",
+      "status": "identical_pixels",
+      "passed": true,
+      "detail": "same pixels at 72 dpi",
+      "candidate_figure": 4
+    },
+    {
+      "name": "figure 5 (Temperature; Snowiness)",
+      "kind": "figure",
+      "status": "identical_pixels",
+      "passed": true,
+      "detail": "same pixels at 72 dpi",
+      "candidate_figure": 5
+    }
+  ],
   "candidate_env": {
     "python": "3.12.13",
     "implementation": "CPython",
@@ -112,9 +154,19 @@
       "six": "1.17.0"
     }
   },
+  "printed": {
+    "lines": 0,
+    "found": 0,
+    "missing": [],
+    "counted_in_verdict": false
+  },
   "verdict": "equivalent",
-  "reason": "all 6 compared outputs match",
+  "reason": "all 11 compared outputs match",
   "counts": {
-    "identical": 6
-  }
+    "identical": 6,
+    "identical_pixels": 5
+  },
+  "next_steps": [
+    "Report the verdict with the number of compared outputs, then write the report (MCP write_report, or `nb2p report --reference <reference dir>`). Keep verifying after any further change."
+  ]
 }

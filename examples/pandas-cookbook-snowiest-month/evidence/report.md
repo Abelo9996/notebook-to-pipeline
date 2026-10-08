@@ -2,9 +2,9 @@
 
 **Verdict: EQUIVALENT: the pipeline reproduces every compared notebook output.**
 
-Reason: all 6 compared outputs match.
+Reason: all 6 compared outputs match; not counted: 5 not compared.
 
-Generated 2026-10-08T11:09:38+00:00 by notebook-to-pipeline 0.1.0.
+Generated 2026-10-08T19:44:55+00:00 by notebook-to-pipeline 0.1.1.
 
 ## Notebook
 
@@ -17,7 +17,7 @@ Generated 2026-10-08T11:09:38+00:00 by notebook-to-pipeline 0.1.0.
 - Command: `nb2p capture snowiest_month.ipynb --out evidence/reference --repeat 2`
 - Python 3.12.13 (virtualenv found at ~/Downloads/notebook-to-pipeline/examples/.venv), ipykernel 7.4.0
 - Packages: matplotlib 3.9.2, numpy 2.1.2, pandas 2.2.3, ipykernel 7.4.0
-- Result: **ran to completion**, 13 of 13 code cells in 4.603 s
+- Result: **ran to completion**, 13 of 13 code cells in 28.795 s
 
 ### Saved outputs vs fresh run
 
@@ -61,13 +61,15 @@ Text outputs saved in the notebook were compared with the fresh run: 4 cell(s) s
 | `snowiness` | series | length 12, float64 | `b8e9a4be8725` |
 | `stats` | dataframe | 12 rows x 2 cols | `9cc2bed5d3ce` |
 
+Figures recorded (matplotlib, rendered as PNG at 72 dpi): 1; 2; 3; 4; 5 (Temperature; Snowiness).
+
 Determinism check: the notebook was run 2 times. Every artifact was reproduced.
 
 ## Pipeline verification
 
 - Command: `nb2p verify --pipeline snowiest/pipeline.py:run --reference evidence/reference --out evidence`
-- Pipeline run: ok in 2.62 s
-- Packages: numpy 2.1.2, pandas 2.2.3
+- Pipeline run: ok in 9.978 s
+- Packages: matplotlib 3.9.2, numpy 2.1.2, pandas 2.2.3
 - Tolerance: rtol=1e-07, atol=1e-10; ignore row order: False, ignore column order: False, ignore index: False, check dtype: True
 
 | Artifact | Kind | Result | Detail |
@@ -78,6 +80,14 @@ Determinism check: the notebook was run 2 times. Every artifact was reproduced.
 | `temperature` | series | PASS (identical) | hash match |
 | `snowiness` | series | PASS (identical) | hash match |
 | `stats` | dataframe | PASS (identical) | hash match |
+
+| Figure | Result | Detail |
+|---|---|---|
+| figure 1 | n/a (not_compared) | the pipeline drew no matplotlib figures, so figures are not compared |
+| figure 2 | n/a (not_compared) | the pipeline drew no matplotlib figures, so figures are not compared |
+| figure 3 | n/a (not_compared) | the pipeline drew no matplotlib figures, so figures are not compared |
+| figure 4 | n/a (not_compared) | the pipeline drew no matplotlib figures, so figures are not compared |
+| figure 5 (Temperature; Snowiness) | n/a (not_compared) | the pipeline drew no matplotlib figures, so figures are not compared |
 
 ## Proposed module split
 
@@ -92,7 +102,7 @@ Determinism check: the notebook was run 2 times. Every artifact was reproduced.
 
 - Static analysis reads cell source only. It does not follow `exec`, `eval`, `%run`, imports of local modules or mutation through aliases (`b = a; b.append(1)`).
 - Mutation through notebook-defined functions is tracked one level deep; mutation inside third-party code is only known for common method names (`fit`, `append`, `inplace=True`, ...).
-- Only the variables listed in the capture are compared. Anything the notebook displayed but did not keep in a variable is not compared.
-- Figure files are listed but not compared. Plots are not compared at all.
+- Only the variables listed in the capture are compared. Values the notebook only printed are checked line by line against the pipeline's output, but that check is not counted in the verdict; anything displayed but neither printed nor kept in a variable (a DataFrame shown as a cell's last line) is not compared.
+- matplotlib figures are re-rendered as PNG at 72 dpi and compared pixel by pixel, only if the pipeline draws figures too. Plotly, Bokeh and Altair charts are not compared. Saved figure files are compared pixel by pixel for PNG; SVG, PDF and JPEG files only by bytes.
 - Equivalence is checked on this data, in this environment. A different input file or library version can still change the results.
 - Tolerances apply to floats only. Integers, strings, booleans, dates and hashes must match exactly.

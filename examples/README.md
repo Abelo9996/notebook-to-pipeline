@@ -2,8 +2,10 @@
 
 Three notebooks, each taken through the full flow: `analyze`, `capture`, a pipeline written by
 hand, `verify`, `report`. Everything under `evidence/` was produced by `run_all.sh` on an Apple M4
-MacBook (macOS, Python 3.12.13) with the versions pinned in `requirements.txt`. The pickled values
-behind each capture are not committed (see `.gitignore`); run `./run_all.sh` to regenerate them.
+MacBook (macOS, Python 3.12.13) with the versions pinned in `requirements.txt`, using
+notebook-to-pipeline 0.1.1. The pickled values behind each capture are not committed (see
+`.gitignore`); the figures each capture recorded are, under `evidence/reference/figures/`. Run
+`./run_all.sh` to regenerate everything.
 
 ```
 cd examples
@@ -25,12 +27,16 @@ output, 4 matched the fresh run and 6 differed; all 6 differences come from newe
 The pipeline is in `snowiest/` (load, features, pipeline). It replaces the deprecated
 `resample("M").apply(np.median)` with `resample("ME").median()`.
 
-- `evidence/verify.json`: EQUIVALENT, 6 of 6 artifacts identical by hash.
+- `evidence/verify.json`: EQUIVALENT, 6 of 6 artifacts identical by hash. The notebook draws 5
+  figures; this pipeline does not plot, so they are listed as not compared.
 - `evidence/caught-mistake/verify.json`: `mistakes.py` swaps month-end bins for month-start bins
   (`"MS"`). Values stay the same but every label moves to the first of the month. Verdict DIFFERS,
   3 of 6 artifacts, first difference `temperature.index[0]`: `2012-01-31` vs `2012-01-01`.
 - `evidence/scaffold-draft/verify.json`: the mechanical draft written by `nb2p scaffold` (notebook
-  cells pasted into one function per stage) is also EQUIVALENT, 6 of 6.
+  cells pasted into one function per stage) is also EQUIVALENT, 11 of 11: the 6 artifacts and the
+  5 figures, pixel for pixel. The draft closes figures after each plotting cell the way Jupyter does;
+  without that, pandas draws several cells' plots onto one figure: an earlier draft drew 3 figures
+  instead of 5, and `verify` reported 3 of the 5 as different or missing.
 - `evidence/report.md`: the full report.
 
 ## sklearn-feature-scaling
@@ -51,7 +57,9 @@ What the tool found:
 The pipeline in `scaling/` reproduces the notebook first, shared PCA included:
 
 - `evidence/verify.json`: EQUIVALENT, 26 of 26 artifacts identical by hash (DataFrames, arrays,
-  fitted estimators compared by parameters and fitted attributes).
+  fitted estimators compared by parameters and fitted attributes). The 3 figures are not compared
+  because this pipeline does not plot, and none of the 10 lines the notebook prints are printed by
+  it (reported, not counted).
 
 Then, as a separate and declared change, `run_fixed()` gives the unscaled pipeline its own PCA:
 
@@ -62,7 +70,8 @@ Then, as a separate and declared change, `run_fixed()` gives the unscaled pipeli
   pipeline is 0.3519 with the shared PCA and 0.7407 with its own PCA. The standardized pipeline
   scores 0.9630 in both. The notebook's own printout from the fresh run (35.19%, kept in
   `evidence/reference/capture.json` under cell 14) matches the shared-PCA number.
-- `evidence/scaffold-draft/verify.json`: the `nb2p scaffold` draft is EQUIVALENT, 26 of 26.
+- `evidence/scaffold-draft/verify.json`: the `nb2p scaffold` draft is EQUIVALENT, 29 of 29 (26
+  artifacts and 3 figures), and prints all 10 lines the notebook printed.
 - `evidence/report.md`: the full report.
 
 ## broken-hidden-state

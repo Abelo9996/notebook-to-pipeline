@@ -1,10 +1,10 @@
 {
   "tool": {
     "name": "notebook-to-pipeline",
-    "version": "0.1.0"
+    "version": "0.1.1"
   },
   "kind": "verify",
-  "created_at": "2026-10-08T11:09:34+00:00",
+  "created_at": "2026-10-08T19:44:14+00:00",
   "command": "nb2p verify --pipeline mistakes.py:run_month_start --reference evidence/reference --out evidence/caught-mistake",
   "reference": {
     "dir": "~/Downloads/notebook-to-pipeline/examples/pandas-cookbook-snowiest-month/evidence/reference",
@@ -15,7 +15,7 @@
       "code_cells": 14
     },
     "execution_status": "ok",
-    "created_at": "2026-10-08T11:09:20+00:00"
+    "created_at": "2026-10-08T19:42:54+00:00"
   },
   "pipeline": {
     "spec": "mistakes.py:run_month_start",
@@ -25,7 +25,7 @@
       "status": "ok",
       "pipeline": "mistakes.py:run_month_start",
       "args": [],
-      "duration_s": 0.736,
+      "duration_s": 9.47,
       "exit_code": 0,
       "stdout_tail": "",
       "stderr_tail": ""
@@ -126,23 +126,77 @@
     }
   ],
   "files": [],
+  "figures": [
+    {
+      "name": "figure 1",
+      "kind": "figure",
+      "status": "not_compared",
+      "passed": null,
+      "detail": "the pipeline drew no matplotlib figures, so figures are not compared"
+    },
+    {
+      "name": "figure 2",
+      "kind": "figure",
+      "status": "not_compared",
+      "passed": null,
+      "detail": "the pipeline drew no matplotlib figures, so figures are not compared"
+    },
+    {
+      "name": "figure 3",
+      "kind": "figure",
+      "status": "not_compared",
+      "passed": null,
+      "detail": "the pipeline drew no matplotlib figures, so figures are not compared"
+    },
+    {
+      "name": "figure 4",
+      "kind": "figure",
+      "status": "not_compared",
+      "passed": null,
+      "detail": "the pipeline drew no matplotlib figures, so figures are not compared"
+    },
+    {
+      "name": "figure 5 (Temperature; Snowiness)",
+      "kind": "figure",
+      "status": "not_compared",
+      "passed": null,
+      "detail": "the pipeline drew no matplotlib figures, so figures are not compared"
+    }
+  ],
   "candidate_env": {
     "python": "3.12.13",
     "implementation": "CPython",
     "executable": "~/Downloads/notebook-to-pipeline/examples/.venv/bin/python",
     "platform": "macOS-26.2-arm64-arm-64bit",
     "packages": {
+      "cycler": "0.12.1",
+      "kiwisolver": "1.5.1",
+      "matplotlib": "3.9.2",
       "numpy": "2.1.2",
+      "packaging": "26.3",
       "pandas": "2.2.3",
+      "pillow": "12.3.0",
+      "pyparsing": "3.3.3",
       "python-dateutil": "2.9.0.post0",
       "pytz": "2026.5",
       "six": "1.17.0"
     }
   },
+  "printed": {
+    "lines": 0,
+    "found": 0,
+    "missing": [],
+    "counted_in_verdict": false
+  },
   "verdict": "differs",
-  "reason": "3 of 6 compared outputs differ",
+  "reason": "3 of 6 compared outputs differ; not counted: 5 not compared",
   "counts": {
     "identical": 3,
-    "differs": 3
-  }
+    "differs": 3,
+    "not_compared": 5
+  },
+  "next_steps": [
+    "Read the first differences above and fix the pipeline. Do not widen tolerances or drop artifacts to get a pass; if a change is intended, tell the user what changed and why.",
+    "The notebook drew 5 figure(s) and the pipeline drew none, so figures were not compared. If the pipeline should make the plots, draw them with matplotlib in the verified run and they will be compared pixel by pixel."
+  ]
 }

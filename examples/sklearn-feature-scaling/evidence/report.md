@@ -2,9 +2,9 @@
 
 **Verdict: EQUIVALENT: the pipeline reproduces every compared notebook output.**
 
-Reason: all 26 compared outputs match.
+Reason: all 26 compared outputs match; not counted: 3 not compared.
 
-Generated 2026-10-08T11:10:10+00:00 by notebook-to-pipeline 0.1.0.
+Generated 2026-10-08T19:46:19+00:00 by notebook-to-pipeline 0.1.1.
 
 ## Notebook
 
@@ -17,7 +17,7 @@ Generated 2026-10-08T11:10:10+00:00 by notebook-to-pipeline 0.1.0.
 - Command: `nb2p capture plot_scaling_importance.ipynb --out evidence/reference --repeat 2`
 - Python 3.12.13 (virtualenv found at ~/Downloads/notebook-to-pipeline/examples/.venv), ipykernel 7.4.0
 - Packages: matplotlib 3.9.2, numpy 2.1.2, pandas 2.2.3, scikit-learn 1.9.1, ipykernel 7.4.0
-- Result: **ran to completion**, 7 of 7 code cells in 7.111 s
+- Result: **ran to completion**, 7 of 7 code cells in 36.439 s
 
 ## Hidden-state findings
 
@@ -67,13 +67,15 @@ Found during the fresh run (not visible in the source alone):
 | `y_proba` | ndarray | shape (54, 3), float64 | `260abb10bbbb` |
 | `y_proba_scaled` | ndarray | shape (54, 3), float64 | `71b105b5e066` |
 
+Figures recorded (matplotlib, rendered as PNG at 72 dpi): 1 (KNN without scaling; KNN with scaling); 2 (Weights of the first principal component); 3 (Unscaled training dataset after PCA; Standardized training dataset after PCA).
+
 Determinism check: the notebook was run 2 times. Every artifact was reproduced.
 
 ## Pipeline verification
 
 - Command: `nb2p verify --pipeline scaling/pipeline.py:run --reference evidence/reference --out evidence`
-- Pipeline run: ok in 3.164 s
-- Packages: numpy 2.1.2, pandas 2.2.3, scikit-learn 1.9.1
+- Pipeline run: ok in 6.337 s
+- Packages: matplotlib 3.9.2, numpy 2.1.2, pandas 2.2.3, scikit-learn 1.9.1
 - Tolerance: rtol=1e-07, atol=1e-10; ignore row order: False, ignore column order: False, ignore index: False, check dtype: True
 
 | Artifact | Kind | Result | Detail |
@@ -105,6 +107,19 @@ Determinism check: the notebook was run 2 times. Every artifact was reproduced.
 | `y_proba` | ndarray | PASS (identical) | hash match |
 | `y_proba_scaled` | ndarray | PASS (identical) | hash match |
 
+| Figure | Result | Detail |
+|---|---|---|
+| figure 1 (KNN without scaling; KNN with...) | n/a (not_compared) | the pipeline drew no matplotlib figures, so figures are not compared |
+| figure 2 (Weights of the first principa...) | n/a (not_compared) | the pipeline drew no matplotlib figures, so figures are not compared |
+| figure 3 (Unscaled training dataset aft...) | n/a (not_compared) | the pipeline drew no matplotlib figures, so figures are not compared |
+
+Printed output: 0 of 10 non-empty lines the notebook printed also appear in the pipeline's output (informational, not counted in the verdict).
+- not printed by the pipeline: `Optimal C for the unscaled PCA: 0.0000`
+- not printed by the pipeline: `Optimal C for the standardized data with PCA: 6.16`
+- not printed by the pipeline: `Test accuracy for the unscaled PCA`
+- not printed by the pipeline: `35.19%`
+- not printed by the pipeline: `Test accuracy for the standardized data with PCA`
+
 ## Proposed module split
 
 | Stage | Cells | Inputs | Outputs |
@@ -118,7 +133,7 @@ Determinism check: the notebook was run 2 times. Every artifact was reproduced.
 
 - Static analysis reads cell source only. It does not follow `exec`, `eval`, `%run`, imports of local modules or mutation through aliases (`b = a; b.append(1)`).
 - Mutation through notebook-defined functions is tracked one level deep; mutation inside third-party code is only known for common method names (`fit`, `append`, `inplace=True`, ...).
-- Only the variables listed in the capture are compared. Anything the notebook displayed but did not keep in a variable is not compared.
-- Figure files are listed but not compared. Plots are not compared at all.
+- Only the variables listed in the capture are compared. Values the notebook only printed are checked line by line against the pipeline's output, but that check is not counted in the verdict; anything displayed but neither printed nor kept in a variable (a DataFrame shown as a cell's last line) is not compared.
+- matplotlib figures are re-rendered as PNG at 72 dpi and compared pixel by pixel, only if the pipeline draws figures too. Plotly, Bokeh and Altair charts are not compared. Saved figure files are compared pixel by pixel for PNG; SVG, PDF and JPEG files only by bytes.
 - Equivalence is checked on this data, in this environment. A different input file or library version can still change the results.
 - Tolerances apply to floats only. Integers, strings, booleans, dates and hashes must match exactly.

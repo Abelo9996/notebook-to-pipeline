@@ -4,7 +4,7 @@
 
 Reason: the notebook does not run top to bottom (status failed, NameError in cell 4), so there are no reference outputs to compare against. Fix the notebook or the hidden state first.
 
-Generated 2026-10-08T11:10:14+00:00 by notebook-to-pipeline 0.1.0.
+Generated 2026-10-08T19:46:26+00:00 by notebook-to-pipeline 0.1.1.
 
 ## Notebook
 
@@ -63,7 +63,7 @@ Text outputs saved in the notebook were compared with the fresh run: 1 cell(s) s
 
 - Static analysis reads cell source only. It does not follow `exec`, `eval`, `%run`, imports of local modules or mutation through aliases (`b = a; b.append(1)`).
 - Mutation through notebook-defined functions is tracked one level deep; mutation inside third-party code is only known for common method names (`fit`, `append`, `inplace=True`, ...).
-- Only the variables listed in the capture are compared. Anything the notebook displayed but did not keep in a variable is not compared.
-- Figure files are listed but not compared. Plots are not compared at all.
+- Only the variables listed in the capture are compared. Values the notebook only printed are checked line by line against the pipeline's output, but that check is not counted in the verdict; anything displayed but neither printed nor kept in a variable (a DataFrame shown as a cell's last line) is not compared.
+- matplotlib figures are re-rendered as PNG at 72 dpi and compared pixel by pixel, only if the pipeline draws figures too. Plotly, Bokeh and Altair charts are not compared. Saved figure files are compared pixel by pixel for PNG; SVG, PDF and JPEG files only by bytes.
 - Equivalence is checked on this data, in this environment. A different input file or library version can still change the results.
 - Tolerances apply to floats only. Integers, strings, booleans, dates and hashes must match exactly.

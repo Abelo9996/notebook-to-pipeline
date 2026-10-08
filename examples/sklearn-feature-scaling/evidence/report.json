@@ -1,12 +1,12 @@
 {
   "tool": {
     "name": "notebook-to-pipeline",
-    "version": "0.1.0"
+    "version": "0.1.1"
   },
   "kind": "report",
-  "created_at": "2026-10-08T11:10:10+00:00",
+  "created_at": "2026-10-08T19:46:19+00:00",
   "verdict": "equivalent",
-  "verdict_reason": "all 26 compared outputs match",
+  "verdict_reason": "all 26 compared outputs match; not counted: 3 not compared",
   "notebook": {
     "path": "~/Downloads/notebook-to-pipeline/examples/sklearn-feature-scaling/plot_scaling_importance.ipynb",
     "sha256": "46f8e2b46e0d6895c18e026b170b3747313a0aaa8fb35b35fdfb2b513e87ba8f",
@@ -28,13 +28,15 @@
       "status": "ok",
       "failed_cell": null,
       "code_cells": 7,
+      "figures_hook": "ok",
       "cells_run": 7,
       "saved_outputs": {
         "same": 0,
         "different": 0,
         "none": 7
       },
-      "duration_s": 7.111
+      "duration_s": 36.439,
+      "inline_images": 3
     },
     "saved_output_differences": [],
     "prediction": null,
@@ -1033,6 +1035,47 @@
       }
     ],
     "files_written": [],
+    "figures": [
+      {
+        "index": 1,
+        "file": "figure-01.png",
+        "label": "KNN without scaling; KNN with scaling",
+        "size_inches": [
+          12.0,
+          6.0
+        ],
+        "axes": 2,
+        "status": "saved",
+        "stable": true
+      },
+      {
+        "index": 2,
+        "file": "figure-02.png",
+        "label": "Weights of the first principal component",
+        "size_inches": [
+          6.0,
+          8.0
+        ],
+        "axes": 1,
+        "status": "saved",
+        "stable": true
+      },
+      {
+        "index": 3,
+        "file": "figure-03.png",
+        "label": "Unscaled training dataset after PCA; Standardized training dataset after PCA",
+        "size_inches": [
+          10.0,
+          5.0
+        ],
+        "axes": 2,
+        "status": "saved",
+        "stable": true
+      }
+    ],
+    "printed": {
+      "lines": 10
+    },
     "stability": {
       "repeats": 2,
       "runs": [
@@ -1224,7 +1267,8 @@
           "passed": true,
           "detail": "hash match"
         }
-      ]
+      ],
+      "unstable_figures": []
     }
   },
   "hidden_state": {
@@ -1369,7 +1413,7 @@
         "status": "ok",
         "pipeline": "scaling/pipeline.py:run",
         "args": [],
-        "duration_s": 3.164,
+        "duration_s": 6.337,
         "exit_code": 0,
         "stdout_tail": "",
         "stderr_tail": ""
@@ -1577,21 +1621,63 @@
       }
     ],
     "files": [],
+    "figures": [
+      {
+        "name": "figure 1 (KNN without scaling; KNN with...)",
+        "kind": "figure",
+        "status": "not_compared",
+        "passed": null,
+        "detail": "the pipeline drew no matplotlib figures, so figures are not compared"
+      },
+      {
+        "name": "figure 2 (Weights of the first principa...)",
+        "kind": "figure",
+        "status": "not_compared",
+        "passed": null,
+        "detail": "the pipeline drew no matplotlib figures, so figures are not compared"
+      },
+      {
+        "name": "figure 3 (Unscaled training dataset aft...)",
+        "kind": "figure",
+        "status": "not_compared",
+        "passed": null,
+        "detail": "the pipeline drew no matplotlib figures, so figures are not compared"
+      }
+    ],
+    "printed": {
+      "lines": 10,
+      "found": 0,
+      "missing": [
+        "Optimal C for the unscaled PCA: 0.0000",
+        "Optimal C for the standardized data with PCA: 6.16",
+        "Test accuracy for the unscaled PCA",
+        "35.19%",
+        "Test accuracy for the standardized data with PCA",
+        "96.30%",
+        "Log-loss for the unscaled PCA",
+        "1.18",
+        "Log-loss for the standardized data with PCA",
+        "0.0739"
+      ],
+      "counted_in_verdict": false
+    },
     "counts": {
-      "identical": 26
+      "identical": 26,
+      "not_compared": 3
     },
     "key_packages": {
+      "matplotlib": "3.9.2",
       "numpy": "2.1.2",
       "pandas": "2.2.3",
       "scikit-learn": "1.9.1"
     },
-    "created_at": "2026-10-08T11:09:54+00:00"
+    "created_at": "2026-10-08T19:45:50+00:00"
   },
   "limits": [
     "Static analysis reads cell source only. It does not follow `exec`, `eval`, `%run`, imports of local modules or mutation through aliases (`b = a; b.append(1)`).",
     "Mutation through notebook-defined functions is tracked one level deep; mutation inside third-party code is only known for common method names (`fit`, `append`, `inplace=True`, ...).",
-    "Only the variables listed in the capture are compared. Anything the notebook displayed but did not keep in a variable is not compared.",
-    "Figure files are listed but not compared. Plots are not compared at all.",
+    "Only the variables listed in the capture are compared. Values the notebook only printed are checked line by line against the pipeline's output, but that check is not counted in the verdict; anything displayed but neither printed nor kept in a variable (a DataFrame shown as a cell's last line) is not compared.",
+    "matplotlib figures are re-rendered as PNG at 72 dpi and compared pixel by pixel, only if the pipeline draws figures too. Plotly, Bokeh and Altair charts are not compared. Saved figure files are compared pixel by pixel for PNG; SVG, PDF and JPEG files only by bytes.",
     "Equivalence is checked on this data, in this environment. A different input file or library version can still change the results.",
     "Tolerances apply to floats only. Integers, strings, booleans, dates and hashes must match exactly."
   ]

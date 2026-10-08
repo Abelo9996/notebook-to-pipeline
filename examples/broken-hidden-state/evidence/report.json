@@ -1,10 +1,10 @@
 {
   "tool": {
     "name": "notebook-to-pipeline",
-    "version": "0.1.0"
+    "version": "0.1.1"
   },
   "kind": "report",
-  "created_at": "2026-10-08T11:10:14+00:00",
+  "created_at": "2026-10-08T19:46:26+00:00",
   "verdict": "reference_invalid",
   "verdict_reason": "the notebook does not run top to bottom (status failed, NameError in cell 4), so there are no reference outputs to compare against. Fix the notebook or the hidden state first.",
   "notebook": {
@@ -35,13 +35,16 @@
         "label": "cell 4"
       },
       "code_cells": 6,
+      "figures_hook": "ok",
       "cells_run": 2,
       "saved_outputs": {
         "same": 1,
         "different": 0,
         "none": 1
       },
-      "duration_s": 3.08
+      "duration_s": 5.388,
+      "inline_images": 0,
+      "hint": "A name is used before any cell defines it in top-to-bottom order: the notebook depended on hidden state from an earlier session. See the analyze findings."
     },
     "saved_output_differences": [],
     "prediction": {
@@ -66,6 +69,10 @@
     },
     "artifacts": [],
     "files_written": [],
+    "figures": [],
+    "printed": {
+      "lines": 0
+    },
     "stability": null
   },
   "hidden_state": {
@@ -216,15 +223,17 @@
     },
     "artifacts": [],
     "files": [],
+    "figures": [],
+    "printed": null,
     "counts": {},
     "key_packages": {},
-    "created_at": "2026-10-08T11:10:14+00:00"
+    "created_at": "2026-10-08T19:46:26+00:00"
   },
   "limits": [
     "Static analysis reads cell source only. It does not follow `exec`, `eval`, `%run`, imports of local modules or mutation through aliases (`b = a; b.append(1)`).",
     "Mutation through notebook-defined functions is tracked one level deep; mutation inside third-party code is only known for common method names (`fit`, `append`, `inplace=True`, ...).",
-    "Only the variables listed in the capture are compared. Anything the notebook displayed but did not keep in a variable is not compared.",
-    "Figure files are listed but not compared. Plots are not compared at all.",
+    "Only the variables listed in the capture are compared. Values the notebook only printed are checked line by line against the pipeline's output, but that check is not counted in the verdict; anything displayed but neither printed nor kept in a variable (a DataFrame shown as a cell's last line) is not compared.",
+    "matplotlib figures are re-rendered as PNG at 72 dpi and compared pixel by pixel, only if the pipeline draws figures too. Plotly, Bokeh and Altair charts are not compared. Saved figure files are compared pixel by pixel for PNG; SVG, PDF and JPEG files only by bytes.",
     "Equivalence is checked on this data, in this environment. A different input file or library version can still change the results.",
     "Tolerances apply to floats only. Integers, strings, booleans, dates and hashes must match exactly."
   ]

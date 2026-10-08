@@ -1,10 +1,10 @@
 {
   "tool": {
     "name": "notebook-to-pipeline",
-    "version": "0.1.0"
+    "version": "0.1.1"
   },
   "kind": "verify",
-  "created_at": "2026-10-08T11:09:54+00:00",
+  "created_at": "2026-10-08T19:45:50+00:00",
   "command": "nb2p verify --pipeline scaling/pipeline.py:run --reference evidence/reference --out evidence",
   "reference": {
     "dir": "~/Downloads/notebook-to-pipeline/examples/sklearn-feature-scaling/evidence/reference",
@@ -15,7 +15,7 @@
       "code_cells": 7
     },
     "execution_status": "ok",
-    "created_at": "2026-10-08T11:09:39+00:00"
+    "created_at": "2026-10-08T19:45:01+00:00"
   },
   "pipeline": {
     "spec": "scaling/pipeline.py:run",
@@ -25,7 +25,7 @@
       "status": "ok",
       "pipeline": "scaling/pipeline.py:run",
       "args": [],
-      "duration_s": 3.164,
+      "duration_s": 6.337,
       "exit_code": 0,
       "stdout_tail": "",
       "stderr_tail": ""
@@ -233,6 +233,29 @@
     }
   ],
   "files": [],
+  "figures": [
+    {
+      "name": "figure 1 (KNN without scaling; KNN with...)",
+      "kind": "figure",
+      "status": "not_compared",
+      "passed": null,
+      "detail": "the pipeline drew no matplotlib figures, so figures are not compared"
+    },
+    {
+      "name": "figure 2 (Weights of the first principa...)",
+      "kind": "figure",
+      "status": "not_compared",
+      "passed": null,
+      "detail": "the pipeline drew no matplotlib figures, so figures are not compared"
+    },
+    {
+      "name": "figure 3 (Unscaled training dataset aft...)",
+      "kind": "figure",
+      "status": "not_compared",
+      "passed": null,
+      "detail": "the pipeline drew no matplotlib figures, so figures are not compared"
+    }
+  ],
   "candidate_env": {
     "python": "3.12.13",
     "implementation": "CPython",
@@ -240,11 +263,17 @@
     "platform": "macOS-26.2-arm64-arm-64bit",
     "packages": {
       "cloudpickle": "3.1.2",
+      "cycler": "0.12.1",
       "joblib": "1.6.0",
+      "kiwisolver": "1.5.1",
+      "matplotlib": "3.9.2",
       "narwhals": "2.26.0",
       "numpy": "2.1.2",
+      "packaging": "26.3",
       "pandas": "2.2.3",
+      "pillow": "12.3.0",
       "psutil": "7.2.2",
+      "pyparsing": "3.3.3",
       "python-dateutil": "2.9.0.post0",
       "pytz": "2026.5",
       "scikit-learn": "1.9.1",
@@ -253,9 +282,32 @@
       "threadpoolctl": "3.7.0"
     }
   },
+  "printed": {
+    "lines": 10,
+    "found": 0,
+    "missing": [
+      "Optimal C for the unscaled PCA: 0.0000",
+      "Optimal C for the standardized data with PCA: 6.16",
+      "Test accuracy for the unscaled PCA",
+      "35.19%",
+      "Test accuracy for the standardized data with PCA",
+      "96.30%",
+      "Log-loss for the unscaled PCA",
+      "1.18",
+      "Log-loss for the standardized data with PCA",
+      "0.0739"
+    ],
+    "counted_in_verdict": false
+  },
   "verdict": "equivalent",
-  "reason": "all 26 compared outputs match",
+  "reason": "all 26 compared outputs match; not counted: 3 not compared",
   "counts": {
-    "identical": 26
-  }
+    "identical": 26,
+    "not_compared": 3
+  },
+  "next_steps": [
+    "Report the verdict with the number of compared outputs, then write the report (MCP write_report, or `nb2p report --reference <reference dir>`). Keep verifying after any further change.",
+    "The notebook drew 3 figure(s) and the pipeline drew none, so figures were not compared. If the pipeline should make the plots, draw them with matplotlib in the verified run and they will be compared pixel by pixel.",
+    "10 of 10 lines the notebook printed are not in the pipeline's output (not counted in the verdict). If a printed number matters, return it as an artifact or print it the same way."
+  ]
 }

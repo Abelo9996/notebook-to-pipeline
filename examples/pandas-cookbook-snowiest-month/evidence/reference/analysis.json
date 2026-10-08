@@ -1,7 +1,7 @@
 {
   "tool": {
     "name": "notebook-to-pipeline",
-    "version": "0.1.0"
+    "version": "0.1.1"
   },
   "notebook": {
     "path": "~/Downloads/notebook-to-pipeline/examples/pandas-cookbook-snowiest-month/snowiest_month.ipynb",
@@ -721,7 +721,7 @@
       "signature": "def load() -> dict",
       "why": {
         "0": "imports and configuration",
-        "2": "signals: load=6"
+        "2": "loads data (`read_csv`)"
       },
       "reorder_notes": {}
     },
@@ -742,8 +742,8 @@
       "imports": [],
       "signature": "def clean(weather_2012) -> dict",
       "why": {
-        "5": "signals: clean=1",
-        "8": "signals: clean=1"
+        "5": "cleans data (`contains`)",
+        "8": "cleans data (`astype`)"
       },
       "reorder_notes": {}
     },
@@ -764,8 +764,8 @@
       "imports": [],
       "signature": "def features(weather_2012) -> dict",
       "why": {
-        "21": "signals: clean=2, features=4",
-        "23": "signals: features=1"
+        "21": "builds features (`resample`, `apply`)",
+        "23": "builds features (`concat`)"
       },
       "reorder_notes": {}
     },

@@ -1,7 +1,7 @@
 {
   "tool": {
     "name": "notebook-to-pipeline",
-    "version": "0.1.0"
+    "version": "0.1.1"
   },
   "notebook": {
     "path": "~/Downloads/notebook-to-pipeline/examples/sklearn-feature-scaling/plot_scaling_importance.ipynb",
@@ -499,7 +499,7 @@
       ],
       "signature": "def load() -> dict",
       "why": {
-        "3": "signals: load=3, features=3"
+        "3": "loads data (`load_wine`)"
       },
       "reorder_notes": {}
     },
@@ -539,9 +539,9 @@
       ],
       "signature": "def train(X, X_train, scaled_X_train, scaler, y, y_train) -> dict",
       "why": {
-        "5": "signals: features=1, train=2",
+        "5": "fits a model (`KNeighborsClassifier`)",
         "7": "moved to train because it depends on cell 6",
-        "11": "signals: train=12"
+        "11": "fits a model (`LogisticRegressionCV`, `make_pipeline`, `fit`)"
       },
       "reorder_notes": {}
     },
@@ -565,7 +565,7 @@
       ],
       "signature": "def evaluate(X_test, scaled_clf, unscaled_clf, y_test) -> dict",
       "why": {
-        "13": "signals: evaluate=16"
+        "13": "scores a model (`predict`, `predict_proba`, `accuracy_score`, `log_loss`)"
       },
       "reorder_notes": {}
     },

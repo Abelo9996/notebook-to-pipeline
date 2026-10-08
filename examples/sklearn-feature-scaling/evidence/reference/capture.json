@@ -1,10 +1,10 @@
 {
   "tool": {
     "name": "notebook-to-pipeline",
-    "version": "0.1.0"
+    "version": "0.1.1"
   },
   "kind": "capture",
-  "created_at": "2026-10-08T11:09:39+00:00",
+  "created_at": "2026-10-08T19:45:01+00:00",
   "command": "nb2p capture plot_scaling_importance.ipynb --out evidence/reference --repeat 2",
   "notebook": {
     "path": "~/Downloads/notebook-to-pipeline/examples/sklearn-feature-scaling/plot_scaling_importance.ipynb",
@@ -58,64 +58,74 @@
       {
         "index": 1,
         "status": "ok",
-        "duration_s": 0.021,
+        "duration_s": 0.059,
         "saved_output": "none",
         "label": "cell 2"
       },
       {
         "index": 3,
         "status": "ok",
-        "duration_s": 2.974,
+        "duration_s": 10.86,
         "saved_output": "none",
         "label": "cell 4"
       },
       {
         "index": 5,
         "status": "ok",
-        "duration_s": 0.937,
+        "duration_s": 4.294,
         "saved_output": "none",
+        "fresh_output": "<Figure size 1200x600 with 2 Axes>",
+        "inline_images": 1,
         "label": "cell 6"
       },
       {
         "index": 7,
         "status": "ok",
-        "duration_s": 0.101,
+        "duration_s": 2.224,
         "saved_output": "none",
+        "fresh_output": "<Figure size 600x800 with 1 Axes>",
+        "inline_images": 1,
         "label": "cell 8"
       },
       {
         "index": 9,
         "status": "ok",
-        "duration_s": 0.084,
+        "duration_s": 2.758,
         "saved_output": "none",
+        "fresh_output": "<Figure size 1000x500 with 2 Axes>",
+        "inline_images": 1,
         "label": "cell 10"
       },
       {
         "index": 11,
         "status": "ok",
-        "duration_s": 0.725,
+        "duration_s": 5.976,
         "saved_output": "none",
         "fresh_output": "Optimal C for the unscaled PCA: 0.0000\n\nOptimal C for the standardized data with PCA: 6.16",
+        "printed": "Optimal C for the unscaled PCA: 0.0000\n\nOptimal C for the standardized data with PCA: 6.16\n",
         "label": "cell 12"
       },
       {
         "index": 13,
         "status": "ok",
-        "duration_s": 0.025,
+        "duration_s": 0.347,
         "saved_output": "none",
         "fresh_output": "Test accuracy for the unscaled PCA\n35.19%\n\nTest accuracy for the standardized data with PCA\n96.30%\n\nLog-loss for the unscaled PCA\n1.18\n\nLog-loss for the standardized data with PCA\n0.0739",
+        "printed": "Test accuracy for the unscaled PCA\n35.19%\n\nTest accuracy for the standardized data with PCA\n96.30%\n\nLog-loss for the unscaled PCA\n1.18\n\nLog-loss for the standardized data with PCA\n0.0739\n",
         "label": "cell 14"
       }
     ],
     "failed_cell": null,
     "code_cells": 7,
+    "figures_hook": "ok",
     "cells_run": 7,
     "saved_outputs": {
       "same": 0,
       "different": 0,
       "none": 7
     },
-    "duration_s": 7.111
+    "duration_s": 36.439,
+    "inline_images": 3
   },
   "artifacts": [
     {
@@ -1149,6 +1159,7 @@
       "jupyter_core": "5.9.1",
       "kiwisolver": "1.5.1",
       "matplotlib": "3.9.2",
+      "matplotlib-inline": "0.2.2",
       "narwhals": "2.26.0",
       "numpy": "2.1.2",
       "packaging": "26.3",
@@ -1364,7 +1375,49 @@
         "passed": true,
         "detail": "hash match"
       }
-    ]
+    ],
+    "unstable_figures": []
+  },
+  "figures": [
+    {
+      "index": 1,
+      "file": "figure-01.png",
+      "label": "KNN without scaling; KNN with scaling",
+      "size_inches": [
+        12.0,
+        6.0
+      ],
+      "axes": 2,
+      "status": "saved",
+      "stable": true
+    },
+    {
+      "index": 2,
+      "file": "figure-02.png",
+      "label": "Weights of the first principal component",
+      "size_inches": [
+        6.0,
+        8.0
+      ],
+      "axes": 1,
+      "status": "saved",
+      "stable": true
+    },
+    {
+      "index": 3,
+      "file": "figure-03.png",
+      "label": "Unscaled training dataset after PCA; Standardized training dataset after PCA",
+      "size_inches": [
+        10.0,
+        5.0
+      ],
+      "axes": 2,
+      "status": "saved",
+      "stable": true
+    }
+  ],
+  "printed": {
+    "lines": 10
   },
   "runtime_findings": [
     {
@@ -1386,5 +1439,9 @@
       ],
       "message": "`pca`, `scaled_pca` have identical content after the run. If the notebook treats them as different results, check for shared objects or a step that was meant to differ."
     }
+  ],
+  "next_steps": [
+    "Write the pipeline as a function returning a dict {artifact name: value} (for example src/<package>/pipeline.py:run), or start from a mechanical draft (MCP scaffold_pipeline, or `nb2p scaffold`).",
+    "Verify after every change (MCP verify_pipeline, or `nb2p verify --pipeline <file.py:run> --reference ~/Downloads/notebook-to-pipeline/examples/sklearn-feature-scaling/evidence/reference`)."
   ]
 }

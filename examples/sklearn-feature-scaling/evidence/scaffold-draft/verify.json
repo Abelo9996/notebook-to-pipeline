@@ -1,11 +1,11 @@
 {
   "tool": {
     "name": "notebook-to-pipeline",
-    "version": "0.1.0"
+    "version": "0.1.1"
   },
   "kind": "verify",
-  "created_at": "2026-10-08T11:10:07+00:00",
-  "command": "nb2p verify --pipeline /var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.b6B6J5TsBK/src/scaling_draft/pipeline.py:run --reference evidence/reference --out evidence/scaffold-draft",
+  "created_at": "2026-10-08T19:46:11+00:00",
+  "command": "nb2p verify --pipeline /var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.7r5pY5HbEE/src/scaling_draft/pipeline.py:run --reference evidence/reference --out evidence/scaffold-draft",
   "reference": {
     "dir": "~/Downloads/notebook-to-pipeline/examples/sklearn-feature-scaling/evidence/reference",
     "notebook": {
@@ -15,17 +15,17 @@
       "code_cells": 7
     },
     "execution_status": "ok",
-    "created_at": "2026-10-08T11:09:39+00:00"
+    "created_at": "2026-10-08T19:45:01+00:00"
   },
   "pipeline": {
-    "spec": "/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.b6B6J5TsBK/src/scaling_draft/pipeline.py:run",
+    "spec": "/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.7r5pY5HbEE/src/scaling_draft/pipeline.py:run",
     "cmd": null,
     "cwd": "~/Downloads/notebook-to-pipeline/examples/sklearn-feature-scaling",
     "run": {
       "status": "ok",
-      "pipeline": "/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.b6B6J5TsBK/src/scaling_draft/pipeline.py:run",
+      "pipeline": "/var/folders/mc/cpcssnw11lsgr4bzhn3lgqp00000gn/T/tmp.7r5pY5HbEE/src/scaling_draft/pipeline.py:run",
       "args": [],
-      "duration_s": 2.635,
+      "duration_s": 7.378,
       "exit_code": 0,
       "stdout_tail": "Optimal C for the unscaled PCA: 0.0000\n\nOptimal C for the standardized data with PCA: 6.16\nTest accuracy for the unscaled PCA\n35.19%\n\nTest accuracy for the standardized data with PCA\n96.30%\n\nLog-loss for the unscaled PCA\n1.18\n\nLog-loss for the standardized data with PCA\n0.0739\n",
       "stderr_tail": ""
@@ -233,6 +233,32 @@
     }
   ],
   "files": [],
+  "figures": [
+    {
+      "name": "figure 1 (KNN without scaling; KNN with...)",
+      "kind": "figure",
+      "status": "identical_pixels",
+      "passed": true,
+      "detail": "same pixels at 72 dpi",
+      "candidate_figure": 1
+    },
+    {
+      "name": "figure 2 (Weights of the first principa...)",
+      "kind": "figure",
+      "status": "identical_pixels",
+      "passed": true,
+      "detail": "same pixels at 72 dpi",
+      "candidate_figure": 2
+    },
+    {
+      "name": "figure 3 (Unscaled training dataset aft...)",
+      "kind": "figure",
+      "status": "identical_pixels",
+      "passed": true,
+      "detail": "same pixels at 72 dpi",
+      "candidate_figure": 3
+    }
+  ],
   "candidate_env": {
     "python": "3.12.13",
     "implementation": "CPython",
@@ -260,9 +286,19 @@
       "threadpoolctl": "3.7.0"
     }
   },
+  "printed": {
+    "lines": 10,
+    "found": 10,
+    "missing": [],
+    "counted_in_verdict": false
+  },
   "verdict": "equivalent",
-  "reason": "all 26 compared outputs match",
+  "reason": "all 29 compared outputs match",
   "counts": {
-    "identical": 26
-  }
+    "identical": 26,
+    "identical_pixels": 3
+  },
+  "next_steps": [
+    "Report the verdict with the number of compared outputs, then write the report (MCP write_report, or `nb2p report --reference <reference dir>`). Keep verifying after any further change."
+  ]
 }

@@ -1,12 +1,12 @@
 {
   "tool": {
     "name": "notebook-to-pipeline",
-    "version": "0.1.0"
+    "version": "0.1.1"
   },
   "kind": "report",
-  "created_at": "2026-10-08T11:09:38+00:00",
+  "created_at": "2026-10-08T19:44:55+00:00",
   "verdict": "equivalent",
-  "verdict_reason": "all 6 compared outputs match",
+  "verdict_reason": "all 6 compared outputs match; not counted: 5 not compared",
   "notebook": {
     "path": "~/Downloads/notebook-to-pipeline/examples/pandas-cookbook-snowiest-month/snowiest_month.ipynb",
     "sha256": "fd88c88038973a6d07880113d8bd991f3d263357607f85200f5fb019ce003355",
@@ -28,13 +28,15 @@
       "status": "ok",
       "failed_cell": null,
       "code_cells": 13,
+      "figures_hook": "ok",
       "cells_run": 13,
       "saved_outputs": {
         "same": 4,
         "different": 6,
         "none": 3
       },
-      "duration_s": 4.603
+      "duration_s": 28.795,
+      "inline_images": 5
     },
     "saved_output_differences": [
       {
@@ -265,6 +267,71 @@
       }
     ],
     "files_written": [],
+    "figures": [
+      {
+        "index": 1,
+        "file": "figure-01.png",
+        "label": "",
+        "size_inches": [
+          15.0,
+          3.0
+        ],
+        "axes": 1,
+        "status": "saved",
+        "stable": true
+      },
+      {
+        "index": 2,
+        "file": "figure-02.png",
+        "label": "",
+        "size_inches": [
+          15.0,
+          3.0
+        ],
+        "axes": 1,
+        "status": "saved",
+        "stable": true
+      },
+      {
+        "index": 3,
+        "file": "figure-03.png",
+        "label": "",
+        "size_inches": [
+          15.0,
+          3.0
+        ],
+        "axes": 1,
+        "status": "saved",
+        "stable": true
+      },
+      {
+        "index": 4,
+        "file": "figure-04.png",
+        "label": "",
+        "size_inches": [
+          15.0,
+          3.0
+        ],
+        "axes": 1,
+        "status": "saved",
+        "stable": true
+      },
+      {
+        "index": 5,
+        "file": "figure-05.png",
+        "label": "Temperature; Snowiness",
+        "size_inches": [
+          15.0,
+          10.0
+        ],
+        "axes": 2,
+        "status": "saved",
+        "stable": true
+      }
+    ],
+    "printed": {
+      "lines": 0
+    },
     "stability": {
       "repeats": 2,
       "runs": [
@@ -316,7 +383,8 @@
           "passed": true,
           "detail": "hash match"
         }
-      ]
+      ],
+      "unstable_figures": []
     }
   },
   "hidden_state": {
@@ -501,7 +569,7 @@
         "status": "ok",
         "pipeline": "snowiest/pipeline.py:run",
         "args": [],
-        "duration_s": 2.62,
+        "duration_s": 9.978,
         "exit_code": 0,
         "stdout_tail": "",
         "stderr_tail": ""
@@ -569,20 +637,65 @@
       }
     ],
     "files": [],
+    "figures": [
+      {
+        "name": "figure 1",
+        "kind": "figure",
+        "status": "not_compared",
+        "passed": null,
+        "detail": "the pipeline drew no matplotlib figures, so figures are not compared"
+      },
+      {
+        "name": "figure 2",
+        "kind": "figure",
+        "status": "not_compared",
+        "passed": null,
+        "detail": "the pipeline drew no matplotlib figures, so figures are not compared"
+      },
+      {
+        "name": "figure 3",
+        "kind": "figure",
+        "status": "not_compared",
+        "passed": null,
+        "detail": "the pipeline drew no matplotlib figures, so figures are not compared"
+      },
+      {
+        "name": "figure 4",
+        "kind": "figure",
+        "status": "not_compared",
+        "passed": null,
+        "detail": "the pipeline drew no matplotlib figures, so figures are not compared"
+      },
+      {
+        "name": "figure 5 (Temperature; Snowiness)",
+        "kind": "figure",
+        "status": "not_compared",
+        "passed": null,
+        "detail": "the pipeline drew no matplotlib figures, so figures are not compared"
+      }
+    ],
+    "printed": {
+      "lines": 0,
+      "found": 0,
+      "missing": [],
+      "counted_in_verdict": false
+    },
     "counts": {
-      "identical": 6
+      "identical": 6,
+      "not_compared": 5
     },
     "key_packages": {
+      "matplotlib": "3.9.2",
       "numpy": "2.1.2",
       "pandas": "2.2.3"
     },
-    "created_at": "2026-10-08T11:09:31+00:00"
+    "created_at": "2026-10-08T19:44:02+00:00"
   },
   "limits": [
     "Static analysis reads cell source only. It does not follow `exec`, `eval`, `%run`, imports of local modules or mutation through aliases (`b = a; b.append(1)`).",
     "Mutation through notebook-defined functions is tracked one level deep; mutation inside third-party code is only known for common method names (`fit`, `append`, `inplace=True`, ...).",
-    "Only the variables listed in the capture are compared. Anything the notebook displayed but did not keep in a variable is not compared.",
-    "Figure files are listed but not compared. Plots are not compared at all.",
+    "Only the variables listed in the capture are compared. Values the notebook only printed are checked line by line against the pipeline's output, but that check is not counted in the verdict; anything displayed but neither printed nor kept in a variable (a DataFrame shown as a cell's last line) is not compared.",
+    "matplotlib figures are re-rendered as PNG at 72 dpi and compared pixel by pixel, only if the pipeline draws figures too. Plotly, Bokeh and Altair charts are not compared. Saved figure files are compared pixel by pixel for PNG; SVG, PDF and JPEG files only by bytes.",
     "Equivalence is checked on this data, in this environment. A different input file or library version can still change the results.",
     "Tolerances apply to floats only. Integers, strings, booleans, dates and hashes must match exactly."
   ]
