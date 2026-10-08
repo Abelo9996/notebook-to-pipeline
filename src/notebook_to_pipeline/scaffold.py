@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import ast
 import io
+import os
 import re
 import shutil
 import textwrap
@@ -11,6 +12,7 @@ import tokenize
 from pathlib import Path
 from typing import Any
 
+from . import __version__
 from .analysis import analyze
 from .capture import load_capture
 from .notebook import PYTHON_BODY_CELL_MAGICS, load_cells, read_notebook
@@ -172,10 +174,18 @@ def scaffold(
             used |= set(node["reads"]) | set(node["deferred_reads"])
         header_imports = [line for bound, line in import_lines if bound in used]
         body_parts = []
+        plots_here = False
         for idx in st["cells"]:
             c = cells[idx]
             src = _strip_magics(c.source)
-            body_parts.append(f"# --- from notebook cell {idx + 1} ---\n{src.rstrip()}\n")
+            node = next(n for n in analysis["cells"] if n["index"] == idx)
+            part = f"# --- from notebook cell {idx + 1} ---\n{src.rstrip()}\n"
+            if node.get("plots"):
+                # Jupyter's inline backend shows and closes a cell's figures when the cell ends,
+                # so the next cell's pandas .plot() starts a new figure instead of drawing on this one.
+                plots_here = True
+                part += '_plt.close("all")  # end of the notebook cell: Jupyter closed its figures here\n'
+            body_parts.append(part)
         body = "\n".join(body_parts)
         defined_here: set[str] = set()
         for idx in st["cells"]:
@@ -197,6 +207,8 @@ def scaffold(
             f"{_indent_code(body)}\n"
             f"    return {ret}\n"
         )
+        if plots_here:
+            header_imports.append("import matplotlib.pyplot as _plt")
         if header_imports:
             code = "\n".join(dict.fromkeys(header_imports)) + "\n\n\n" + code
         stage_funcs.append((name, st, code))
@@ -275,7 +287,11 @@ def scaffold(
                 cwd=ROOT,
                 out=tmp_path,
             )
-            failing = [a for a in result["artifacts"] + result["files"] if a.get("passed") is False]
+            failing = [
+                a
+                for a in result["artifacts"] + result["files"] + result["figures"]
+                if a.get("passed") is False
+            ]
             assert result["verdict"] == "equivalent", (result.get("reason"), failing[:5])
         ''')
     _write(root / "tests" / "test_equivalence.py", test, force, created, skipped, root)
@@ -288,9 +304,16 @@ def scaffold(
         dist = IMPORT_TO_DIST.get(imp, imp)
         ver = next((v for k, v in versions.items() if k.lower() == dist.lower()), None)
         deps.append(f'"{dist}=={ver}"' if ver else f'"{dist}"')
-    if not any(d.startswith('"ipykernel') for d in deps):
-        ipk = versions.get("ipykernel")
-        deps.append(f'"ipykernel=={ipk}"' if ipk else '"ipykernel"')
+    # ipykernel is needed only to capture the notebook, so it goes in the dev group.
+    deps = [d for d in deps if not d.startswith('"ipykernel')]
+    ipk = versions.get("ipykernel")
+    dev_deps = ", ".join(
+        [
+            '"pytest>=8"',
+            f'"notebook-to-pipeline>={__version__}"',
+            f'"ipykernel=={ipk}"' if ipk else '"ipykernel"',
+        ]
+    )
     dep_lines = "".join(f"    {d},\n" for d in deps)
     pyproject = (
         "[project]\n"
@@ -301,7 +324,7 @@ def scaffold(
     ) + textwrap.dedent(f"""
 
         [dependency-groups]
-        dev = ["pytest>=8", "notebook-to-pipeline"]
+        dev = [{dev_deps}]
 
         [build-system]
         requires = ["hatchling"]
@@ -313,8 +336,8 @@ def scaffold(
     _write(root / "pyproject.toml", pyproject, force, created, skipped, root)
 
     try:
-        nb_rel = str(nb_path.relative_to(root))
-    except ValueError:
+        nb_rel = os.path.relpath(nb_path, root)
+    except ValueError:  # different drive on Windows
         nb_rel = str(nb_path)
     makefile = textwrap.dedent(f"""\
         NOTEBOOK ?= {nb_rel}

@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from . import __version__
-from .capture import load_capture, now
+from .capture import default_work_dir, load_capture, now
 from .execution import (
     collect_written,
     python_info,
@@ -43,6 +43,7 @@ def verify(
     artifacts: list[str] | None = None,
     rename: dict[str, str] | None = None,
     compare_files: bool = True,
+    compare_figures: bool = True,
     timeout: int = 1800,
     rtol: float | None = None,
     atol: float | None = None,
@@ -55,7 +56,7 @@ def verify(
     if not pipeline and not cmd:
         raise ValueError("pass a pipeline (file.py, file.py:func, module or module:func) or --cmd")
     ref_dir, ref = load_capture(reference)
-    work = Path(out).resolve() if out else ref_dir.parent
+    work = Path(out).resolve() if out else default_work_dir(ref_dir)
     cand_dir = work / "candidate"
     run_cwd = Path(cwd).resolve() if cwd else Path.cwd().resolve()
     py, how = resolve_python(python, run_cwd)
@@ -90,6 +91,7 @@ def verify(
         "options": effective,
         "artifacts": [],
         "files": [],
+        "figures": [],
     }
 
     if ref["execution"]["status"] != "ok":
@@ -112,6 +114,7 @@ def verify(
 
     before = snapshot(run_cwd, exclude=[work, ref_dir])
     t0 = time.monotonic()
+    stdout_full = ""
     if pipeline:
         spec = {
             "pipeline": shlex.split(pipeline)[0],
@@ -120,6 +123,7 @@ def verify(
             "names": cand_names,
             "outdir": str(cand_dir),
             "rename_back": {v: k for k, v in rename.items()},
+            "figures": compare_figures,
             "compare": {
                 "reference": str(ref_dir),
                 "names": names,
@@ -138,6 +142,7 @@ def verify(
                 }
             )
             run_info["exit_code"] = proc.returncode
+            stdout_full = proc.stdout or ""
             run_info["stdout_tail"] = _tail(proc.stdout, 2000)
             run_info["stderr_tail"] = _tail(proc.stderr, 3000)
         except subprocess.TimeoutExpired:
@@ -157,6 +162,7 @@ def verify(
                 text=True,
                 timeout=timeout,
             )
+            stdout_full = proc.stdout or ""
             run_info = {
                 "status": "ok" if proc.returncode == 0 else "failed",
                 "exit_code": proc.returncode,
@@ -200,15 +206,7 @@ def verify(
         for rf in ref.get("files_written", []):
             entry: dict[str, Any] = {"path": rf["path"], "kind": rf["kind"]}
             cf = cand_by_path.get(rf["path"])
-            if rf["kind"] == "figure":
-                entry.update(
-                    {
-                        "status": "not_compared",
-                        "passed": None,
-                        "detail": "figure files are listed but not compared (renderers embed versions and timestamps)",
-                    }
-                )
-            elif cf is None:
+            if cf is None:
                 entry.update(
                     {
                         "status": "missing",
@@ -245,7 +243,9 @@ def verify(
                 run_info.get("stderr_tail", ""), 2000
             )
             return _finish(result, work)
-        result["artifacts"] = json.loads(comp_path.read_text())["artifacts"]
+        comp_all = json.loads(comp_path.read_text())
+        result["artifacts"] = comp_all["artifacts"]
+        result["figures"] = comp_all.get("figures") or []
     if file_specs:
         spec = {
             "reference": str(ref_dir),
@@ -276,6 +276,19 @@ def verify(
             for n in names
         ]
     result["files"] = file_results
+    result.setdefault("figures", [])
+    result["printed"] = compare_printed(ref, stdout_full)
+    if not compare_figures:
+        result["figures"] = []
+    unstable_figs = {f["index"] for f in ref.get("figures", []) if f.get("stable") is False}
+    for k, f in enumerate(result["figures"]):
+        if f.get("passed") is False and (k + 1) in unstable_figs:
+            f["status"] = "unstable"
+            f["passed"] = None
+            f["detail"] = (
+                "the notebook draws this figure differently run to run, so it is not counted: "
+                + f["detail"]
+            )
 
     stability = {a["name"]: a.get("stable", True) for a in ref["artifacts"]}
     for a in result["artifacts"]:
@@ -289,7 +302,11 @@ def verify(
                 + a["detail"]
             )
 
-    compared = [x for x in result["artifacts"] + result["files"] if x.get("passed") is not None]
+    compared = [
+        x
+        for x in result["artifacts"] + result["files"] + result["figures"]
+        if x.get("passed") is not None
+    ]
     if not compared:
         result["verdict"] = "inconclusive"
         result["reason"] = "nothing was compared"
@@ -300,14 +317,90 @@ def verify(
         bad = [x for x in compared if not x["passed"]]
         result["verdict"] = "differs"
         result["reason"] = f"{len(bad)} of {len(compared)} compared outputs differ"
+    skipped = [
+        x
+        for x in result["artifacts"] + result["files"] + result["figures"]
+        if x.get("passed") is None and x.get("status") != "extra"
+    ]
+    if skipped and compared:
+        kinds: dict[str, int] = {}
+        for x in skipped:
+            kinds[x["status"]] = kinds.get(x["status"], 0) + 1
+        result["reason"] += "; not counted: " + ", ".join(
+            f"{n} {k.replace('_', ' ')}" for k, n in kinds.items()
+        )
     return _finish(result, work)
+
+
+def compare_printed(ref: dict[str, Any], stdout: str) -> dict[str, Any]:
+    """Which lines the notebook printed also appear in the pipeline's stdout.
+
+    Values that were only printed (an accuracy, a count) are not variables, so they are not
+    artifacts. This check is informational: it is not counted in the verdict, because a
+    pipeline may log differently on purpose."""
+    ref_lines = [
+        ln.strip()
+        for c in ref.get("execution", {}).get("cells", [])
+        for ln in (c.get("printed") or "").splitlines()
+        if ln.strip()
+    ]
+    if not ref_lines:
+        return {"lines": 0, "found": 0, "missing": [], "counted_in_verdict": False}
+    cand = {ln.strip() for ln in strip_ansi(stdout).splitlines() if ln.strip()}
+    missing = [ln for ln in ref_lines if ln not in cand]
+    return {
+        "lines": len(ref_lines),
+        "found": len(ref_lines) - len(missing),
+        "missing": missing[:10],
+        "counted_in_verdict": False,
+    }
+
+
+def verify_next_steps(result: dict[str, Any]) -> list[str]:
+    v = result.get("verdict")
+    steps: list[str] = []
+    if v == "equivalent":
+        steps.append(
+            "Report the verdict with the number of compared outputs, then write the report "
+            "(MCP write_report, or `nb2p report --reference <reference dir>`). Keep verifying after any further change."
+        )
+    elif v == "differs":
+        steps.append(
+            "Read the first differences above and fix the pipeline. Do not widen tolerances or "
+            "drop artifacts to get a pass; if a change is intended, tell the user what changed and why."
+        )
+    elif v == "pipeline_failed":
+        steps.append("Fix the error in the pipeline (traceback above), then verify again.")
+    elif v == "reference_invalid":
+        steps.append(
+            "The notebook itself does not run top to bottom. Tell the user, and capture again "
+            "once it runs."
+        )
+    else:
+        steps.append("Nothing usable was compared; check the reason above.")
+    figs = result.get("figures", [])
+    if figs and all(f.get("status") == "not_compared" for f in figs):
+        steps.append(
+            f"The notebook drew {len(figs)} figure(s) and the pipeline drew none, so figures were not "
+            "compared. If the pipeline should make the plots, draw them with matplotlib in the "
+            "verified run and they will be compared pixel by pixel."
+        )
+    pr = result.get("printed") or {}
+    if pr.get("lines") and pr.get("found", 0) < pr["lines"]:
+        steps.append(
+            f"{pr['lines'] - pr['found']} of {pr['lines']} lines the notebook printed are not in the "
+            "pipeline's output (not counted in the verdict). If a printed number matters, return it "
+            "as an artifact or print it the same way."
+        )
+    return steps
 
 
 def _finish(result: dict[str, Any], work: Path) -> dict[str, Any]:
     counts: dict[str, int] = {}
-    for x in result.get("artifacts", []) + result.get("files", []):
+    for x in result.get("artifacts", []) + result.get("files", []) + result.get("figures", []):
         counts[x["status"]] = counts.get(x["status"], 0) + 1
     result["counts"] = counts
+    result["next_steps"] = verify_next_steps(result)
     work.mkdir(parents=True, exist_ok=True)
     path = work / "verify.json"
     write_json(path, result)

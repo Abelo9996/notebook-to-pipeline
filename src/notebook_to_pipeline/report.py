@@ -8,14 +8,14 @@ from typing import Any
 
 from . import __version__
 from .analysis import analyze
-from .capture import load_capture, now
+from .capture import default_work_dir, load_capture, now
 from .util import expand, redact, write_json
 
 LIMITS = [
     "Static analysis reads cell source only. It does not follow `exec`, `eval`, `%run`, imports of local modules or mutation through aliases (`b = a; b.append(1)`).",
     "Mutation through notebook-defined functions is tracked one level deep; mutation inside third-party code is only known for common method names (`fit`, `append`, `inplace=True`, ...).",
-    "Only the variables listed in the capture are compared. Anything the notebook displayed but did not keep in a variable is not compared.",
-    "Figure files are listed but not compared. Plots are not compared at all.",
+    "Only the variables listed in the capture are compared. Values the notebook only printed are checked line by line against the pipeline's output, but that check is not counted in the verdict; anything displayed but neither printed nor kept in a variable (a DataFrame shown as a cell's last line) is not compared.",
+    "matplotlib figures are re-rendered as PNG at 72 dpi and compared pixel by pixel, only if the pipeline draws figures too. Plotly, Bokeh and Altair charts are not compared. Saved figure files are compared pixel by pixel for PNG; SVG, PDF and JPEG files only by bytes.",
     "Equivalence is checked on this data, in this environment. A different input file or library version can still change the results.",
     "Tolerances apply to floats only. Integers, strings, booleans, dates and hashes must match exactly.",
 ]
@@ -53,13 +53,15 @@ def build_report(
     reference: str | Path, verify_json: str | Path | None = None, out: str | Path | None = None
 ) -> dict[str, Any]:
     ref_dir, cap = load_capture(reference)
-    work = ref_dir.parent
+    work = default_work_dir(ref_dir)
     analysis_path = ref_dir / "analysis.json"
     if analysis_path.exists():
         analysis = json.loads(analysis_path.read_text())
     else:
         analysis = analyze(expand(cap["notebook"]["path"]))
     vpath = Path(verify_json) if verify_json else work / "verify.json"
+    if not verify_json and not vpath.exists() and (ref_dir.parent / "verify.json").exists():
+        vpath = ref_dir.parent / "verify.json"  # written by 0.1.0
     ver = json.loads(vpath.read_text()) if vpath.exists() else None
     out_dir = Path(out).resolve() if out else work
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -114,6 +116,8 @@ def build_report(
                 for a in cap.get("artifacts", [])
             ],
             "files_written": cap.get("files_written", []),
+            "figures": cap.get("figures", []),
+            "printed": cap.get("printed"),
             "stability": cap.get("stability"),
         },
         "hidden_state": {
@@ -136,6 +140,8 @@ def build_report(
             "options": ver.get("options"),
             "artifacts": ver.get("artifacts"),
             "files": ver.get("files"),
+            "figures": ver.get("figures"),
+            "printed": ver.get("printed"),
             "counts": ver.get("counts"),
             "key_packages": _key_packages(
                 ver.get("candidate_env", {}), analysis.get("inputs", {}).get("imports", [])
@@ -312,6 +318,13 @@ def render_markdown(d: dict[str, Any]) -> str:
                 f"| `{a['name']}` | {a['kind']} | {_md_escape(text)[:100]} | `{(a.get('hash') or '')[:12]}` |"
             )
         L.append("")
+    if ref.get("figures"):
+        names = "; ".join(
+            f"{f['index']}" + (f" ({_md_escape(f['label'])})" if f.get("label") else "")
+            for f in ref["figures"]
+        )
+        L.append(f"Figures recorded (matplotlib, rendered as PNG at 72 dpi): {names}.")
+        L.append("")
     if ref.get("stability"):
         st = ref["stability"]
         unstable = [r["name"] for r in st["artifacts"] if not r["passed"]]
@@ -373,6 +386,23 @@ def render_markdown(d: dict[str, Any]) -> str:
                 L.append(
                     f"| `{f['path']}` | {mark} ({f['status']}) | {_md_escape(f.get('detail', ''))} |"
                 )
+            L.append("")
+        if v.get("figures"):
+            L.append("| Figure | Result | Detail |")
+            L.append("|---|---|---|")
+            for f in v["figures"]:
+                mark = {True: "PASS", False: "FAIL", None: "n/a"}[f.get("passed")]
+                L.append(
+                    f"| {_md_escape(f['name'])} | {mark} ({f['status']}) | {_md_escape(f.get('detail', ''))} |"
+                )
+            L.append("")
+        pr = v.get("printed") or {}
+        if pr.get("lines"):
+            L.append(
+                f"Printed output: {pr['found']} of {pr['lines']} non-empty lines the notebook printed also appear in the pipeline's output (informational, not counted in the verdict)."
+            )
+            for m in pr.get("missing", [])[:5]:
+                L.append(f"- not printed by the pipeline: `{_md_escape(m)}`")
             L.append("")
 
     if ref.get("files_written"):

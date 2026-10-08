@@ -78,7 +78,62 @@ def _run_once(
         if manifest_path.exists()
         else {"artifacts": [], "env": {}}
     )
-    return {"execution": execution, "files_written": written, "manifest": manifest}
+    figs_path = outdir / "figures" / "figures.json"
+    figures = json.loads(figs_path.read_text()) if figs_path.exists() else None
+    return {
+        "execution": execution,
+        "files_written": written,
+        "manifest": manifest,
+        "figures": figures,
+    }
+
+
+# Import names that differ from the package to install.
+PACKAGE_FOR_MODULE = {
+    "sklearn": "scikit-learn",
+    "cv2": "opencv-python",
+    "PIL": "pillow",
+    "yaml": "pyyaml",
+    "bs4": "beautifulsoup4",
+    "skimage": "scikit-image",
+    "dateutil": "python-dateutil",
+    "Bio": "biopython",
+    "dotenv": "python-dotenv",
+    "google.protobuf": "protobuf",
+}
+
+
+def failure_hint(execution: dict[str, Any], python: dict[str, Any]) -> str | None:
+    """A one-line fix for the failures a newcomer hits first."""
+    fc = execution.get("failed_cell") or {}
+    if fc.get("ename") == "ModuleNotFoundError":
+        m = re.search(r"No module named '([^']+)'", fc.get("evalue", ""))
+        module = m.group(1) if m else None
+        top = (module or "").split(".")[0]
+        package = PACKAGE_FOR_MODULE.get(module or "", PACKAGE_FOR_MODULE.get(top, top))
+        if python.get("chosen_by") == "the interpreter running nb2p":
+            return (
+                f"No project environment was found, so the notebook ran in nb2p's own Python, which "
+                f"does not have {package or 'that package'}. Point nb2p at the environment the notebook "
+                "normally uses (--python path/to/.venv/bin/python, or a .venv next to the notebook is "
+                "picked up automatically), or add the packages for this run: "
+                f"uvx --with {package or '<package>'} notebook-to-pipeline capture ..."
+            )
+        return (
+            f"{python.get('path')} does not have {package or 'that package'}. Install it in that "
+            "environment, or pass --python with the interpreter the notebook normally uses."
+        )
+    if fc.get("ename") == "FileNotFoundError":
+        return (
+            "The notebook reads a file that is not there when run from its own directory. Pass "
+            "--cwd if it expects another working directory, or make the data file available."
+        )
+    if fc.get("ename") in ("NameError", "UnboundLocalError"):
+        return (
+            "A name is used before any cell defines it in top-to-bottom order: the notebook "
+            "depended on hidden state from an earlier session. See the analyze findings."
+        )
+    return None
 
 
 def runtime_findings(
@@ -180,7 +235,8 @@ def capture(
         result["execution"] = {
             "status": "kernel_error",
             "error": pinfo.get("error")
-            or f"ipykernel is not installed for {py}. Install it there (pip install ipykernel) or pass --python.",
+            or f"ipykernel is not installed for {py}. Install it in that environment "
+            f"(uv pip install --python {py} ipykernel, or pip install ipykernel) or pass --python.",
             "cells": [],
             "cells_run": 0,
             "code_cells": analysis["notebook"]["code_cells"],
@@ -193,8 +249,11 @@ def capture(
                 "stability": None,
                 "runtime_findings": [],
                 "prediction": None,
+                "figures": [],
+                "printed": {"lines": 0},
             }
         )
+        result["next_steps"] = [result["execution"]["error"]]
         outdir.mkdir(parents=True, exist_ok=True)
         write_json(outdir / "capture.json", result)
         result["reference_dir"] = str(outdir)
@@ -222,8 +281,14 @@ def capture(
             "files_written": first["files_written"],
             "prediction": _match_prediction(execution, analysis),
             "stability": None,
+            "figures": (first["figures"] or {}).get("figures", []),
+            "printed": _printed_summary(execution),
         }
     )
+    execution["inline_images"] = sum(c.get("inline_images", 0) for c in execution["cells"])
+    hint = failure_hint(execution, result["python"])
+    if hint:
+        execution["hint"] = hint
     result["runtime_findings"] = runtime_findings(first["manifest"], result["artifacts"])
 
     if repeat > 1 and execution["status"] == "ok":
@@ -233,11 +298,50 @@ def capture(
         unstable = {r["name"] for r in result["stability"]["artifacts"] if not r["passed"]}
         for a in result["artifacts"]:
             a["stable"] = a["name"] not in unstable
+        unstable_figs = set(result["stability"].get("unstable_figures", []))
+        for f in result["figures"]:
+            f["stable"] = f["index"] not in unstable_figs
 
+    result["next_steps"] = capture_next_steps(result, outdir)
     write_json(outdir / "capture.json", result)
     write_json(outdir / "analysis.json", analysis)
     result["reference_dir"] = str(outdir)
     return result
+
+
+def _printed_summary(execution: dict[str, Any]) -> dict[str, Any]:
+    lines = [
+        ln.strip()
+        for c in execution.get("cells", [])
+        for ln in (c.get("printed") or "").splitlines()
+        if ln.strip()
+    ]
+    return {"lines": len(lines)}
+
+
+def capture_next_steps(result: dict[str, Any], outdir: Path) -> list[str]:
+    ex = result["execution"]
+    if ex["status"] != "ok":
+        steps = []
+        if ex.get("hint"):
+            steps.append(ex["hint"])
+        steps.append(
+            "Tell the user the notebook does not run top to bottom (cell and error above). Do not "
+            "fix it silently: if they want a fix, make the smallest change, say what it is, and capture again."
+        )
+        return steps
+    steps = [
+        "Write the pipeline as a function returning a dict {artifact name: value} (for example "
+        "src/<package>/pipeline.py:run), or start from a mechanical draft (MCP scaffold_pipeline, "
+        "or `nb2p scaffold`).",
+        f"Verify after every change (MCP verify_pipeline, or `nb2p verify --pipeline <file.py:run> --reference {outdir}`).",
+    ]
+    if any(not a.get("stable", True) for a in result.get("artifacts", [])):
+        steps.append(
+            "Some artifacts are not stable run to run: they cannot be verified. Tell the user "
+            "instead of loosening tolerances."
+        )
+    return steps
 
 
 def _check_stability(nb_path, py, run_cwd, timeout, names, outdir, max_bytes, repeat, first):
@@ -245,6 +349,7 @@ def _check_stability(nb_path, py, run_cwd, timeout, names, outdir, max_bytes, re
     tmp_root = Path(tempfile.mkdtemp(prefix="nb2p-repeat-"))
     try:
         worst: dict[str, dict[str, Any]] = {}
+        unstable_figs: set[int] = set()
         for k in range(2, repeat + 1):
             rdir = tmp_root / f"run{k}"
             again = _run_once(
@@ -264,6 +369,7 @@ def _check_stability(nb_path, py, run_cwd, timeout, names, outdir, max_bytes, re
                 "candidate": str(rdir),
                 "names": None,
                 "files": [],
+                "figures": True,
                 "options": {},
                 "out": str(rdir / "compare.json"),
             }
@@ -276,9 +382,25 @@ def _check_stability(nb_path, py, run_cwd, timeout, names, outdir, max_bytes, re
                 prev = worst.get(r["name"])
                 if prev is None or (prev["passed"] and not r["passed"]):
                     worst[r["name"]] = r
-        return {"repeats": repeat, "runs": runs, "artifacts": list(worst.values())}
+            for k, fr in enumerate(comp.get("figures") or []):
+                if fr.get("kind") == "figure" and fr.get("passed") is False:
+                    unstable_figs.add(k + 1)
+        return {
+            "repeats": repeat,
+            "runs": runs,
+            "artifacts": list(worst.values()),
+            "unstable_figures": sorted(unstable_figs),
+        }
     finally:
         shutil.rmtree(tmp_root, ignore_errors=True)
+
+
+def default_work_dir(ref_dir: Path) -> Path:
+    """Where verify and report write by default: next to the reference inside .nb2p/, otherwise
+    in a hidden .nb2p-verify/ beside it (so a reference kept in tests/ does not collect clutter)."""
+    if ".nb2p" in ref_dir.parts:
+        return ref_dir.parent
+    return ref_dir.parent / ".nb2p-verify"
 
 
 def load_capture(path: str | Path) -> tuple[Path, dict[str, Any]]:

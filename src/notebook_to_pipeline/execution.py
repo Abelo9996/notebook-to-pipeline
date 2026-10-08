@@ -107,8 +107,20 @@ def python_info(python: str) -> dict[str, Any]:
 def run_env() -> dict[str, str]:
     env = dict(os.environ)
     env.setdefault("PYTHONHASHSEED", "0")
+    # matplotlib (and other tools that follow reproducible-builds conventions) then write a
+    # fixed date into PDF, SVG and PS files instead of the current time.
+    env.setdefault("SOURCE_DATE_EPOCH", "0")
     env["MPLBACKEND"] = "Agg"
     env.pop("PYTHONSTARTUP", None)
+    return env
+
+
+def kernel_env() -> dict[str, str]:
+    """Like run_env, but matplotlib keeps Jupyter's default inline backend, which shows and
+    closes each cell's figures at the end of the cell. Forcing Agg here would let later cells
+    draw onto earlier figures, which is not what the notebook does in Jupyter."""
+    env = run_env()
+    env.pop("MPLBACKEND", None)
     return env
 
 
@@ -235,6 +247,49 @@ def compare_saved_output(saved: str | None, fresh: str | None) -> dict[str, Any]
     return {"saved_output": "different"}
 
 
+def printed_text(cell: Any) -> str | None:
+    """What the cell printed to stdout (print() and friends), without reprs or displays."""
+    parts = [
+        out.get("text", "")
+        for out in cell.get("outputs", [])
+        if out.get("output_type") == "stream" and out.get("name") == "stdout"
+    ]
+    text = "".join(p if isinstance(p, str) else "".join(p) for p in parts)
+    return text if text.strip() else None
+
+
+def inline_images(cell: Any) -> int:
+    return sum(
+        1
+        for out in cell.get("outputs", [])
+        if out.get("output_type") in ("execute_result", "display_data")
+        and any(k.startswith("image/") for k in out.get("data", {}))
+    )
+
+
+def _figures_hook_code(figdir: Path) -> str:
+    src = (RUNTIME_DIR / "nb2p_figures.py").read_text(encoding="utf-8")
+    return (
+        "def __nb2p_figs():\n"
+        "    import sys as _s, types as _t\n"
+        "    _m = _t.ModuleType('nb2p_figures')\n"
+        f"    exec(compile({src!r}, 'nb2p_figures.py', 'exec'), _m.__dict__)\n"
+        "    _s.modules['nb2p_figures'] = _m\n"
+        f"    _m.install({str(figdir)!r})\n"
+        "__nb2p_figs(); del __nb2p_figs\n"
+    )
+
+
+_FIGURES_FINISH = (
+    "def __nb2p_figs_done():\n"
+    "    import sys as _s\n"
+    "    _m = _s.modules.get('nb2p_figures')\n"
+    "    if _m is not None:\n"
+    "        _m.finish()\n"
+    "__nb2p_figs_done(); del __nb2p_figs_done\n"
+)
+
+
 def _probe_code(names: list[str] | None, outdir: Path, max_bytes: int) -> str:
     src = (RUNTIME_DIR / "nb2p_probe.py").read_text(encoding="utf-8")
     return (
@@ -261,6 +316,7 @@ def execute_notebook(
     names: list[str] | None,
     outdir: Path,
     max_bytes: int = 200 * 1024 * 1024,
+    figures: bool = True,
 ) -> dict[str, Any]:
     """Run every code cell top to bottom in a new kernel, then save artifacts with the probe."""
     import nbformat
@@ -302,7 +358,11 @@ def execute_notebook(
     t_start = time.monotonic()
     try:
         client.reset_execution_trackers()
-        with client.setup_kernel(env=run_env(), cleanup_kc=True):
+        with client.setup_kernel(env=kernel_env(), cleanup_kc=True):
+            if figures:
+                record["figures_hook"] = _run_hidden(
+                    client, nb, _figures_hook_code(outdir / "figures")
+                )
             for idx in code_cells:
                 cell = nb.cells[idx]
                 saved = text_outputs(cell)
@@ -318,6 +378,12 @@ def execute_notebook(
                     entry.update(compare_saved_output(saved, fresh))
                     if fresh:
                         entry["fresh_output"] = fresh[:2000]
+                    printed = printed_text(cell)
+                    if printed:
+                        entry["printed"] = printed[:20000]
+                    images = inline_images(cell)
+                    if images:
+                        entry["inline_images"] = images
                     record["cells"].append(entry)
                 except CellExecutionError as exc:
                     record["status"] = "failed"
@@ -349,6 +415,8 @@ def execute_notebook(
             if record["status"] in ("ok", "failed"):
                 # After a failure the probe saves no artifacts, only the environment versions.
                 outdir.mkdir(parents=True, exist_ok=True)
+                if figures and record["status"] == "ok":
+                    _run_hidden(client, nb, _FIGURES_FINISH)
                 probe_names = names if record["status"] == "ok" else []
                 probe = nbformat.v4.new_code_cell(_probe_code(probe_names, outdir, max_bytes))
                 nb.cells.append(probe)
@@ -376,6 +444,22 @@ def execute_notebook(
     record["saved_outputs"] = counts
     record["duration_s"] = round(time.monotonic() - t_start, 3)
     return record
+
+
+def _run_hidden(client: Any, nb: Any, code: str) -> str:
+    """Run tool code in the kernel without adding to the notebook's history or outputs."""
+    import nbformat
+    from nbclient.exceptions import CellExecutionError
+
+    cell = nbformat.v4.new_code_cell(code)
+    nb.cells.append(cell)
+    try:
+        client.execute_cell(cell, len(nb.cells) - 1, store_history=False)
+        return "ok"
+    except CellExecutionError as exc:
+        return "failed: " + strip_ansi(str(exc))[-500:]
+    finally:
+        nb.cells.pop()
 
 
 def run_runtime_script(

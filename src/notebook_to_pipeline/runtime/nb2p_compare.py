@@ -12,11 +12,14 @@ spec: {"reference": dir, "candidate": dir, "names": [...] | null,
 from __future__ import annotations
 
 import cmath
+import hashlib
 import json
 import math
 import os
 import pickle
+import struct
 import sys
+import zlib
 
 DEFAULTS = {
     "rtol": 1e-7,
@@ -540,12 +543,295 @@ def compare_manifests(ref_dir, cand_dir, names, options):
     return results
 
 
+# --------------------------------------------------------------------------
+# PNG images (standard library decoder, enough for what matplotlib writes)
+# --------------------------------------------------------------------------
+
+_PNG_SIG = b"\x89PNG\r\n\x1a\n"
+_CHANNELS = {0: 1, 2: 3, 3: 1, 4: 2, 6: 4}
+
+
+def read_png(path):
+    """Return (width, height, bytes_per_pixel, raw rows) for a non-interlaced PNG.
+
+    Pixels are returned unfiltered, so two files with the same picture compare equal
+    even when their compression or metadata differ. The palette, if any, is folded
+    into the result so palette images compare by what they show."""
+    with open(path, "rb") as f:
+        data = f.read()
+    if data[:8] != _PNG_SIG:
+        raise ValueError("not a PNG file")
+    pos = 8
+    idat = []
+    header = None
+    palette = b""
+    while pos < len(data):
+        length, ctype = struct.unpack(">I4s", data[pos : pos + 8])
+        body = data[pos + 8 : pos + 8 + length]
+        pos += 12 + length
+        if ctype == b"IHDR":
+            header = struct.unpack(">IIBBBBB", body)
+        elif ctype == b"IDAT":
+            idat.append(body)
+        elif ctype in (b"PLTE", b"tRNS"):
+            palette += body
+        elif ctype == b"IEND":
+            break
+    if header is None:
+        raise ValueError("PNG has no IHDR chunk")
+    width, height, depth, ctype, _comp, _filt, interlace = header
+    if interlace:
+        raise ValueError("interlaced PNG")
+    channels = _CHANNELS.get(ctype)
+    if channels is None:
+        raise ValueError("unknown PNG color type %d" % ctype)
+    bits = channels * depth
+    bpp = max(1, bits // 8)
+    stride = (width * bits + 7) // 8
+    raw = zlib.decompress(b"".join(idat))
+    rows = []
+    prev = bytearray(stride)
+    i = 0
+    for _ in range(height):
+        ftype = raw[i]
+        line = bytearray(raw[i + 1 : i + 1 + stride])
+        i += 1 + stride
+        if ftype == 1:
+            for x in range(bpp, stride):
+                line[x] = (line[x] + line[x - bpp]) & 0xFF
+        elif ftype == 2:
+            for x in range(stride):
+                line[x] = (line[x] + prev[x]) & 0xFF
+        elif ftype == 3:
+            for x in range(stride):
+                left = line[x - bpp] if x >= bpp else 0
+                line[x] = (line[x] + ((left + prev[x]) >> 1)) & 0xFF
+        elif ftype == 4:
+            for x in range(stride):
+                a = line[x - bpp] if x >= bpp else 0
+                b = prev[x]
+                c = prev[x - bpp] if x >= bpp else 0
+                p = a + b - c
+                pa, pb, pc = abs(p - a), abs(p - b), abs(p - c)
+                pred = a if (pa <= pb and pa <= pc) else (b if pb <= pc else c)
+                line[x] = (line[x] + pred) & 0xFF
+        elif ftype != 0:
+            raise ValueError("bad PNG filter type %d" % ftype)
+        rows.append(bytes(line))
+        prev = line
+    return {
+        "width": width,
+        "height": height,
+        "bpp": bpp,
+        "rows": rows,
+        "mode": "%d-bit color type %d" % (depth, ctype),
+        "palette": palette,
+    }
+
+
+def pixel_hash(img):
+    h = hashlib.sha256()
+    h.update(struct.pack(">II", img["width"], img["height"]))
+    h.update(img["mode"].encode())
+    h.update(img["palette"])
+    for r in img["rows"]:
+        h.update(r)
+    return h.hexdigest()
+
+
+def compare_png(ref_path, cand_path):
+    """Compare two PNG files by their decoded pixels."""
+    a = read_png(ref_path)
+    b = read_png(cand_path)
+    if (a["width"], a["height"]) != (b["width"], b["height"]):
+        return {
+            "status": "differs",
+            "passed": False,
+            "detail": "image size differs: reference %dx%d px, candidate %dx%d px"
+            % (a["width"], a["height"], b["width"], b["height"]),
+        }
+    if a["mode"] != b["mode"] or a["palette"] != b["palette"]:
+        return {
+            "status": "differs",
+            "passed": False,
+            "detail": "pixel format differs: reference %s, candidate %s" % (a["mode"], b["mode"]),
+        }
+    bpp = a["bpp"]
+    total = a["width"] * a["height"]
+    diff = 0
+    first = None
+    for y, (ra, rb) in enumerate(zip(a["rows"], b["rows"])):
+        if ra == rb:
+            continue
+        for x in range(0, len(ra), bpp):
+            if ra[x : x + bpp] != rb[x : x + bpp]:
+                diff += 1
+                if first is None:
+                    first = (x // bpp, y)
+    if diff == 0:
+        return {
+            "status": "identical_pixels",
+            "passed": True,
+            "detail": "same %dx%d pixels" % (a["width"], a["height"]),
+        }
+    return {
+        "status": "differs",
+        "passed": False,
+        "detail": "%d of %d pixels differ (%.2f%%), first at x=%d, y=%d"
+        % (diff, total, 100.0 * diff / max(total, 1), first[0], first[1]),
+    }
+
+
+def _load_figures(directory):
+    path = os.path.join(directory, "figures", "figures.json")
+    if not os.path.exists(path):
+        return None
+    with open(path, encoding="utf-8") as f:
+        manifest = json.load(f)
+    out = []
+    for e in manifest.get("figures", []):
+        e = dict(e)
+        e["path"] = os.path.join(directory, "figures", e["file"])
+        if e.get("status") == "saved":
+            try:
+                e["pixels"] = pixel_hash(read_png(e["path"]))
+            except Exception as exc:
+                e["status"] = "unreadable"
+                e["error"] = "%s: %s" % (type(exc).__name__, exc)
+        out.append(e)
+    return out
+
+
+def _fig_name(e):
+    text = e.get("label") or ""
+    if len(text) > 32:
+        text = text[:29] + "..."
+    label = (" (%s)" % text) if text else ""
+    return "figure %d%s" % (e["index"], label)
+
+
+def compare_figures(ref_dir, cand_dir):
+    """Match the reference figures with the candidate's: same pixels first, then in order.
+
+    Returns None when the reference recorded no figures (older captures, or no matplotlib).
+    """
+    ref = _load_figures(ref_dir)
+    if not ref:
+        return None
+    cand = _load_figures(cand_dir) or []
+    results = []
+    if not cand:
+        for r in ref:
+            results.append(
+                {
+                    "name": _fig_name(r),
+                    "kind": "figure",
+                    "status": "not_compared",
+                    "passed": None,
+                    "detail": "the pipeline drew no matplotlib figures, so figures are not compared",
+                }
+            )
+        return results
+    unused = list(range(len(cand)))
+    matched = {}
+    for i, r in enumerate(ref):
+        if not r.get("pixels"):
+            continue
+        for j in unused:
+            if cand[j].get("pixels") == r["pixels"]:
+                matched[i] = j
+                unused.remove(j)
+                break
+    for i, r in enumerate(ref):
+        entry = {"name": _fig_name(r), "kind": "figure"}
+        if i in matched:
+            c = cand[matched[i]]
+            where = (
+                ""
+                if c["index"] == r["index"]
+                else ", drawn as the pipeline's figure %d" % c["index"]
+            )
+            entry.update(
+                {
+                    "status": "identical_pixels",
+                    "passed": True,
+                    "detail": "same pixels at %d dpi%s" % (72, where),
+                    "candidate_figure": c["index"],
+                }
+            )
+        elif r.get("status") != "saved":
+            entry.update(
+                {
+                    "status": "not_compared",
+                    "passed": None,
+                    "detail": "the reference figure could not be rendered: %s" % r.get("error"),
+                }
+            )
+        elif not unused:
+            entry.update(
+                {
+                    "status": "missing",
+                    "passed": False,
+                    "detail": "no matching figure: the pipeline drew %d figure(s), the notebook %d"
+                    % (len(cand), len(ref)),
+                }
+            )
+        else:
+            j = unused.pop(0)
+            c = cand[j]
+            try:
+                cmp = compare_png(r["path"], c["path"])
+            except Exception as exc:
+                cmp = {
+                    "status": "differs",
+                    "passed": False,
+                    "detail": "could not decode: %s: %s" % (type(exc).__name__, exc),
+                }
+            entry.update(cmp)
+            entry["candidate_figure"] = c["index"]
+            entry["detail"] = "compared with the pipeline's figure %d%s: %s" % (
+                c["index"],
+                (" (%s)" % c["label"]) if c.get("label") else "",
+                cmp["detail"],
+            )
+        results.append(entry)
+    for j in unused:
+        c = cand[j]
+        results.append(
+            {
+                "name": "pipeline " + _fig_name(c),
+                "kind": "figure",
+                "status": "extra",
+                "passed": None,
+                "detail": "drawn by the pipeline only (not counted)",
+            }
+        )
+    return results
+
+
 def compare_file(rel, ref_dir, cand_dir, opts):
     """Compare one written file. Data formats get a tolerant comparison when hashes differ."""
     rp = os.path.join(ref_dir, rel)
     cp = os.path.join(cand_dir, rel)
     ext = os.path.splitext(rel)[1].lower()
     acc = Acc(opts)
+    if ext == ".png":
+        try:
+            return compare_png(rp, cp)
+        except Exception as exc:
+            return {
+                "status": "not_compared",
+                "passed": None,
+                "detail": "bytes differ and the PNG could not be decoded: %s: %s"
+                % (type(exc).__name__, exc),
+            }
+    if ext in (".svg", ".pdf", ".eps", ".jpg", ".jpeg", ".gif", ".webp"):
+        return {
+            "status": "not_compared",
+            "passed": None,
+            "detail": "bytes differ; %s files are not compared by content (only PNG figures are compared pixel by pixel)"
+            % ext,
+        }
     try:
         if ext in (".csv", ".tsv"):
             import pandas as pd
@@ -613,6 +899,8 @@ def main(argv=None):
         r["path"] = item["path"]
         files.append(r)
     out["files"] = files
+    if spec.get("figures"):
+        out["figures"] = compare_figures(spec["reference"], spec["candidate"])
     out["options"] = opts
     with open(spec["out"], "w", encoding="utf-8") as f:
         json.dump(out, f, indent=2, default=str)

@@ -22,6 +22,7 @@ import sys
 import time
 import traceback
 
+import nb2p_figures
 import nb2p_probe
 
 
@@ -89,6 +90,11 @@ def main(argv=None):
         if os.path.isdir(extra) and extra not in sys.path:
             sys.path.insert(0, extra)
     status = {"status": "ok", "pipeline": spec["pipeline"], "args": spec.get("args", [])}
+    if spec.get("figures", True):
+        try:
+            nb2p_figures.install(os.path.join(outdir, "figures"))
+        except Exception as exc:
+            status["figures_error"] = "%s: %s" % (type(exc).__name__, exc)
     t0 = time.time()
     try:
         ns = run_pipeline(spec["pipeline"], spec.get("args", []))
@@ -123,6 +129,10 @@ def main(argv=None):
             }
         )
     if status["status"] == "ok":
+        try:
+            nb2p_figures.finish()
+        except Exception as exc:
+            status["figures_error"] = "%s: %s" % (type(exc).__name__, exc)
         manifest = nb2p_probe.dump(
             ns, spec.get("names"), outdir, spec.get("max_bytes", 200 * 1024 * 1024)
         )
@@ -142,9 +152,16 @@ def main(argv=None):
         results = nb2p_compare.compare_manifests(
             comp["reference"], outdir, comp.get("names"), comp.get("options")
         )
+        figures = None
+        if spec.get("figures", True):
+            figures = nb2p_compare.compare_figures(comp["reference"], outdir)
         with open(comp["out"], "w", encoding="utf-8") as f:
             json.dump(
-                {"artifacts": results, "options": nb2p_compare._opts(comp.get("options"))},
+                {
+                    "artifacts": results,
+                    "figures": figures,
+                    "options": nb2p_compare._opts(comp.get("options")),
+                },
                 f,
                 indent=2,
                 default=str,
