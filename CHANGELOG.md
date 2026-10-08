@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.1.2
+
+The equivalence test that `scaffold` writes now works in the user's project with nothing extra
+installed. In 0.1.1 it imported `notebook_to_pipeline`, so the project needed notebook-to-pipeline
+and ipykernel as dev dependencies; both real agent sessions tripped on that, and one skipped the test.
+
+- `tests/test_equivalence.py` runs `nb2p verify` through uv (`uv tool run --from
+  notebook-to-pipeline==<version that wrote it> nb2p`), with the project's interpreter passed as
+  `--python`, so the pipeline still runs with the project's packages. The project needs only
+  pytest. It finds uv on `PATH` or from the `uv` package on PyPI (`pip install uv`). Without uv it
+  skips with a message saying how to fix it, except under `CI`, where it fails: a skipped
+  equivalence test would look like a pass. `NB2P_COMMAND` runs nb2p some other way.
+- `scaffold` detects whether the project uses uv or pip (`uv.lock`, requirements files,
+  `pyproject.toml`, how `.venv` was made; `--env uv|pip` to choose) and writes the matching pieces:
+  a `dev = ["pytest>=8"]` dependency group, or `requirements.txt` plus `requirements-dev.txt`
+  (pytest and uv); a Makefile that calls the pinned `uvx notebook-to-pipeline==<version>`; and a
+  workflow using `astral-sh/setup-uv` or `actions/setup-python`, with the Python version of the
+  reference run. When it keeps an existing `pyproject.toml` it prints the `uv add` commands still
+  needed. The result has `env`, `install_command` and `test_command`. It also writes a
+  `.gitignore` for `.nb2p/`, `.nb2p-verify/` and `.venv/`.
+- `examples/scaffold_e2e.sh` checks all of this end to end in fresh uv and pip projects with the
+  example notebooks: install, generated test passes, a deliberate change to a pipeline output
+  fails it, and the generated workflow's steps pass in a clean copy.
+- Values a cell only displayed as its last expression (`df.describe()`, a score) are captured as
+  `displayed_cell_<n>` when they are data (DataFrames, Series, arrays, scalars, containers, fitted
+  models). Plot handles, values that are the same object as a variable, and unknown objects are
+  left out. The scaffold draft keeps them (`displayed_cell_7 = df.describe()`) and returns them,
+  so they are compared. A pipeline that does not return one gets `not_returned` for it, which is
+  listed in the verdict's "not counted" part instead of failing.
+
 ## 0.1.1
 
 Fixes from a fresh-user audit and a real Claude Code session driving the MCP server.

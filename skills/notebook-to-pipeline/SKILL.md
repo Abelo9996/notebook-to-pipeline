@@ -47,9 +47,15 @@ result ends with next steps; follow them.
    - Keep the plots in the verified run (draw them with matplotlib; saving them is optional): figures
      are then compared pixel by pixel. If the pipeline draws no figures they are reported as not
      compared.
-   - The equivalence test imports `notebook_to_pipeline`, so the project needs it as a dev dependency
-     (`uv add --dev notebook-to-pipeline ipykernel`). If you cannot install it, say the test was skipped
-     and run `verify_pipeline` instead.
+   - The generated `tests/test_equivalence.py` runs this tool through uv, pinned to the version that
+     wrote it, so the project needs only pytest (not notebook-to-pipeline, not ipykernel). Run the
+     `install_command` and `test_command` from the scaffold result, for example `uv sync` then
+     `uv run pytest -q`, or `python -m pip install -r requirements-dev.txt` then
+     `python -m pytest -q`. The test must pass on the draft before you change anything. If it is
+     skipped because uv is missing, say so and use `verify_pipeline` instead.
+   - Values a cell only displayed as its last expression (`df.describe()`, a score) are captured as
+     `displayed_cell_<n>`, and the draft keeps them as variables with those names. Keep returning
+     them; if you drop one, `verify` lists it as `not_returned` and you tell the user.
 
 4. **Verify after every step** (`verify_pipeline`, `pipeline="src/pkg/pipeline.py:run"`,
    `reference=<reference_dir>`, `cwd=<project root>`).
@@ -75,5 +81,5 @@ result ends with next steps; follow them.
 
 - The verdict and how many artifacts, files and figures were compared.
 - Any hidden-state finding that changes how they should trust the original notebook.
-- Anything you could not verify (unstable artifacts, figures the pipeline does not draw, values that
-  were only displayed).
+- Anything you could not verify (unstable artifacts, figures the pipeline does not draw, displayed
+  values the pipeline does not return, values shown with `display()` or as rich output only).

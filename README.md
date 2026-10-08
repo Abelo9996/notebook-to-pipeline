@@ -17,6 +17,11 @@ That runs the notebook top to bottom in a fresh kernel, writes a first-draft pac
 proves the draft reproduces all 26 variables and all 3 figures (`Verdict: EQUIVALENT (all 29
 compared outputs match)`). It took 27 s with an empty uv cache on an Apple M4 MacBook.
 
+The draft is a project of its own with an equivalence test, a Makefile and a GitHub Actions
+workflow. `cd demo && uv run pytest -q` installs its pinned packages and runs the same comparison
+(`1 passed`). Nothing else goes into the project: the test runs this tool through uv, pinned to
+the version that wrote it.
+
 On your own notebook, from a project whose `.venv` has the notebook's packages and `ipykernel`:
 
 ```
@@ -98,7 +103,9 @@ Verdict: DIFFERS (4 of 26 compared outputs differ; not counted: 3 not compared)
 The unscaled test accuracy the example prints, 35.19%, becomes 74.07% with its own PCA; the
 standardized pipeline stays at 96.30%. (The 3 uncounted rows are the figures: that hand-written
 pipeline does not plot.) The mechanical draft from `nb2p scaffold` verifies as EQUIVALENT on this
-notebook (26 variables and 3 figures) and on the pandas-cookbook one (6 variables and 5 figures).
+notebook (26 variables and 3 figures) and on the pandas-cookbook one (6 variables and 5 figures; since
+0.1.2 also 4 values the notebook only displayed, 15 outputs in all, see
+[the end-to-end run](examples/README.md#the-scaffolded-project-end-to-end)).
 All of this, plus a notebook broken by hidden state, is in [examples/](examples/README.md) with the
 full reports.
 
@@ -119,7 +126,8 @@ full reports.
   fitted attributes), records files the notebook wrote, re-renders every matplotlib figure as a PNG
   at 72 dpi when Jupyter closes it, records what the notebook printed, compares the saved text
   outputs with the fresh run, reports objects reachable under several names, and with `--repeat N`
-  reruns to find outputs that change between runs.
+  reruns to find outputs that change between runs. A value a cell displays as its last expression
+  (`df.describe()`, a score) is saved too, as `displayed_cell_<n>`, when it is data.
 - **verify** runs the pipeline in the same interpreter (`file.py:func` or `module:func` returning a
   dict, or a script whose globals hold the results), saves the same artifacts and compares them in
   that interpreter, so pandas, numpy and scikit-learn objects load with the versions that made them.
@@ -128,8 +136,15 @@ full reports.
   the first differences with their path, for example `temperature.index[0]` or
   `pca['fitted']['components_'][0,0]`.
 - **scaffold** writes `src/<package>/` with one module per proposed stage (the notebook code pasted
-  into functions as a first draft), `pipeline.py:run()`, `tests/test_equivalence.py`, a Makefile,
-  a `pyproject.toml` pinned to the captured versions and a GitHub Actions workflow.
+  into functions as a first draft, displayed values kept as `displayed_cell_<n>`),
+  `pipeline.py:run()`, `tests/test_equivalence.py`, a Makefile, a `pyproject.toml` pinned to the
+  captured versions and a GitHub Actions workflow. The test calls `uv tool run --from
+  notebook-to-pipeline==<that version> nb2p verify` with the project's interpreter, so the project
+  needs only pytest. For a uv project (`uv.lock`, a uv-made `.venv`, or a new folder when uv is
+  installed) pytest goes in a dev dependency group and CI uses `astral-sh/setup-uv`; for a pip
+  project it writes `requirements.txt` and `requirements-dev.txt` (pytest and uv) and CI uses
+  `actions/setup-python`, both with the Python version of the reference run.
+  [`examples/scaffold_e2e.sh`](examples/scaffold_e2e.sh) checks both kinds end to end.
 - **report** writes `report.md` and `report.json`: notebook hash, interpreter and package versions,
   the top-to-bottom result, hidden-state findings, the per-artifact and per-figure tables, the
   verdict and the limits.
@@ -166,8 +181,15 @@ logic to make outputs match without saying so.
   pixel, so a different matplotlib or font version will show up as a difference. Plotly, Bokeh and
   Altair charts are not compared.
 - A value that was only printed is checked line by line against the pipeline's output, but that
-  check is not counted in the verdict. A value only displayed (a DataFrame as a cell's last line)
-  and never kept in a variable is not compared.
+  check is not counted in the verdict. A value a cell displayed as its last expression is compared
+  when it is data and the pipeline returns it as `displayed_cell_<n>` (the scaffold draft does);
+  otherwise it is listed as not returned. Values shown with `display()`, rich-only output such as
+  `df.style`, and plot handles are not compared.
+- The generated equivalence test needs uv (installed, or `pip install uv`) and, the first time,
+  network access to fetch the pinned notebook-to-pipeline. Without uv it skips with a message, and
+  under `CI` it fails instead.
+- `scaffold` pins only the packages the notebook imports, to the versions of the reference run.
+  Their own dependencies (scipy under scikit-learn, for example) are not pinned.
 - Static analysis does not follow `exec`, `eval`, `%run`, imports of local modules or aliases
   (`b = a; b.append(1)`). Shared objects of that kind are caught at runtime only if both names
   are captured.
@@ -182,7 +204,8 @@ logic to make outputs match without saying so.
 ## Privacy and safety
 
 Everything runs on your machine. The tool makes no network calls and calls no LLM; the agent you
-already use does the refactoring. `capture` and `verify` execute the notebook and the pipeline with
+already use does the refactoring. The equivalence test that `scaffold` writes asks uv for the pinned
+notebook-to-pipeline from PyPI the first time it runs. `capture` and `verify` execute the notebook and the pipeline with
 your user's permissions, exactly as running them yourself would. References are stored as pickles,
 so only verify against capture directories you created (see SECURITY.md). Evidence files replace
 your home directory with `~`.
