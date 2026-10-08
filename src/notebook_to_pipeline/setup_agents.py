@@ -141,7 +141,7 @@ def plan(
                 "run: claude mcp add --scope user " + NAME + " -- " + " ".join(command),
             )
         )
-    if claude_dir.exists():
+    if claude_dir.exists() or claude_bin:
         actions.append(_skill_action(claude_dir / "skills", "Claude Code"))
 
     # Codex
@@ -279,4 +279,15 @@ def run_setup(
         except Exception as exc:
             result["applied"].append({"target": a.target, "error": str(exc)})
             out(f"  failed: {a.target}: {exc}")
+    result["next_steps"] = NEXT_STEPS
+    out("Next:")
+    for step in NEXT_STEPS:
+        out(f"  - {step}")
     return result
+
+
+NEXT_STEPS = [
+    "Restart Claude Code, Codex or Cursor (or start a new session) so it loads the MCP server.",
+    'Then ask, in the folder with your notebook: "Turn analysis.ipynb into a tested pipeline and '
+    "prove the outputs didn't change.\"",
+]

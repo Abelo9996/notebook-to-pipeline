@@ -1435,22 +1435,49 @@ def _other_findings(facts, defs, muts, edges) -> list[dict[str, Any]]:
     return out
 
 
-def _stage_scores(cf: CellFacts) -> dict[str, int]:
-    s = dict.fromkeys(STAGES, 0)
+def _stage_hits(cf: CellFacts) -> dict[str, list[str]]:
+    """The calls (or file reads) that point a cell at each stage."""
+    hits: dict[str, list[str]] = {s: [] for s in STAGES}
     for call in cf.calls:
         if call.startswith(("read_", "load_", "fetch_")) or call in LOAD_SIGNALS:
-            s["load"] += 3
+            hits["load"].append(call)
         if call in CLEAN_SIGNALS:
-            s["clean"] += 1
+            hits["clean"].append(call)
         if call in FEATURE_SIGNALS:
-            s["features"] += 1
+            hits["features"].append(call)
         if call in TRAIN_SIGNALS or _ESTIMATOR_NAME.search(call):
-            s["train"] += 2
+            hits["train"].append(call)
         if call in EVAL_SIGNALS or _METRIC_NAME.search(call):
-            s["evaluate"] += 2
+            hits["evaluate"].append(call)
+    return hits
+
+
+def _stage_scores(cf: CellFacts) -> dict[str, int]:
+    s = dict.fromkeys(STAGES, 0)
+    weight = {"load": 3, "clean": 1, "features": 1, "train": 2, "evaluate": 2, "report": 0}
+    for stage, calls in _stage_hits(cf).items():
+        s[stage] += weight[stage] * len(calls)
     if cf.files_read:
         s["load"] += 3
     return s
+
+
+STAGE_VERB = {
+    "load": "loads data",
+    "clean": "cleans data",
+    "features": "builds features",
+    "train": "fits a model",
+    "evaluate": "scores a model",
+}
+
+
+def _why(stage: str, cf: CellFacts) -> str:
+    hits = _stage_hits(cf)
+    calls = list(dict.fromkeys(hits.get(stage, [])))
+    if stage == "load" and cf.files_read and not calls:
+        calls = [r["path"] for r in cf.files_read]
+    shown = ", ".join(f"`{c}`" for c in calls[:4])
+    return f"{STAGE_VERB.get(stage, stage)} ({shown})" if shown else STAGE_VERB.get(stage, stage)
 
 
 def _propose_stages(facts, edges, used_later, reaching, defs) -> list[dict[str, Any]]:
@@ -1493,7 +1520,7 @@ def _propose_stages(facts, edges, used_later, reaching, defs) -> list[dict[str, 
             stage, why = "load", "imports and configuration"
         elif any(scores.values()):
             stage = max(STAGES[:-1], key=lambda s: (scores[s], -STAGE_RANK[s]))
-            why = f"signals: {', '.join(f'{k}={v}' for k, v in scores.items() if v)}"
+            why = _why(stage, cf)
         else:
             stage, why = prev, "no strong signal, kept with the previous cell"
         for d in deps[i]:

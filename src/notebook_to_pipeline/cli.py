@@ -68,16 +68,31 @@ def cmd_analyze(args: argparse.Namespace) -> int:
         print(f"Findings: {s['error']} error, {s['warning']} warning, {s['info']} info")
         for f in result["findings"]:
             print(f"  [{f['severity']}] {f['kind']}: {f['message']}")
-        print("Proposed stages:")
-        for st in result["stages"]:
-            cells = ",".join(str(c + 1) for c in st["cells"])
-            print(
-                f"  {st['stage']:<9} cells {cells}  in: {', '.join(st['inputs']) or '-'}  out: {', '.join(st['outputs']) or '-'}"
-            )
+        print(
+            "Proposed stages (a starting point for modules; cell numbers count every cell, markdown included):"
+        )
+        for k, st in enumerate(result["stages"], 1):
+            cells = ", ".join(str(c + 1) for c in st["cells"])
+            print(f"  {k}. {st['stage']}.py  {st['signature']}  (cells {cells})")
+            if st["outputs"]:
+                print(f"       returns: {', '.join(st['outputs'])}")
+            for c in st["cells"]:
+                why = st.get("why", {}).get(c) or st.get("why", {}).get(str(c))
+                if why and why != "empty":
+                    print(f"       cell {c + 1}: {why}")
+            notes = st.get("reorder_notes", {})
+            for c, ns in notes.items():
+                for n in ns:
+                    print(f"       careful, cell {int(c) + 1} {n}")
         arts = [a["name"] for a in result["suggested_artifacts"]]
         print(f"Suggested artifacts ({len(arts)}): {', '.join(arts)}")
         if args.out:
             print(f"Wrote {args.out}")
+        _print_next(
+            [
+                f"Run it in a fresh kernel and record the reference: `nb2p capture {_rel(nb['path'])}`",
+            ]
+        )
     if args.strict and result["summary"]["findings"]["error"]:
         return EXIT_DIFFERS
     return EXIT_OK
@@ -123,6 +138,8 @@ def cmd_capture(args: argparse.Namespace) -> int:
             pred = result.get("prediction")
             if pred and pred.get("predicted"):
                 print(f"  Predicted by static analysis: {pred['finding']['message']}")
+            if ex.get("hint"):
+                print(f"  How to fix: {ex['hint']}")
         so = ex.get("saved_outputs")
         if so and (so["same"] or so["different"]):
             print(
@@ -157,8 +174,29 @@ def cmd_capture(args: argparse.Namespace) -> int:
                 print(f"Determinism check ({st['repeats']} runs): every artifact reproduced")
         if result.get("files_written"):
             print("Files written: " + ", ".join(f["path"] for f in result["files_written"]))
+        figs = result.get("figures") or []
+        if figs:
+            names = ", ".join(
+                f"{f['index']}" + (f" ({f['label']})" if f.get("label") else "") for f in figs
+            )
+            print(f"Figures recorded: {len(figs)} (rendered as PNG for comparison): {names}")
+        printed = (result.get("printed") or {}).get("lines")
+        if printed:
+            print(f"Printed output: {printed} non-empty lines recorded")
         print(f"Reference: {_rel(result['reference_dir'])}")
+        _print_next(result.get("next_steps"))
     return EXIT_OK if ex["status"] == "ok" else EXIT_FAILED
+
+
+def _print_next(steps: list[str] | None) -> None:
+    if steps:
+        prog = Path(sys.argv[0]).name if sys.argv else "nb2p"
+        print("Next:")
+        for st in steps:
+            st = _rel(st)
+            if prog == "notebook-to-pipeline":
+                st = st.replace("`nb2p ", "`notebook-to-pipeline ")
+            print(f"  - {st}")
 
 
 # --------------------------------------------------------------------------
@@ -184,8 +222,11 @@ def print_verify_table(result: dict[str, Any]) -> None:
     for f in result.get("files", []):
         mark = {True: "PASS", False: "FAIL", None: "n/a"}[f.get("passed")]
         rows.append((f["path"], "file", f"{mark} {f['status']}", f.get("detail", "")))
+    for f in result.get("figures", []):
+        mark = {True: "PASS", False: "FAIL", None: "n/a"}[f.get("passed")]
+        rows.append((f["name"], "figure", f"{mark} {f['status']}", f.get("detail", "")))
     if rows:
-        w0 = min(max(len(r[0]) for r in rows), 32)
+        w0 = min(max(len(r[0]) for r in rows), 48)
         w1 = max(len(r[1]) for r in rows)
         w2 = max(len(r[2]) for r in rows)
         print(f"{'artifact':<{w0}}  {'kind':<{w1}}  {'result':<{w2}}  detail")
@@ -207,6 +248,7 @@ def cmd_verify(args: argparse.Namespace) -> int:
         artifacts=_csv(args.artifacts),
         rename=_parse_rename(args.rename),
         compare_files=not args.no_files,
+        compare_figures=not args.no_figures,
         timeout=args.timeout,
         rtol=args.rtol,
         atol=args.atol,
@@ -233,8 +275,15 @@ def cmd_verify(args: argparse.Namespace) -> int:
                     print(
                         f"  {d['path']}: reference {d['reference']}  candidate {d['candidate']}{why}"
                     )
+        pr = result.get("printed") or {}
+        if pr.get("lines"):
+            line = f"Printed lines: {pr['found']} of {pr['lines']} the notebook printed also appear in the pipeline's output (not counted in the verdict)"
+            print(line)
+            for m in pr.get("missing", [])[:3]:
+                print(f"  not printed by the pipeline: {m!r}")
         print(f"Verdict: {result['verdict'].upper()} ({result.get('reason', '')})")
         print(f"Evidence: {_rel(result['verify_json'])}")
+        _print_next(result.get("next_steps"))
     return {
         "equivalent": EXIT_OK,
         "differs": EXIT_DIFFERS,
@@ -252,8 +301,9 @@ def cmd_verify(args: argparse.Namespace) -> int:
 def cmd_scaffold(args: argparse.Namespace) -> int:
     from .scaffold import scaffold
 
+    out = args.out or str(Path(args.notebook).resolve().parent)
     result = scaffold(
-        args.notebook, args.out, package=args.package, reference=args.reference, force=args.force
+        args.notebook, out, package=args.package, reference=args.reference, force=args.force
     )
     if args.json:
         _print_json(result)
@@ -269,9 +319,7 @@ def cmd_scaffold(args: argparse.Namespace) -> int:
         )
     for n in result["notes"]:
         print(f"  note: {n}")
-    print("Next:")
-    for s in result["next_steps"]:
-        print(f"  - {s}")
+    _print_next(result["next_steps"])
     return EXIT_OK
 
 
@@ -293,9 +341,11 @@ def cmd_setup(args: argparse.Namespace) -> int:
 
     command = shlex.split(args.command) if args.command else None
     project = Path(args.project).resolve() if args.project else None
-    result = run_setup(yes=args.yes, command=command, project=project)
     if args.json:
+        result = run_setup(yes=args.yes, command=command, project=project, out=lambda *_: None)
         _print_json(result)
+    else:
+        result = run_setup(yes=args.yes, command=command, project=project)
     return EXIT_OK if not any("error" in a for a in result["applied"]) else EXIT_FAILED
 
 
@@ -401,6 +451,11 @@ def build_parser() -> argparse.ArgumentParser:
     v.add_argument(
         "--no-files", action="store_true", help="do not compare files the notebook wrote"
     )
+    v.add_argument(
+        "--no-figures",
+        action="store_true",
+        help="do not compare the matplotlib figures the notebook drew",
+    )
     v.add_argument("--timeout", type=int, default=1800)
     v.add_argument("--json", action="store_true")
     v.set_defaults(func=cmd_verify)
@@ -409,7 +464,11 @@ def build_parser() -> argparse.ArgumentParser:
         "scaffold", help="write a starting pipeline layout with an equivalence test and CI"
     )
     s.add_argument("notebook")
-    s.add_argument("--out", "-o", required=True, help="project directory to create or fill")
+    s.add_argument(
+        "--out",
+        "-o",
+        help="project directory to create or fill (default: the notebook's directory; existing files are kept)",
+    )
     s.add_argument("--package", help="Python package name (default: from the notebook name)")
     s.add_argument("--reference", help="capture directory to copy into tests/reference")
     s.add_argument("--force", action="store_true", help="overwrite existing files")

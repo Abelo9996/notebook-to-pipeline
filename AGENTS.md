@@ -21,6 +21,7 @@ src/notebook_to_pipeline/
     nb2p_probe.py    serialize variables with hashes and summaries
     nb2p_compare.py  tolerant comparison of two captures
     nb2p_runner.py   import or run the pipeline, then call the probe
+    nb2p_figures.py  record every matplotlib figure as a PNG (kernel and pipeline)
 examples/          real notebooks, hand-written pipelines and committed evidence
 skills/            agent skill installed by `setup`
 ```
@@ -31,3 +32,5 @@ skills/            agent skill installed by `setup`
 - Lint: `uv run ruff check src tests`.
 - No em dashes or en dashes anywhere. No invented numbers in docs: quote real runs.
 - Keep the JSON output stable: agents parse it. Add fields rather than renaming them.
+- MCP tool docstrings are the agent's documentation: say when to use the tool, what the arguments
+  mean and what to call next. Results end with `next_steps`.

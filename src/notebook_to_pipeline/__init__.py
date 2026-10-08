@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 __all__ = [
     "__version__",
@@ -31,7 +31,17 @@ def capture_reference(notebook: Any, **kwargs: Any) -> dict[str, Any]:
 
 
 def verify_pipeline(pipeline: str | None, reference: Any, **kwargs: Any) -> dict[str, Any]:
-    """Run a pipeline and compare its artifacts with a reference capture."""
+    """Run a pipeline and compare its artifacts, files and figures with a reference capture.
+
+    pipeline: "path/to/file.py:run" (returns a dict {artifact name: value}), "pkg.module:run",
+    or a script whose globals hold the results. reference: a capture directory or the notebook.
+    Keyword arguments: cwd (where the pipeline runs), out (where verify.json goes), python,
+    artifacts (list of names), rename ({reference name: pipeline name}), rtol, atol,
+    ignore_row_order, ignore_column_order, ignore_index, check_dtype, compare_files,
+    compare_figures, timeout, cmd (a shell command instead of a pipeline).
+    Returns a dict with "verdict" (equivalent, differs, pipeline_failed, reference_invalid,
+    inconclusive), "reason", "artifacts", "files", "figures", "printed" and "next_steps".
+    """
     from .verify import verify
 
     return verify(pipeline, reference, **kwargs)
