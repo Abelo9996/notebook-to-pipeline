@@ -13,6 +13,7 @@ from typing import Any
 from . import __version__
 from .analysis import analyze
 from .execution import (
+    DISPLAYED_PREFIX,
     collect_written,
     execute_notebook,
     python_info,
@@ -61,6 +62,7 @@ def _run_once(
     names: list[str] | None,
     outdir: Path,
     max_bytes: int,
+    display_values: bool = True,
 ) -> dict[str, Any]:
     if outdir.exists():
         shutil.rmtree(outdir)
@@ -68,7 +70,14 @@ def _run_once(
     nb = read_notebook(nb_path)
     before = snapshot(cwd, exclude=[outdir])
     execution = execute_notebook(
-        nb, python=python, cwd=cwd, timeout=timeout, names=names, outdir=outdir, max_bytes=max_bytes
+        nb,
+        python=python,
+        cwd=cwd,
+        timeout=timeout,
+        names=names,
+        outdir=outdir,
+        max_bytes=max_bytes,
+        display_values=display_values,
     )
     after = snapshot(cwd, exclude=[outdir])
     written = collect_written(cwd, before, after, outdir / "files")
@@ -78,6 +87,8 @@ def _run_once(
         if manifest_path.exists()
         else {"artifacts": [], "env": {}}
     )
+    if _keep_displayed_data(manifest, outdir):
+        manifest_path.write_text(json.dumps(manifest, indent=2, default=str), encoding="utf-8")
     figs_path = outdir / "figures" / "figures.json"
     figures = json.loads(figs_path.read_text()) if figs_path.exists() else None
     return {
@@ -86,6 +97,38 @@ def _run_once(
         "manifest": manifest,
         "figures": figures,
     }
+
+
+def _keep_displayed_data(manifest: dict[str, Any], outdir: Path) -> bool:
+    """Keep a displayed value only when it is data the comparison understands.
+
+    A cell's last expression is often a plot handle, a fitted model echoed by `.fit()`, or
+    something without a stable value; those are dropped instead of listed as skipped artifacts.
+    Returns True when the manifest changed."""
+    kept = []
+    changed = False
+    for a in manifest.get("artifacts", []):
+        name = a.get("name", "")
+        if name.startswith(DISPLAYED_PREFIX):
+            if a.get("status") != "captured" or a.get("kind") == "object":
+                if a.get("payload"):
+                    (outdir / a["payload"]).unlink(missing_ok=True)
+                changed = True
+                continue
+            if "displayed_in" not in a:
+                a["displayed_in"] = "cell " + name[len(DISPLAYED_PREFIX) :]
+                changed = True
+        kept.append(a)
+    manifest["artifacts"] = kept
+    shared = manifest.get("shared_objects")
+    if shared:
+        manifest["shared_objects"] = [
+            sh
+            for sh in shared
+            if not any(str(p).startswith(DISPLAYED_PREFIX) for p in sh.get("paths", []))
+        ]
+        changed = changed or len(manifest["shared_objects"]) != len(shared)
+    return changed
 
 
 # Import names that differ from the package to install.
@@ -168,6 +211,7 @@ def runtime_findings(
             a.get("status") == "captured"
             and a.get("kind") not in ("scalar", "container")
             and a.get("hash")
+            and not a["name"].startswith(DISPLAYED_PREFIX)
         ):
             by_hash.setdefault(a["hash"], []).append(a["name"])
     for names in by_hash.values():
@@ -259,6 +303,7 @@ def capture(
         result["reference_dir"] = str(outdir)
         return result
 
+    display_values = not artifacts
     first = _run_once(
         nb_path,
         python=py,
@@ -267,6 +312,7 @@ def capture(
         names=names,
         outdir=outdir,
         max_bytes=max_bytes,
+        display_values=display_values,
     )
     execution = first["execution"]
     for c in execution["cells"]:
@@ -293,7 +339,7 @@ def capture(
 
     if repeat > 1 and execution["status"] == "ok":
         result["stability"] = _check_stability(
-            nb_path, py, run_cwd, timeout, names, outdir, max_bytes, repeat, first
+            nb_path, py, run_cwd, timeout, names, outdir, max_bytes, repeat, display_values
         )
         unstable = {r["name"] for r in result["stability"]["artifacts"] if not r["passed"]}
         for a in result["artifacts"]:
@@ -344,7 +390,9 @@ def capture_next_steps(result: dict[str, Any], outdir: Path) -> list[str]:
     return steps
 
 
-def _check_stability(nb_path, py, run_cwd, timeout, names, outdir, max_bytes, repeat, first):
+def _check_stability(
+    nb_path, py, run_cwd, timeout, names, outdir, max_bytes, repeat, display_values=True
+):
     runs = []
     tmp_root = Path(tempfile.mkdtemp(prefix="nb2p-repeat-"))
     try:
@@ -360,6 +408,7 @@ def _check_stability(nb_path, py, run_cwd, timeout, names, outdir, max_bytes, re
                 names=names,
                 outdir=rdir,
                 max_bytes=max_bytes,
+                display_values=display_values,
             )
             runs.append({"run": k, "status": again["execution"]["status"]})
             if again["execution"]["status"] != "ok":

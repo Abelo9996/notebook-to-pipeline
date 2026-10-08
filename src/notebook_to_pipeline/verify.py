@@ -246,6 +246,7 @@ def verify(
         comp_all = json.loads(comp_path.read_text())
         result["artifacts"] = comp_all["artifacts"]
         result["figures"] = comp_all.get("figures") or []
+        _displayed_not_returned(result["artifacts"], ref, rename)
     if file_specs:
         spec = {
             "reference": str(ref_dir),
@@ -332,6 +333,31 @@ def verify(
     return _finish(result, work)
 
 
+def _displayed_not_returned(
+    artifacts: list[dict[str, Any]], ref: dict[str, Any], rename: dict[str, str]
+) -> None:
+    """A value the notebook only displayed is compared when the pipeline returns it under its
+    artifact name. A pipeline that does not return it is not failed for that: the value is
+    listed as not compared, so the verdict says what was left out."""
+    shown = {a["name"]: a["displayed_in"] for a in ref["artifacts"] if a.get("displayed_in")}
+    for a in artifacts:
+        cell = shown.get(a["name"])
+        if cell is None or a.get("status") != "missing":
+            continue
+        if not str(a.get("detail", "")).startswith("the candidate did not produce"):
+            continue
+        name = rename.get(a["name"], a["name"])
+        a.update(
+            {
+                "status": "not_returned",
+                "passed": None,
+                "displayed_in": cell,
+                "detail": f"only displayed in the notebook ({cell}); return it from the "
+                f"pipeline as `{name}` (or map it with --rename {a['name']}=<your name>) to compare it",
+            }
+        )
+
+
 def compare_printed(ref: dict[str, Any], stdout: str) -> dict[str, Any]:
     """Which lines the notebook printed also appear in the pipeline's stdout.
 
@@ -384,6 +410,15 @@ def verify_next_steps(result: dict[str, Any]) -> list[str]:
             f"The notebook drew {len(figs)} figure(s) and the pipeline drew none, so figures were not "
             "compared. If the pipeline should make the plots, draw them with matplotlib in the "
             "verified run and they will be compared pixel by pixel."
+        )
+    shown = [
+        a for a in result.get("artifacts", []) if a.get("displayed_in") and a.get("passed") is None
+    ]
+    if shown:
+        steps.append(
+            f"{len(shown)} value(s) the notebook only displayed as a cell's last expression were not "
+            f"compared because the pipeline does not return them ({', '.join(a['name'] for a in shown[:5])}). "
+            "If one matters, return it under that name."
         )
     pr = result.get("printed") or {}
     if pr.get("lines") and pr.get("found", 0) < pr["lines"]:

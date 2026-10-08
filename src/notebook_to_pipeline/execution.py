@@ -290,14 +290,56 @@ _FIGURES_FINISH = (
 )
 
 
-def _probe_code(names: list[str] | None, outdir: Path, max_bytes: int) -> str:
+DISPLAYED_PREFIX = "displayed_cell_"
+
+
+def displayed_name(cell_index: int) -> str:
+    """Artifact name for the value a cell displayed as its last expression (1-based cell number)."""
+    return f"{DISPLAYED_PREFIX}{cell_index + 1}"
+
+
+def _probe_code(
+    names: list[str] | None, outdir: Path, max_bytes: int, displayed: dict[str, int] | None = None
+) -> str:
+    """Code for the hidden cell that saves the artifacts.
+
+    displayed maps an artifact name to the execution count of a cell whose last expression was
+    displayed. Those values live only in IPython's Out history, so they are added to the namespace
+    under that name, unless the value is the very object a variable holds (that variable is
+    captured or not on its own terms) or holds plot objects (`plt.plot` returns a list of lines,
+    `df.plot(subplots=True)` an array of Axes)."""
     src = (RUNTIME_DIR / "nb2p_probe.py").read_text(encoding="utf-8")
     return (
         "def __nb2p_run():\n"
         "    import types as _t\n"
         "    _m = _t.ModuleType('nb2p_probe')\n"
         f"    exec(compile({src!r}, 'nb2p_probe.py', 'exec'), _m.__dict__)\n"
-        f"    _m.dump(globals(), {names!r}, {str(outdir)!r}, {max_bytes!r})\n"
+        "    _g = globals()\n"
+        f"    _names = {names!r}\n"
+        f"    _shown = {displayed or {}!r}\n"
+        "    _ns = _g\n"
+        "    if _shown:\n"
+        "        _out = _g.get('Out') or {}\n"
+        "        _held = [v for k, v in _g.items() if not k.startswith('_') and k not in ('In', 'Out')]\n"
+        "        _ns = dict(_g)\n"
+        "        def _plotty(v, depth=0):\n"
+        "            if _m.is_plot_object(v):\n"
+        "                return True\n"
+        "            if depth < 2 and isinstance(v, (list, tuple)):\n"
+        "                return any(_plotty(x, depth + 1) for x in v[:100])\n"
+        "            if depth < 2 and _m.is_ndarray(v) and v.dtype.kind == 'O':\n"
+        "                return any(_plotty(x, depth + 1) for x in v.flat[:100])\n"
+        "            return False\n"
+        "        for _name, _count in _shown.items():\n"
+        "            if _count not in _out:\n"
+        "                continue\n"
+        "            _val = _out[_count]\n"
+        "            if any(_val is _v for _v in _held) or _plotty(_val):\n"
+        "                continue\n"
+        "            _ns[_name] = _val\n"
+        "            if _names is not None:\n"
+        "                _names = list(_names) + [_name]\n"
+        f"    _m.dump(_ns, _names, {str(outdir)!r}, {max_bytes!r})\n"
         "__nb2p_run(); del __nb2p_run\n"
     )
 
@@ -317,8 +359,12 @@ def execute_notebook(
     outdir: Path,
     max_bytes: int = 200 * 1024 * 1024,
     figures: bool = True,
+    display_values: bool = True,
 ) -> dict[str, Any]:
-    """Run every code cell top to bottom in a new kernel, then save artifacts with the probe."""
+    """Run every code cell top to bottom in a new kernel, then save artifacts with the probe.
+
+    With display_values, a value a cell displayed as its last expression (a DataFrame shown
+    with `df.describe()`, a score) is saved too, as `displayed_cell_<n>`."""
     import nbformat
     from jupyter_client.kernelspec import KernelSpecManager
     from jupyter_client.manager import KernelManager
@@ -384,6 +430,11 @@ def execute_notebook(
                     images = inline_images(cell)
                     if images:
                         entry["inline_images"] = images
+                    if any(
+                        o.get("output_type") == "execute_result" for o in cell.get("outputs", [])
+                    ):
+                        entry["displayed"] = True
+                        entry["execution_count"] = cell.get("execution_count")
                     record["cells"].append(entry)
                 except CellExecutionError as exc:
                     record["status"] = "failed"
@@ -418,7 +469,16 @@ def execute_notebook(
                 if figures and record["status"] == "ok":
                     _run_hidden(client, nb, _FIGURES_FINISH)
                 probe_names = names if record["status"] == "ok" else []
-                probe = nbformat.v4.new_code_cell(_probe_code(probe_names, outdir, max_bytes))
+                shown = {}
+                if record["status"] == "ok" and display_values:
+                    shown = {
+                        displayed_name(c["index"]): c["execution_count"]
+                        for c in record["cells"]
+                        if c.get("displayed") and isinstance(c.get("execution_count"), int)
+                    }
+                probe = nbformat.v4.new_code_cell(
+                    _probe_code(probe_names, outdir, max_bytes, shown)
+                )
                 nb.cells.append(probe)
                 try:
                     client.execute_cell(probe, len(nb.cells) - 1, store_history=False)
