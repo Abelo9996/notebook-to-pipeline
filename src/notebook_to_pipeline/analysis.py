@@ -1337,13 +1337,9 @@ def _execution_order_findings(
     return out
 
 
-def _redefinition_findings(facts, edges) -> list[dict[str, Any]]:
-    """Names reassigned from scratch in more than one cell and read across cells.
-
-    This is a cell-order hazard that needs no saved execution counts, so it still fires on cleared
-    or agent-generated notebooks: a top-to-bottom run takes each use from the nearest definition
-    above it, but in an interactive session a later redefinition can leak back into an earlier cell
-    that is re-run. Self-updates (`df = df.dropna()`) are reported separately as rerun hazards."""
+def _fresh_def_cells(facts) -> dict[str, list[int]]:
+    """For each name, the cells that bind it from scratch (not a self-update, loop variable,
+    import, function, class or plot handle), in notebook order."""
     fresh: dict[str, list[int]] = {}
     for i, cf in enumerate(facts):
         for name in cf.assigned:
@@ -1359,6 +1355,17 @@ def _redefinition_findings(facts, edges) -> list[dict[str, Any]]:
             ):
                 continue
             fresh.setdefault(name, []).append(i)
+    return fresh
+
+
+def _redefinition_findings(facts, edges) -> list[dict[str, Any]]:
+    """Names reassigned from scratch in more than one cell and read across cells.
+
+    This is a cell-order hazard that needs no saved execution counts, so it still fires on cleared
+    or agent-generated notebooks: a top-to-bottom run takes each use from the nearest definition
+    above it, but in an interactive session a later redefinition can leak back into an earlier cell
+    that is re-run. Self-updates (`df = df.dropna()`) are reported separately as rerun hazards."""
+    fresh = _fresh_def_cells(facts)
     read_edges: dict[str, set[int]] = {}
     for (src, dst, kind), names in edges.items():
         if kind != "def-use" or dst <= src:
@@ -1587,16 +1594,44 @@ def _propose_stages(facts, edges, used_later, reaching, defs) -> list[dict[str, 
             why = _why(stage, cf)
         else:
             stage, why = prev, "no strong signal, kept with the previous cell"
-        for d in deps[i]:
-            if STAGE_RANK[assigned[d]] > STAGE_RANK[stage] and assigned[d] != "report":
-                stage, why = (
-                    assigned[d],
-                    f"moved to {assigned[d]} because it depends on {_label(facts[d].cell)}",
-                )
         assigned.append(stage)
         reasons.append(why)
         if stage != "report":
             prev = stage
+
+    # Enforce the orderings the stage split must not break. A cell is linearized by
+    # (stage rank, notebook index), so moving it to a later stage keeps it later. Three kinds of
+    # dependency between cells a < b force b's stage rank to be at least a's:
+    #   read-after-write  b reads a name a defines
+    #   write-after-read  b redefines from scratch a name an earlier cell a reads
+    #   write-after-write b redefines a name a defines
+    # Without the last two, a cell that redefines a name (X_train = ...) could be hoisted before
+    # the cells that still read the first definition, and the generated pipeline would feed them
+    # the wrong value.
+    precede: dict[int, set[int]] = {i: set(deps[i]) for i in range(n)}
+    fresh = _fresh_def_cells(facts)
+    for name, def_cells in fresh.items():
+        fs = sorted(def_cells)
+        for k in range(1, len(fs)):
+            precede[fs[k]].add(fs[k - 1])  # write-after-write
+        for r in range(n):
+            if name not in reaching.get(r, {}):
+                continue
+            for d2 in fs:
+                if d2 > r:
+                    precede[d2].add(r)  # write-after-read
+    for i in range(n):
+        base = STAGE_RANK[assigned[i]]
+        best, src = base, None
+        for a in precede[i]:
+            if a < i and STAGE_RANK[assigned[a]] > best:
+                best, src = STAGE_RANK[assigned[a]], a
+        if best != base and src is not None:
+            assigned[i] = STAGES[best]
+            reasons[i] = (
+                f"moved to {STAGES[best]} to run after {_label(facts[src].cell)} "
+                "(it shares a name whose order must be kept)"
+            )
 
     order = sorted(range(n), key=lambda i: (STAGE_RANK[assigned[i]], i))
     newpos = {i: k for k, i in enumerate(order)}

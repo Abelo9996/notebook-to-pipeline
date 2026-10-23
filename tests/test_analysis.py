@@ -200,6 +200,26 @@ def test_loop_body_temporary_is_not_an_artifact(nb_factory):
     assert "scratch" not in names and "i" not in names
 
 
+def test_stage_split_keeps_a_redefinition_after_its_readers(nb_factory):
+    # X is defined in cell 2, read in cells 3 and 4, then redefined from scratch in cell 5.
+    # Cell 5 has a train signal and would sort before the evaluate cell; the split must not
+    # hoist it before the cells that still read the first X.
+    nb = nb_factory(
+        [
+            "import numpy as np\nfrom sklearn.linear_model import LinearRegression",
+            "X = np.array([[1.0], [2.0], [3.0]])\ny = [1.0, 2.0, 3.0]",
+            "model = LinearRegression().fit(X, y)",
+            "score = float(model.score(X, y))",
+            "X = np.array([[42.0]])\ndemo = LinearRegression().fit(X, [42.0])",
+        ]
+    )
+    r = analyze(nb)
+    order = [c for st in r["stages"] for c in st["cells"]]
+    assert order.index(4) > order.index(2)  # redefinition after the model fit
+    assert order.index(4) > order.index(3)  # redefinition after the score
+    assert find(r, "redefined_across_cells")
+
+
 def test_comment_only_cell_is_empty(nb_factory):
     r = analyze(nb_factory(["# just a license header", "a = 1"]))
     assert not [f for f in r["findings"] if f["kind"] == "inspection_only"]

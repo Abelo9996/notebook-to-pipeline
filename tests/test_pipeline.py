@@ -35,6 +35,23 @@ def test_pipeline_end_to_end_equivalent(nb_factory):
     assert "no_execution_history" in kinds
 
 
+def test_pipeline_equivalent_when_a_name_is_redefined(nb_factory):
+    # A name redefined from scratch after earlier cells read it must not be hoisted before them,
+    # or the generated pipeline feeds the wrong value and fails or differs.
+    nb = nb_factory(
+        [
+            "import numpy as np\nfrom sklearn.linear_model import LinearRegression",
+            "X = np.array([[1.0], [2.0], [3.0]])\ny = [1.0, 2.0, 3.0]",
+            "model = LinearRegression().fit(X, y)",
+            "score = float(model.score(X, y))",
+            "X = np.array([[42.0]])\ndemo = LinearRegression().fit(X, [42.0])",
+        ]
+    )
+    out = Path(nb).parent / "proj"
+    result = run_pipeline(nb, out=out, emit=lambda *_: None)
+    assert result["verdict"] == "equivalent", result.get("verify")
+
+
 def test_pipeline_reference_invalid_skips_scaffold(nb_factory):
     nb = nb_factory(["y = x * 2", "x = 3"])  # top-to-bottom NameError
     out = Path(nb).parent / "proj"
