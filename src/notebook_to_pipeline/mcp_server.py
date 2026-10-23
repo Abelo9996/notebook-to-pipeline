@@ -9,6 +9,7 @@ import anyio
 from . import __version__
 from .analysis import analyze
 from .capture import capture
+from .pipeline import run_pipeline
 from .report import build_report
 from .scaffold import scaffold
 from .util import redact
@@ -16,12 +17,13 @@ from .verify import verify
 
 INSTRUCTIONS = (
     "notebook-to-pipeline turns a Jupyter notebook into a tested pipeline and proves the outputs "
-    "did not change. Workflow: analyze_notebook (static, nothing runs), then capture_reference "
-    "(runs the notebook top to bottom in a fresh kernel and saves reference outputs), then write "
-    "the pipeline as a function returning a dict of {artifact name: value} and call verify_pipeline "
-    "after each change, then write_report. Every result has a next_steps list. Never change logic to "
-    "make outputs match without telling the user. Paths may be absolute or relative to the server's "
-    "working directory."
+    "did not change. Fast path: call pipeline once to analyze, capture (fresh kernel), scaffold, "
+    "verify and report in a single step, then refactor the generated draft. Finer control: "
+    "analyze_notebook (static, nothing runs), then capture_reference (runs the notebook top to "
+    "bottom in a fresh kernel and saves reference outputs), then write the pipeline as a function "
+    "returning a dict of {artifact name: value} and call verify_pipeline after each change, then "
+    "write_report. Every result has a next_steps list. Never change logic to make outputs match "
+    "without telling the user. Paths may be absolute or relative to the server's working directory."
 )
 
 
@@ -102,6 +104,38 @@ def _compact_capture(r: dict[str, Any]) -> dict[str, Any]:
     )
 
 
+def _compact_pipeline(r: dict[str, Any]) -> dict[str, Any]:
+    return redact(
+        {
+            "verdict": r.get("verdict"),
+            "locked": r.get("locked"),
+            "locked_detail": r.get("locked_detail"),
+            "findings_caught": r.get("findings_caught"),
+            "findings": [
+                {k: f.get(k) for k in ("category", "severity", "kind", "message", "cells")}
+                for f in r.get("findings", [])
+            ],
+            "out": r.get("out"),
+            "package": r.get("package"),
+            "pipeline_spec": r.get("pipeline_spec"),
+            "test_file": r.get("test_file"),
+            "test_command": r.get("scaffold", {}).get("test_command"),
+            "reference_dir": r.get("reference_dir"),
+            "report_md": r.get("report_md"),
+            "card": r.get("card"),
+            "failed_cell": r.get("failed_cell"),
+            "hint": r.get("hint"),
+            "next_steps": [
+                "Read the Reproducibility Report and the ranked findings. Tell the user the verdict, "
+                "how many outputs were locked, and any hidden-state or shared-object finding.",
+                "The scaffold under out/ is a mechanical draft (notebook code in one function per "
+                "stage). Refactor it one stage at a time, running verify_pipeline after each change; "
+                "the test under test_file locks the outputs.",
+            ],
+        }
+    )
+
+
 def _compact_verify(r: dict[str, Any]) -> dict[str, Any]:
     return redact(
         {
@@ -131,6 +165,41 @@ def build_server():
         server = Server(name="notebook-to-pipeline", instructions=INSTRUCTIONS, version=__version__)
     except TypeError:  # older SDKs have no version argument
         server = Server(name="notebook-to-pipeline", instructions=INSTRUCTIONS)
+
+    @server.tool()
+    async def pipeline(
+        notebook: str,
+        out: str | None = None,
+        package: str | None = None,
+        python: str | None = None,
+        timeout: int = 600,
+        repeat: int = 1,
+    ) -> dict[str, Any]:
+        """One call: analyze, capture (fresh kernel), scaffold, verify and report, ending in a
+        Reproducibility Report. Use this to go from a notebook to an output-locked pipeline in one
+        step; use the individual tools when you need finer control. Returns the verdict
+        (equivalent / differs / pipeline_failed / reference_invalid), how many outputs were locked,
+        the ranked findings (hidden state, shared-object mutation, nondeterminism, unpinned deps),
+        the generated package path, the exact test that locks the outputs, a shareable card and the
+        report path. The scaffold it writes is a mechanical draft: refactor it one stage at a time
+        and call verify_pipeline after each change. python defaults to a .venv next to the notebook;
+        pass the project's interpreter if the notebook needs packages. This does not drive another
+        agent; you do the refactor."""
+
+        def run() -> dict[str, Any]:
+            return run_pipeline(
+                notebook,
+                out=out,
+                package=package,
+                python=python,
+                timeout=timeout,
+                repeat=repeat,
+                refactor=False,
+                emit=lambda *_: None,
+                command=f"pipeline(notebook={notebook!r})",
+            )
+
+        return _compact_pipeline(await anyio.to_thread.run_sync(run))
 
     @server.tool()
     async def analyze_notebook(notebook: str) -> dict[str, Any]:

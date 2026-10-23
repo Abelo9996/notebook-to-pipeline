@@ -38,6 +38,7 @@ def test_mcp_server_lists_tools():
     assert anyio.run(names) == [
         "analyze_notebook",
         "capture_reference",
+        "pipeline",
         "scaffold_pipeline",
         "verify_pipeline",
         "write_report",
@@ -52,6 +53,36 @@ def test_cli_setup_json_is_valid_json(tmp_path, monkeypatch, capsys):
     out = json.loads(capsys.readouterr().out)
     assert out["dry_run"] is True
     assert any("Cursor" in a["description"] for a in out["actions"])
+
+
+def test_mcp_pipeline_is_compact():
+    from notebook_to_pipeline.mcp_server import _compact_pipeline
+
+    r = {
+        "verdict": "equivalent",
+        "locked": 12,
+        "findings": [
+            {
+                "category": "hidden state",
+                "severity": "info",
+                "kind": "x",
+                "message": "m",
+                "cells": [],
+            }
+        ],
+        "out": "/tmp/p",
+        "package": "p",
+        "pipeline_spec": "src/p/pipeline.py:run",
+        "test_file": "tests/test_equivalence.py",
+        "scaffold": {"test_command": "uv run pytest -q"},
+        "report_md": "/tmp/p/report.md",
+        "card": {"png": "/tmp/p/card.png"},
+    }
+    out = _compact_pipeline(r)
+    assert out["verdict"] == "equivalent" and out["locked"] == 12
+    assert out["test_command"] == "uv run pytest -q"
+    assert out["findings"][0]["category"] == "hidden state"
+    assert out["next_steps"]
 
 
 def test_mcp_analyze_is_compact(nb_factory):

@@ -9,11 +9,21 @@ You write the refactor. The tool runs the notebook, records what it produces, ru
 compares the two with exact checks and numeric tolerances. Your claim of "same results" must come from
 its verdict, not from reading the code.
 
-**How to call it.** Use the MCP tools when they are available: `analyze_notebook`,
-`capture_reference`, `verify_pipeline`, `scaffold_pipeline`, `write_report`. Otherwise use the CLI
-with the same steps (`analyze`, `capture`, `verify`, `scaffold`, `report`): `nb2p <command>` if it is
-installed, else `uvx notebook-to-pipeline <command>`. Add `--json` for machine-readable output. Every
-result ends with next steps; follow them.
+**How to call it.** Use the MCP tools when they are available: `pipeline` (the one-call fast path),
+`analyze_notebook`, `capture_reference`, `verify_pipeline`, `scaffold_pipeline`, `write_report`.
+Otherwise use the CLI with the same steps (`pipeline`, `analyze`, `capture`, `verify`, `scaffold`,
+`report`): `nb2p <command>` if it is installed, else `uvx notebook-to-pipeline <command>`. Add
+`--json` for machine-readable output. Every result ends with next steps; follow them.
+
+**Fast path (`pipeline`).** `pipeline` runs analyze, capture, scaffold, verify and report in one
+step and returns a Reproducibility Report: the verdict (EQUIVALENT / NOT EQUIVALENT), how many
+outputs were locked, the ranked findings (hidden state, shared-object mutation, nondeterminism,
+unpinned deps), the generated package path, the exact test that locks the outputs, a shareable card
+and the report path. Start here, then refactor the generated draft one stage at a time with
+`verify_pipeline` after each change. The steps below explain what each stage is doing and when to
+reach for the individual tools instead. The CLI's `nb2p pipeline <notebook> --refactor` can also
+drive a second agent to do the refactor with the output-lock as the guardrail (`--yes` to spend);
+when you are the agent, you do the refactor yourself.
 
 ## Workflow
 
