@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.0 (unreleased)
+## 0.2.0 (2026-10-23)
 
 - `nb2p pipeline` runs the notebook twice by default (`--repeat 2`), so outputs that change between runs (unseeded randomness, solver nondeterminism) are flagged and left out instead of failing the check. `.py` scripts are accepted as input, split on `# %%` cells.
 
