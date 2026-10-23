@@ -417,6 +417,34 @@ def build_parser() -> argparse.ArgumentParser:
         help="pipeline project directory (default: <notebook>-pipeline next to the notebook)",
     )
     pl.add_argument("--package", help="Python package name (default: from the notebook name)")
+    pl.add_argument(
+        "--refactor",
+        action="store_true",
+        help="drive your installed agent CLI to refactor the scaffold into proper stages, "
+        "re-verifying after each pass (needs --yes to spend)",
+    )
+    pl.add_argument(
+        "--agent",
+        choices=["claude", "codex"],
+        default="claude",
+        help="which agent CLI to drive for --refactor (default: claude)",
+    )
+    pl.add_argument(
+        "--model", help="model for the refactor agent (default: the agent's cheapest sensible one)"
+    )
+    pl.add_argument(
+        "--max-rounds",
+        type=int,
+        default=3,
+        dest="max_rounds",
+        help="most refactor passes to attempt before keeping the last equivalent version",
+    )
+    pl.add_argument(
+        "--yes",
+        "-y",
+        action="store_true",
+        help="authorize spending on the refactor agent (without it, --refactor only prints the plan)",
+    )
     pl.add_argument("--python", help="interpreter for the kernel and the pipeline")
     pl.add_argument("--cwd", help="working directory for the capture kernel")
     pl.add_argument("--timeout", type=int, default=600, help="per-cell timeout in seconds")
