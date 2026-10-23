@@ -473,6 +473,7 @@ class CellFacts:
     composites: dict[str, list[str]] = field(default_factory=dict)
     defines: list[str] = field(default_factory=list)
     assigned: list[str] = field(default_factory=list)
+    toplevel_assigns: set[str] = field(default_factory=set)
     plot_objects: set[str] = field(default_factory=set)
     loop_vars: set[str] = field(default_factory=set)
     conditional: set[str] = field(default_factory=set)
@@ -575,8 +576,11 @@ class _CellVisitor:
         self.f.define(name, conditional=self.depth > 0)
         if loop:
             self.f.loop_vars.add(name)
-        elif assigned and name not in self.f.assigned:
-            self.f.assigned.append(name)
+        elif assigned:
+            if name not in self.f.assigned:
+                self.f.assigned.append(name)
+            if self.depth == 0:
+                self.f.toplevel_assigns.add(name)
 
     def _bind_target(self, target: ast.AST, *, loop: bool = False) -> None:
         if isinstance(target, ast.Name):
@@ -1135,6 +1139,7 @@ def analyze_cells(cells: list[Cell]) -> dict[str, Any]:
 
     findings.extend(shared_findings)
     findings.extend(_execution_order_findings(facts, defs))
+    findings.extend(_redefinition_findings(facts, edges))
     findings.extend(_other_findings(facts, defs, muts, edges))
 
     used_later: dict[int, bool] = {i: False for i in range(len(facts))}
@@ -1329,6 +1334,65 @@ def _execution_order_findings(
                     "message": f"The saved output of {_label(cf.cell)} used `{n}` from {src}, but a top-to-bottom run takes it from {clean_src}. Its saved output may not reproduce.",
                 }
             )
+    return out
+
+
+def _redefinition_findings(facts, edges) -> list[dict[str, Any]]:
+    """Names reassigned from scratch in more than one cell and read across cells.
+
+    This is a cell-order hazard that needs no saved execution counts, so it still fires on cleared
+    or agent-generated notebooks: a top-to-bottom run takes each use from the nearest definition
+    above it, but in an interactive session a later redefinition can leak back into an earlier cell
+    that is re-run. Self-updates (`df = df.dropna()`) are reported separately as rerun hazards."""
+    fresh: dict[str, list[int]] = {}
+    for i, cf in enumerate(facts):
+        for name in cf.assigned:
+            if name.startswith("_") or _is_known_external(name):
+                continue
+            if (
+                name in cf.self_rebinds
+                or name in cf.loop_vars
+                or name in cf.functions
+                or name in cf.classes
+                or name in cf.imports
+                or name in cf.plot_objects
+            ):
+                continue
+            fresh.setdefault(name, []).append(i)
+    read_edges: dict[str, set[int]] = {}
+    for (src, dst, kind), names in edges.items():
+        if kind != "def-use" or dst <= src:
+            continue
+        for n in names:
+            read_edges.setdefault(n, set()).add(src)
+    out: list[dict[str, Any]] = []
+    for name, def_cells in fresh.items():
+        if len(def_cells) < 2:
+            continue
+        reading_defs = read_edges.get(name, set())
+        if not (reading_defs & set(def_cells)):
+            continue  # the name is redefined but never read across cells: a plain overwrite
+        readers = sorted(
+            {
+                dst
+                for (src, dst, kind), ns in edges.items()
+                if kind == "def-use" and dst > src and src in def_cells and name in ns
+            }
+        )
+        def_labels = ", ".join(_label(facts[i].cell) for i in def_cells)
+        out.append(
+            {
+                "kind": "redefined_across_cells",
+                "severity": "warning",
+                "cells": [facts[i].cell.index for i in def_cells]
+                + [facts[r].cell.index for r in readers],
+                "names": [name],
+                "message": f"`{name}` is defined from scratch in more than one cell ({def_labels}) and read in "
+                f"{', '.join(_label(facts[r].cell) for r in readers)}. A top-to-bottom run uses the nearest "
+                "definition above each use, but re-running a cell out of order (as in an interactive session) "
+                "can feed it a different value. Keep one definition per name, or make the split explicit.",
+            }
+        )
     return out
 
 
@@ -1590,12 +1654,21 @@ def _propose_stages(facts, edges, used_later, reaching, defs) -> list[dict[str, 
 
 
 def _suggest_artifacts(facts, defs, edges) -> list[dict[str, Any]]:
-    """Top-level variables worth comparing: assigned data, not loops, imports, functions or plots."""
+    """Top-level variables worth comparing: assigned data, not loops, imports, functions or plots.
+
+    A name only ever bound inside a loop or branch (never at module level) and not read by a later
+    cell is a loop leftover or scratch variable, not a result, so it is left out."""
+    toplevel = {n for cf in facts for n in cf.toplevel_assigns}
+    read_after_any = {
+        name for (src, dst, _k), ns in edges.items() if dst > src for name in ns
+    }
     final_def: dict[str, int] = {}
     for i, cf in enumerate(facts):
         for name in cf.assigned:
             if name.startswith("_") or name in cf.loop_vars:
                 continue
+            if name not in toplevel and name not in read_after_any:
+                continue  # bound only inside a loop/branch and never used downstream
             if name in cf.plot_objects:
                 final_def.pop(name, None)
                 continue

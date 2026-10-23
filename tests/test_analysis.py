@@ -157,6 +157,49 @@ def test_stage_proposal_follows_ml_shape(nb_factory):
     assert "acc" in names and "model" in names
 
 
+def test_redefined_across_cells_without_execution_counts(nb_factory):
+    # No execution counts (a cleared or agent-generated notebook), but the cell order itself
+    # shows a hidden-state hazard: alpha is defined from scratch in two cells and read in between.
+    nb = nb_factory(
+        [
+            "alpha = 1",
+            "beta = alpha + 1",
+            "alpha = 99",
+            "gamma = alpha + beta",
+        ]
+    )
+    r = analyze(nb)
+    f = find(r, "redefined_across_cells")
+    assert f and f[0]["names"] == ["alpha"]
+    assert 0 in f[0]["cells"] and 2 in f[0]["cells"]
+
+
+def test_self_update_is_not_a_redefinition(nb_factory):
+    # df = df.dropna() is a self-update (reported as rerun_hazard), not a cross-cell redefinition.
+    nb = nb_factory(
+        [
+            "import pandas as pd\ndf = pd.DataFrame({'a': [1, 2]})",
+            "df = df.dropna()",
+            "n = len(df)",
+        ]
+    )
+    r = analyze(nb)
+    assert not find(r, "redefined_across_cells")
+
+
+def test_loop_body_temporary_is_not_an_artifact(nb_factory):
+    nb = nb_factory(
+        [
+            "rows = []",
+            "for i in range(3):\n    scratch = i * 2\n    rows.append(scratch)",
+            "total = sum(rows)",
+        ]
+    )
+    names = [a["name"] for a in analyze(nb)["suggested_artifacts"]]
+    assert "rows" in names and "total" in names
+    assert "scratch" not in names and "i" not in names
+
+
 def test_comment_only_cell_is_empty(nb_factory):
     r = analyze(nb_factory(["# just a license header", "a = 1"]))
     assert not [f for f in r["findings"] if f["kind"] == "inspection_only"]
