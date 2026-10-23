@@ -151,10 +151,12 @@ def refactor_pipeline(
     model: str | None = None,
     max_rounds: int = 3,
     python: str | None = None,
+    verify_cwd: Path | None = None,
     emit=print,
 ) -> dict[str, Any]:
     pkg = Path(pipeline_spec.split(":")[0]).parent.name
     pkg_src = out_dir / "src" / pkg
+    verify_cwd = verify_cwd if verify_cwd is not None else out_dir
     model = model if model is not None else DEFAULT_MODEL.get(agent)
     artifacts = [
         a["name"] for a in scaffold_verify.get("artifacts", []) if a.get("passed") is not None
@@ -222,7 +224,7 @@ def refactor_pipeline(
             )
             _clear_pycache(pkg_src)
             ver = verify(
-                pipeline_spec, ref_dir, cwd=out_dir, python=python, out=out_dir / "evidence"
+                pipeline_spec, ref_dir, cwd=verify_cwd, python=python, out=out_dir / "evidence"
             )
             round_rec = {
                 "round": i,

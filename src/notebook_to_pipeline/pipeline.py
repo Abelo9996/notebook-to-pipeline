@@ -262,12 +262,16 @@ def run_pipeline(
         "install_command": scaf["install_command"],
         "env": scaf["env"],
     }
-    pipeline_spec = f"src/{scaf['package']}/pipeline.py:run"
-    result["pipeline_spec"] = pipeline_spec
+    result["pipeline_spec"] = f"src/{scaf['package']}/pipeline.py:run"
     result["test_file"] = "tests/test_equivalence.py"
+    # Run the pipeline from the notebook's own directory so relative data reads
+    # (./data/x.csv) resolve as they did in the notebook, with an absolute spec so the
+    # package in out/ is still imported.
+    abs_spec = f"{out_dir / 'src' / scaf['package'] / 'pipeline.py'}:run"
+    run_cwd = Path(cwd).resolve() if cwd else nb_path.parent
 
     emit("Verifying the scaffold reproduces the reference...")
-    ver = verify(pipeline_spec, ref_dir, cwd=out_dir, python=python, out=out_dir / "evidence")
+    ver = verify(abs_spec, ref_dir, cwd=run_cwd, python=python, out=out_dir / "evidence")
     result["verify"] = _verify_summary(ver)
 
     if refactor:
@@ -277,13 +281,14 @@ def run_pipeline(
             nb_path,
             out_dir,
             ref_dir,
-            pipeline_spec,
+            abs_spec,
             scaffold_verify=ver,
             agent=agent,
             yes=yes,
             model=model,
             max_rounds=max_rounds,
             python=python,
+            verify_cwd=run_cwd,
             emit=emit,
         )
         result["refactor"] = ref_result

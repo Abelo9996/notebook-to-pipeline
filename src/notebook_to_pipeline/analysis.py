@@ -1659,9 +1659,7 @@ def _suggest_artifacts(facts, defs, edges) -> list[dict[str, Any]]:
     A name only ever bound inside a loop or branch (never at module level) and not read by a later
     cell is a loop leftover or scratch variable, not a result, so it is left out."""
     toplevel = {n for cf in facts for n in cf.toplevel_assigns}
-    read_after_any = {
-        name for (src, dst, _k), ns in edges.items() if dst > src for name in ns
-    }
+    read_after_any = {name for (src, dst, _k), ns in edges.items() if dst > src for name in ns}
     final_def: dict[str, int] = {}
     for i, cf in enumerate(facts):
         for name in cf.assigned:
