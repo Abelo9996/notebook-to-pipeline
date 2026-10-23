@@ -298,6 +298,36 @@ def cmd_verify(args: argparse.Namespace) -> int:
 # --------------------------------------------------------------------------
 
 
+def cmd_pipeline(args: argparse.Namespace) -> int:
+    from .pipeline import run_pipeline
+
+    result = run_pipeline(
+        args.notebook,
+        out=args.out,
+        refactor=getattr(args, "refactor", False),
+        agent=getattr(args, "agent", "claude"),
+        yes=getattr(args, "yes", False),
+        model=getattr(args, "model", None),
+        max_rounds=getattr(args, "max_rounds", 3),
+        package=args.package,
+        python=args.python,
+        cwd=args.cwd,
+        timeout=args.timeout,
+        repeat=args.repeat,
+        emit=(lambda *_: None) if args.json else print,
+        command=_cmdline(),
+    )
+    if args.json:
+        _print_json(result)
+    return {
+        "equivalent": EXIT_OK,
+        "differs": EXIT_DIFFERS,
+        "pipeline_failed": EXIT_FAILED,
+        "reference_invalid": EXIT_REFERENCE_INVALID,
+        "inconclusive": EXIT_DIFFERS,
+    }.get(result.get("verdict", "inconclusive"), EXIT_DIFFERS)
+
+
 def cmd_scaffold(args: argparse.Namespace) -> int:
     from .scaffold import scaffold
 
@@ -374,6 +404,30 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument("--version", action="version", version=f"notebook-to-pipeline {__version__}")
     sub = p.add_subparsers(dest="command_name", required=True, metavar="COMMAND")
+
+    pl = sub.add_parser(
+        "pipeline",
+        help="one command: analyze, capture, scaffold, verify and report, ending in a "
+        "Reproducibility Report and a shareable card",
+    )
+    pl.add_argument("notebook")
+    pl.add_argument(
+        "--out",
+        "-o",
+        help="pipeline project directory (default: <notebook>-pipeline next to the notebook)",
+    )
+    pl.add_argument("--package", help="Python package name (default: from the notebook name)")
+    pl.add_argument("--python", help="interpreter for the kernel and the pipeline")
+    pl.add_argument("--cwd", help="working directory for the capture kernel")
+    pl.add_argument("--timeout", type=int, default=600, help="per-cell timeout in seconds")
+    pl.add_argument(
+        "--repeat",
+        type=int,
+        default=1,
+        help="run the notebook N times during capture to flag outputs that change between runs",
+    )
+    pl.add_argument("--json", action="store_true", help="print the full result as JSON")
+    pl.set_defaults(func=cmd_pipeline)
 
     a = sub.add_parser(
         "analyze",
