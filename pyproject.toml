@@ -31,6 +31,7 @@ dependencies = [
   "ipykernel>=6.29",
   "mcp>=1.30",
   "anyio>=4",
+  "resvg-py>=0.5",
 ]
 
 [project.urls]
