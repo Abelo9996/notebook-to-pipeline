@@ -2,6 +2,8 @@
 
 ## 0.2.0 (unreleased)
 
+- `nb2p pipeline` runs the notebook twice by default (`--repeat 2`), so outputs that change between runs (unseeded randomness, solver nondeterminism) are flagged and left out instead of failing the check. `.py` scripts are accepted as input, split on `# %%` cells.
+
 One command from a notebook to an output-locked pipeline, and the agent refactor the headline
 always implied.
 

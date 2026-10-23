@@ -451,8 +451,9 @@ def build_parser() -> argparse.ArgumentParser:
     pl.add_argument(
         "--repeat",
         type=int,
-        default=1,
-        help="run the notebook N times during capture to flag outputs that change between runs",
+        default=2,
+        help="run the notebook N times during capture so outputs that change between runs are "
+        "flagged and left out instead of failing the check (default 2; 1 is faster)",
     )
     pl.add_argument("--json", action="store_true", help="print the full result as JSON")
     pl.set_defaults(func=cmd_pipeline)

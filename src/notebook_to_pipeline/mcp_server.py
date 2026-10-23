@@ -173,7 +173,7 @@ def build_server():
         package: str | None = None,
         python: str | None = None,
         timeout: int = 600,
-        repeat: int = 1,
+        repeat: int = 2,
     ) -> dict[str, Any]:
         """One call: analyze, capture (fresh kernel), scaffold, verify and report, ending in a
         Reproducibility Report. Use this to go from a notebook to an output-locked pipeline in one
