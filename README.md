@@ -1,28 +1,71 @@
 # notebook-to-pipeline
 
-Your agent turns a messy Jupyter notebook into a tested, reproducible pipeline, and proves the outputs didn't change.
+Lock a notebook's outputs with a test, catch its hidden state, then let your agent refactor it into
+a pipeline that provably gives the same results.
 
-![nb2p capturing a notebook and catching a changed result](https://raw.githubusercontent.com/Abelo9996/notebook-to-pipeline/main/docs/demo.gif)
+![a notebook-to-pipeline result card: plot_digits_classification.ipynb to pipeline, EQUIVALENT, 15 outputs locked](https://raw.githubusercontent.com/Abelo9996/notebook-to-pipeline/main/docs/pipeline-card.png)
 
-## Try it on a real notebook
+## One command
 
 ```
-curl -LO https://raw.githubusercontent.com/Abelo9996/notebook-to-pipeline/main/examples/sklearn-feature-scaling/plot_scaling_importance.ipynb
-uvx --with scikit-learn,pandas,matplotlib notebook-to-pipeline capture plot_scaling_importance.ipynb
-uvx notebook-to-pipeline scaffold plot_scaling_importance.ipynb --out demo
-uvx --with scikit-learn,pandas,matplotlib notebook-to-pipeline verify --pipeline demo/src/plot_scaling_importance/pipeline.py:run --reference plot_scaling_importance.ipynb
+uvx notebook-to-pipeline pipeline analysis.ipynb --refactor
 ```
 
-That runs the notebook top to bottom in a fresh kernel, writes a first-draft package from it and
-proves the draft reproduces all 26 variables and all 3 figures (`Verdict: EQUIVALENT (all 29
-compared outputs match)`). It took 27 s with an empty uv cache on an Apple M4 MacBook.
+`pipeline` runs the whole flow in one step: it analyzes the notebook, runs it top to bottom in a
+fresh kernel and records the outputs, scaffolds a package, verifies the scaffold reproduces the
+outputs, and writes a report. With `--refactor` it then drives your installed agent CLI
+(`claude -p` or `codex exec`) to refactor the scaffold into proper stages, re-verifying after every
+pass with the output-lock as the guardrail. A pass that changes any output is rejected and the diff
+is fed back; a refactor that changes the results is never kept. It ends with a one-screen
+Reproducibility Report and a shareable card.
 
-The draft is a project of its own with an equivalence test, a Makefile and a GitHub Actions
-workflow. `cd demo && uv run pytest -q` installs its pinned packages and runs the same comparison
-(`1 passed`). Nothing else goes into the project: the test runs this tool through uv, pinned to
-the version that wrote it.
+Here it is on the scikit-learn "Recognizing hand-written digits" gallery example (a cleared,
+agent-style notebook with no execution counts), driving `claude` on an Apple M4 MacBook:
 
-On your own notebook, from a project whose `.venv` has the notebook's packages and `ipykernel`:
+```
+$ nb2p pipeline plot_digits_classification.ipynb --repeat 2 --refactor --agent claude --max-rounds 2 --yes
+Analyzing plot_digits_classification.ipynb: 7 code cells.
+Capturing the reference (running top to bottom in a fresh kernel)...
+Scaffolding the pipeline into plot_digits_classification-pipeline/ ...
+Verifying the scaffold reproduces the reference...
+
+Refactor plan:
+  agent: claude (model sonnet)
+  up to 2 pass(es); the outputs are verified after each, and a pass that changes any output is rejected and reverted.
+  This spends on your agent account.
+  pass 1/2: asking claude to refactor...
+    claude finished (9 turns), cost $0.1543. Verifying...
+    pass 1: DIFFERS (1 of 15 compared outputs differ; not counted: 1 unstable).
+  pass 2/2: asking claude to refactor...
+    claude finished (4 turns), cost $0.1031. Verifying...
+    pass 2: EQUIVALENT. Keeping this refactor.
+
+Reproducibility Report: plot_digits_classification.ipynb
+========================================================
+EQUIVALENT - 15 outputs locked (12 variables, 3 figures)
+
+Findings (5 total, ranked):
+  [info] hidden state: The notebook has no saved execution counts (outputs were cleared or it was never run), so execution-order checks were skipped.
+  ...
+  [warning] nondeterminism: 1 artifact(s) change between runs and cannot be verified: disp
+  [warning] nondeterminism: cell 5 uses randomness without a fixed seed: train_test_split() without random_state.
+
+Pipeline:  plot_digits_classification-pipeline
+Lock test: cd plot_digits_classification-pipeline && uv run pytest -q
+           (tests/test_equivalence.py)
+Card:      plot_digits_classification-pipeline/card.png
+Report:    plot_digits_classification-pipeline/report.md
+
+Refactor:  refactored by claude in 2 pass(es), EQUIVALENT, cost $0.2573
+```
+
+claude's first pass changed one output; the tool rejected it, fed the difference back, and the
+second pass reproduced every output. The result is a real refactor into `load`, `train`, `evaluate`
+and `report` stages, with 15 outputs (12 variables and 3 figures) locked by `tests/test_equivalence.py`.
+Nothing is spent without `--yes`: without it, `--refactor` only prints the plan. The short command is
+`nb2p`.
+
+## The five verbs, if you want finer control
 
 ```
 uvx notebook-to-pipeline analyze analysis.ipynb      # hidden-state problems, proposed modules
@@ -32,7 +75,9 @@ uvx notebook-to-pipeline verify --pipeline src/analysis/pipeline.py:run --refere
 
 `verify` compares every output: exact for integers, strings and hashes, with a tolerance for floats,
 column by column for DataFrames, fitted models by their learned attributes, and matplotlib figures
-pixel by pixel. Every command ends with what to do next. The short command is `nb2p`.
+pixel by pixel. Every command ends with what to do next.
+
+![nb2p capturing a notebook and catching a changed result](https://raw.githubusercontent.com/Abelo9996/notebook-to-pipeline/main/docs/demo.gif)
 
 ## Use it with your agent
 
@@ -109,8 +154,40 @@ notebook (26 variables and 3 figures) and on the pandas-cookbook one (6 variable
 All of this, plus a notebook broken by hidden state, is in [examples/](examples/README.md) with the
 full reports.
 
+## Three real notebooks, one command each
+
+Run with `nb2p pipeline <notebook> --repeat 2` on an Apple M4 MacBook, on three public notebooks
+this repository had not used before (CPU only, each in its own directory with its data):
+
+- **scikit-learn "Recognizing hand-written digits"** (SVM on the bundled digits dataset, BSD-3;
+  converted from the gallery `.py`, so no saved execution counts, like an agent writes). EQUIVALENT:
+  **15 outputs locked** (12 variables and 3 figures). The tool flagged the unseeded `train_test_split`
+  and found `disp` (a `ConfusionMatrixDisplay`) changes run to run, so it left that one out instead of
+  failing. `--refactor` with `claude` took 2 passes (the first changed an output and was rejected) and
+  cost **$0.26**.
+- **scikit-learn "Nearest Neighbors regression"** (KNN on synthetic data, BSD-3; converted, no
+  execution counts). EQUIVALENT: **5 outputs locked**. It caught the unseeded `np.random.rand` that
+  makes `y` unreproducible and left it out, and did not propose the loop's temporary variables (`knn`,
+  `y_`, `i`, `weights`) as outputs. `--refactor` with `claude` took 1 pass and cost **$0.15**.
+- **pandas-cookbook "which weekday people bike the most"** (groupby on a small bikes CSV, CC BY-SA;
+  the real notebook, with saved execution counts). NOT EQUIVALENT: **1 of 13 outputs differ**. The
+  notebook's execution counts run up to 38 with only 12 cells saved (26 hidden runs), `bikes`,
+  `berri_bikes` and `weekday_counts` are each defined from scratch in more than one cell, and a clean
+  top-to-bottom run gives one displayed table (`displayed_cell_8`) an extra `weekday` column that the
+  saved output did not have. The tool points at that column and explains the hidden state behind it.
+
+Two refactors spent **$0.41** of agent credit in all. The hidden-state findings on the digits and KNN
+notebooks (no execution counts) come from static cell-order analysis: a name used before any earlier
+cell defines it, a name redefined from scratch in a later cell that earlier cells depend on, and saved
+cell outputs that disagree with a clean rerun.
+
 ## How it works
 
+- **pipeline** runs analyze, capture, scaffold, verify and report in one step and prints the
+  Reproducibility Report (verdict, outputs locked, ranked findings, package path, the exact test that
+  locks the outputs) plus a card (SVG and PNG, rendered with resvg-py, a pure wheel). With
+  `--refactor` it drives `claude -p` or `codex exec` to refactor the scaffold, verifying after each
+  pass and keeping only an equivalent result; it prints the plan and spends nothing without `--yes`.
 - **analyze** parses each cell with Python's `ast` after IPython's own input transformer (so
   `%magics` and `!shell` lines are understood), and builds a def/use graph across cells, including
   in-place mutation (`df.dropna(inplace=True)`, `model.fit(...)`, `x.append(...)`, item and
@@ -169,8 +246,10 @@ with each: `claude mcp add --scope user`, a `[mcp_servers.notebook-to-pipeline]`
 `~/.claude/skills/` and `~/.codex/skills/`. Files are backed up before they are edited and a second
 run changes nothing. `--project DIR` writes a project `.mcp.json` instead.
 
-MCP tools: `analyze_notebook`, `capture_reference`, `verify_pipeline`, `scaffold_pipeline`,
-`write_report`. Each result carries `next_steps`. The skill (`skills/notebook-to-pipeline/SKILL.md`)
+MCP tools: `pipeline` (the one-call fast path), `analyze_notebook`, `capture_reference`,
+`verify_pipeline`, `scaffold_pipeline`, `write_report`. Each result carries `next_steps`. The
+`pipeline` MCP tool runs the whole flow and returns the Reproducibility Report; it does not drive a
+second agent, since the agent calling it does the refactor. The skill (`skills/notebook-to-pipeline/SKILL.md`)
 tells the agent to capture before changing anything, verify after every step, and never change
 logic to make outputs match without saying so.
 

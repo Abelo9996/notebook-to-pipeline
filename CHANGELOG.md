@@ -1,5 +1,38 @@
 # Changelog
 
+## 0.2.0 (unreleased)
+
+One command from a notebook to an output-locked pipeline, and the agent refactor the headline
+always implied.
+
+- `nb2p pipeline <notebook>` runs analyze, capture, scaffold, verify and report in one step and
+  ends with a one-screen Reproducibility Report: an EQUIVALENT / NOT EQUIVALENT badge, how many
+  outputs were locked, the findings ranked by category (hidden state, shared-object mutation,
+  nondeterminism, unpinned deps), the generated package path and the exact test that locks the
+  outputs. A notebook that does not run top to bottom stops after capture with NO REFERENCE and
+  the failing cell. There is a matching `pipeline` MCP tool.
+- `nb2p pipeline --refactor` drives your installed agent CLI (`claude -p` or `codex exec`, `--agent`
+  to choose) to refactor the scaffold into proper stages, with the output-lock test as the
+  guardrail: it verifies after every pass, feeds the differences back on a change, and never keeps a
+  refactor that alters the outputs (it restores the last equivalent version). It prints the plan and
+  the cost and spends nothing without `--yes`; `--max-rounds` bounds the passes. On the scikit-learn
+  digits example, `claude`'s first pass changed an output and was rejected, and the second was
+  equivalent, for $0.26.
+- Hidden state without execution counts: a new `redefined_across_cells` finding flags a name defined
+  from scratch in more than one cell and read across cells, a cell-order hazard that needs no saved
+  execution counts, so cleared and agent-generated notebooks get a real finding instead of a bland
+  one. Use-before-definition, names from deleted cells and cross-cell mutation already worked
+  without counts.
+- Stage proposal on non-linear notebooks: a name only ever bound inside a loop or branch and never
+  read downstream (a loop leftover or scratch variable) is no longer suggested as an output to
+  compare.
+- A shareable card (SVG and PNG) summarising a run: the notebook, the verdict, how many outputs were
+  locked, how many hidden-state issues were caught and a check-yours command. It is rendered with
+  resvg-py, a pure wheel, so no system libraries are needed.
+- Validated on three public notebooks the repository had not used (a pandas-cookbook analysis and
+  two scikit-learn gallery examples), each with one `pipeline` command and two with `--refactor`;
+  see the README.
+
 ## 0.1.3
 
 ### Fixed
