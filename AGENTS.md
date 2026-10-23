@@ -14,6 +14,9 @@ src/notebook_to_pipeline/
   verify.py        `verify`: run the pipeline, collect artifacts, compare, verdict
   report.py        report.md / report.json
   scaffold.py      starting layout for the refactored project
+  pipeline.py      `pipeline`: one-command flow, ranked findings, Reproducibility Report
+  refactor.py      `pipeline --refactor`: drive claude/codex, verify-after-each guardrail
+  card.py          shareable result card (SVG + PNG via resvg-py)
   setup_agents.py  `setup` for Claude Code, Codex, Cursor
   mcp_server.py    MCP tools (same operations as the CLI)
   cli.py           argparse CLI, entry points `nb2p` and `notebook-to-pipeline`
