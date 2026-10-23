@@ -455,7 +455,7 @@ def default_work_dir(ref_dir: Path) -> Path:
 def load_capture(path: str | Path) -> tuple[Path, dict[str, Any]]:
     """Accept a capture dir, its capture.json, or a notebook path (uses the default workspace)."""
     p = Path(path).resolve()
-    if p.suffix == ".ipynb":
+    if p.suffix in (".ipynb", ".py"):
         p = workspace_for(p) / "reference"
     if p.is_file() and p.name == "capture.json":
         p = p.parent

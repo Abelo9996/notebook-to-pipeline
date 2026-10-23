@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import ast
 import hashlib
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -50,8 +51,61 @@ def sha256_file(path: str | Path) -> str:
 
 
 def read_notebook(path: str | Path) -> Any:
+    """Read a .ipynb, or a .py script as a notebook (split on `# %%` cell markers when present)."""
+    if Path(path).suffix == ".py":
+        return script_to_notebook(Path(path).read_text(encoding="utf-8"))
     with open(path, encoding="utf-8") as f:
         return nbformat.read(f, as_version=4)
+
+
+_CELL_MARK = re.compile(r"^# ?%%(.*)$")
+
+
+def script_to_notebook(source: str) -> Any:
+    """Turn a percent-format or plain Python script into an unexecuted notebook.
+
+    `# %%` starts a code cell and `# %% [markdown]` a markdown cell whose lines lose their
+    leading `# `. A script without markers becomes one code cell. A leading module docstring
+    becomes a markdown cell, as in the scikit-learn gallery and jupytext's percent format.
+    """
+    from nbformat import v4
+
+    cells: list[Any] = []
+    body = source
+    doc = re.match(r'\A\s*(?:"""|\'\'\')(.*?)(?:"""|\'\'\')\s*\n', source, re.S)
+    if doc:
+        cells.append(v4.new_markdown_cell(doc.group(1).strip()))
+        body = source[doc.end() :]
+
+    kind, buf = "code", []
+
+    def flush() -> None:
+        text = "\n".join(buf).strip("\n")
+        if not text.strip():
+            return
+        if kind == "markdown":
+            lines = [ln[2:] if ln.startswith("# ") else ln.lstrip("#") for ln in text.splitlines()]
+            cells.append(v4.new_markdown_cell("\n".join(lines)))
+        else:
+            cells.append(v4.new_code_cell(text))
+
+    for line in body.splitlines():
+        m = _CELL_MARK.match(line)
+        if m:
+            flush()
+            buf = []
+            kind = "markdown" if "[markdown]" in m.group(1) else "code"
+            continue
+        buf.append(line)
+    flush()
+    nb = v4.new_notebook()
+    nb.cells = cells
+    nb.metadata["kernelspec"] = {
+        "name": "python3",
+        "display_name": "Python 3",
+        "language": "python",
+    }
+    return nb
 
 
 def _transformer():
