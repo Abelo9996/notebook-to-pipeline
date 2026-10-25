@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.1 (2026-10-25)
 
 - Fix: the stage split no longer hoists a self-update (`s = s.astype(float)`) or an in-place
   mutation (`df["c"] = ...`) before earlier cells that read the old value. 0.2.0 kept only fresh
