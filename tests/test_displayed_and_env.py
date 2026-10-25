@@ -151,6 +151,10 @@ def _run_generated_test(root: Path, **env_changes: str | None) -> subprocess.Com
     env = dict(os.environ)
     env.pop("NB2P_PYTHON", None)
     env.pop("CI", None)
+    # No bytecode cache: the test edits a stage file and reruns within the same
+    # second, and `.sum()` to `.max()` keeps the file size, so a cached .pyc
+    # (checked by mtime and size) could run the old code and pass the change.
+    env["PYTHONDONTWRITEBYTECODE"] = "1"
     for k, v in env_changes.items():
         if v is None:
             env.pop(k, None)
