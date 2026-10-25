@@ -1603,23 +1603,30 @@ def _propose_stages(facts, edges, used_later, reaching, defs) -> list[dict[str, 
     # (stage rank, notebook index), so moving it to a later stage keeps it later. Three kinds of
     # dependency between cells a < b force b's stage rank to be at least a's:
     #   read-after-write  b reads a name a defines
-    #   write-after-read  b redefines from scratch a name an earlier cell a reads
-    #   write-after-write b redefines a name a defines
-    # Without the last two, a cell that redefines a name (X_train = ...) could be hoisted before
-    # the cells that still read the first definition, and the generated pipeline would feed them
-    # the wrong value.
+    #   write-after-read  b writes a name an earlier cell a reads
+    #   write-after-write b writes a name a writes
+    # Without the last two, a cell that writes a name could be hoisted before the cells that still
+    # read the earlier value, and the generated pipeline would feed them the wrong value. "Writes"
+    # is every way a cell changes what a later read sees: a fresh definition (X_train = ...), a
+    # self-update (s = s.astype(float)) and an in-place mutation (df["c"] = ..., df.dropna(
+    # inplace=True)). A self-update or mutation also reads the name, so read-after-write keeps it
+    # after the definition it updates, but nothing else keeps it after the cells reading the old
+    # value.
     precede: dict[int, set[int]] = {i: set(deps[i]) for i in range(n)}
-    fresh = _fresh_def_cells(facts)
-    for name, def_cells in fresh.items():
-        fs = sorted(def_cells)
-        for k in range(1, len(fs)):
-            precede[fs[k]].add(fs[k - 1])  # write-after-write
+    writers: dict[str, list[int]] = {}
+    for i, cf in enumerate(facts):
+        for name in set(cf.defines) | set(cf.mutates):
+            writers.setdefault(name, []).append(i)
+    for name, write_cells in writers.items():
+        ws = sorted(write_cells)
+        for k in range(1, len(ws)):
+            precede[ws[k]].add(ws[k - 1])  # write-after-write
         for r in range(n):
             if name not in reaching.get(r, {}):
                 continue
-            for d2 in fs:
-                if d2 > r:
-                    precede[d2].add(r)  # write-after-read
+            for w in ws:
+                if w > r:
+                    precede[w].add(r)  # write-after-read
     for i in range(n):
         base = STAGE_RANK[assigned[i]]
         best, src = base, None

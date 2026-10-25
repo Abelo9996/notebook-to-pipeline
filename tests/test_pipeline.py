@@ -52,6 +52,23 @@ def test_pipeline_equivalent_when_a_name_is_redefined(nb_factory):
     assert result["verdict"] == "equivalent", result.get("verify")
 
 
+def test_pipeline_equivalent_when_a_displayed_name_is_updated_later(nb_factory):
+    # The value a cell displayed must be the one it saw in notebook order, even when a later cell
+    # with an earlier-stage signal updates that name (s = s.astype(float)).
+    nb = nb_factory(
+        [
+            "import pandas as pd",
+            "s = pd.Series(['Snow', 'Rain', 'Snow']).str.contains('Snow')",
+            "s[:2]",
+            "s = s.astype(float)",
+            "total = float(s.sum())",
+        ]
+    )
+    out = Path(nb).parent / "proj"
+    result = run_pipeline(nb, out=out, emit=lambda *_: None)
+    assert result["verdict"] == "equivalent", result.get("verify")
+
+
 def test_pipeline_reference_invalid_skips_scaffold(nb_factory):
     nb = nb_factory(["y = x * 2", "x = 3"])  # top-to-bottom NameError
     out = Path(nb).parent / "proj"

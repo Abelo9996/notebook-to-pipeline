@@ -220,6 +220,42 @@ def test_stage_split_keeps_a_redefinition_after_its_readers(nb_factory):
     assert find(r, "redefined_across_cells")
 
 
+def test_stage_split_keeps_a_self_update_after_its_readers(nb_factory):
+    # pandas-cookbook snowiest month: a report cell displays the bool Series, then a clean cell
+    # updates it in place of itself (s = s.astype(float)). The clean signal must not hoist the
+    # self-update before the display, or the display shows floats instead of the bools it showed.
+    nb = nb_factory(
+        [
+            "import pandas as pd",
+            "s = pd.Series(['Snow', 'Rain', 'Snow']).str.contains('Snow')",
+            "s[:2]",
+            "s = s.astype(float)\ns.plot()",
+            "monthly = s.mean()",
+        ]
+    )
+    r = analyze(nb)
+    order = [c for st in r["stages"] for c in st["cells"]]
+    assert order.index(3) > order.index(2)
+    assert not any(st["reorder_notes"] for st in r["stages"])
+
+
+def test_stage_split_keeps_a_mutation_after_its_readers(nb_factory):
+    # An in-place write (df["c"] = ...) changes what earlier readers saw just as a rebinding does.
+    nb = nb_factory(
+        [
+            "import pandas as pd",
+            "df = pd.DataFrame({'w': ['Snow', 'Rain']})",
+            "df.head()",
+            "df['snow'] = df['w'].str.contains('Snow')",
+            "df",
+        ]
+    )
+    r = analyze(nb)
+    order = [c for st in r["stages"] for c in st["cells"]]
+    assert order.index(3) > order.index(2)
+    assert not any(st["reorder_notes"] for st in r["stages"])
+
+
 def test_comment_only_cell_is_empty(nb_factory):
     r = analyze(nb_factory(["# just a license header", "a = 1"]))
     assert not [f for f in r["findings"] if f["kind"] == "inspection_only"]
